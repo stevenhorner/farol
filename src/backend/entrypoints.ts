@@ -108,13 +108,14 @@ export function buildBackendTable(input: BackendInput): BackendTable {
   }
   // Resolvers and REST handlers, with the modules their code uses.
   const checker = input.project.program.getTypeChecker()
-  const anchors = new Map<string, { file: string; modules: Set<string> }>()
+  const anchors = new Map<string, { file: string; modules: Set<string>; computed?: RouteEntry['computed'] }>()
   const resolverFiles = new Set<string>()
   for (const sf of programFiles) {
-    for (const { key, value } of entryNodes(sf, typeFields, input.rest)) {
+    for (const { key, node, value, computed } of entryNodes(sf, typeFields, input.rest)) {
       const file = rel(sf.fileName)
       resolverFiles.add(file)
-      const entry = anchors.get(key) ?? { file, modules: new Set<string>() }
+      const line = sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1
+      const entry = anchors.get(key) ?? { file, modules: new Set<string>(), ...(computed ? { computed: { file, line, detail: `${key}: path computed at run time` } } : {}) }
       for (const m of resolverAnchors(value, checker, isProjectFile, rel, globals, contextOf)) if (m !== file) entry.modules.add(m)
       anchors.set(key, entry)
     }
@@ -138,7 +139,7 @@ export function buildBackendTable(input: BackendInput): BackendTable {
   for (const [key, value] of anchors) {
     if (!key.includes(' ')) continue
     resolverKeys.set(key, new Set([key]))
-    entries.push({ key, path: key, index: false, entry: null, modules: sortedUnique(value.modules), layouts: [] })
+    entries.push({ key, path: key, index: false, entry: null, modules: sortedUnique(value.modules), layouts: [], ...(value.computed ? { computed: value.computed } : {}) })
   }
   entries.sort((a, b) => compareStrings(a.key, b.key))
   return { operations: entries, resolverKeys, operationTypes, rootTypes: new Set(Object.values(schema.roots)), typeNames, typeFields, resolverFiles, schemaFiles, schemaDocs: docs, globals, problems: problems.sort((a, b) => compareStrings(a.file, b.file) || a.line - b.line) }

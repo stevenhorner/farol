@@ -827,3 +827,12 @@ Every decision not covered by `docs/SPEC.md`. One entry per decision: problem, o
   - Excluded and `coverageIgnore` files keep `LEFT_OUT_RISK` = 0.5 of their reach weight (like declarations), labeled as left out, instead of 1.
 - **Reason:** user request; the comment and the report must not disagree on the same PR. Fail closed still holds where it matters: without evidence that the report lists unloaded files, a missing file stays untested; and a left-out file keeps half its risk rather than the 30% of a fully covered one.
 
+## 2026-10-26 (3) — Routes with a computed path: unknown when new or changed (issue #6)
+
+- **Problem:** a new FastAPI route whose path came from a function call was read as a new entry point `GET /reports{path('summary')}`, so a PR that shadows an existing route was `isolated` and fast track. Go kept such paths the same way; TypeScript REST dropped the route entirely. The 0.1.0 choice (keep `{expr}`, no problem) was meant to avoid making every PR of a repository with one such route `unknown`, but it did not tell new routes from old ones.
+- **Choice:**
+  - The helpers (Python `RouteFinder.path`, Go `routeFinder.pattern`) record every path they read as `{expr}`; an entry whose key holds one is `computed`. TypeScript `restNodes` keeps a non-string path on a server receiver (`app`, `router`, `fastify`…) as `{expr}`, `computed`. `RouteEntry.computed` carries where it is registered.
+  - `classify`: a computed route that is new (not in the base table) or registered in a changed file adds `dynamic-route` (→ `unknown`) and a diagnostic. Untouched computed routes stay readable entry points.
+  - Report and comment: `unknown` score items tied to a file are parts of their own in Must check ("farol could not read this", checked by hand), like security findings. Reviewing the file no longer clears them, and the "likely safe to approve" state needs them checked.
+- **Reason:** fail closed. farol cannot tell which URL a computed path takes, so it cannot rule out that it takes an existing one (FastAPI, chi and Express serve the first match).
+

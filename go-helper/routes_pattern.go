@@ -9,7 +9,7 @@ import (
 // pattern: the path of a route registration. A constant is read as is; a local variable takes the constant last
 // assigned to it before the registration (`prefix := "/api/actions"; r.Mount(prefix, …)`). Anything else is the
 // expression in braces (`{path + "*"}`): the route is still an entry point, since its handler is known; only its
-// path is not.
+// path is not, and the entry is marked as computed.
 func (f *routeFinder) pattern(p *pkg, e ast.Expr) string {
 	if s, ok := f.str(p, e); ok {
 		return s
@@ -19,7 +19,9 @@ func (f *routeFinder) pattern(p *pkg, e ast.Expr) string {
 			return s
 		}
 	}
-	return "{" + types.ExprString(e) + "}"
+	braced := "{" + types.ExprString(e) + "}"
+	f.computed[braced] = true
+	return braced
 }
 
 // lastConstAssign: the constant string of the last assignment (or declaration) of a local variable before pos, in

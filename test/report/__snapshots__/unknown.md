@@ -1,14 +1,15 @@
 <!-- farol -->
 ### farol · merge risk 28/100 (low) · ⚠ careful review
 
-Most of the risk comes from `routes.tsx`, 2 file(s) depend on it, no page reaches it. 1 code file changed; 2 of 2 existing pages run changed code.
-
-✓ Low risk and nothing to check by hand: likely safe to approve.
+Most of the risk comes from something farol cannot read (line 18: spread in route array "...simplePages.map(({ path, Page }) =&gt; ({ path, element: &lt;Page /&gt; }))") and `routes.tsx`, 2 file(s) depend on it, no page reaches it. 1 code file changed; 2 of 2 existing pages run changed code.
 
 <sub>farol only informs: it never approves or blocks.</sub>
 
+**Must check** (by hand, before approving)
+- [ ] ⚠ farol could not read this, check it by hand: dynamic-route: line 18: spread in route array "...simplePages.map(({ path, Page }) =&gt; ({ path, element: &lt;Page /&gt; }))" — **25**
+
 **Files by risk** (points are each part's share of the 28)
-- 🔴 `src/routes.tsx` **28**
+- 1 file to skim: 3 points together
 
 <details>
 <summary>All signals</summary>

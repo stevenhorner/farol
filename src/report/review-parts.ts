@@ -9,7 +9,7 @@ export const FINDING_KINDS: ReadonlySet<ScoreItem['kind']> = new Set(['security'
  * browser (assets/report/wb-core.js, GROUPS): the PR comment and the report must count alike.
  */
 export interface ReviewPart {
-  kind: 'file' | 'finding' | 'contract' | 'vulnerability' | 'other'
+  kind: 'file' | 'finding' | 'contract' | 'vulnerability' | 'unread' | 'other'
   /** The reviewed file, or the file of a finding. */
   file: string | null
   line: number | null
@@ -18,7 +18,7 @@ export interface ReviewPart {
   own: number
   /** Whole-number share of the merge score; all shares add up to the score. */
   points: number
-  /** Checked by hand before approving, above every file: findings, contract changes and vulnerable dependencies. */
+  /** Checked by hand before approving, above every file: findings, contract changes, vulnerable dependencies and what farol could not read. */
   must: boolean
 }
 
@@ -33,12 +33,17 @@ const ownOf = (items: readonly ScoreItem[]): number => Math.round(100 * (1 - Mat
 export function reviewParts(items: readonly ScoreItem[]): ReviewPart[] {
   const parts: Omit<ReviewPart, 'points'>[] = []
   for (const g of scoreGroups(items)) {
-    const rest = g.items.filter((i) => !(g.file !== null && FINDING_KINDS.has(i.kind)))
+    const rest = g.items.filter((i) => !(g.file !== null && (FINDING_KINDS.has(i.kind) || i.kind === 'unknown')))
     if (rest.length > 0) {
-      const kind = g.file !== null ? 'file' : rest.every((i) => i.kind === 'contract') ? 'contract' : rest.every((i) => i.kind === 'vulnerability') ? 'vulnerability' : 'other'
-      parts.push({ kind, file: g.file, line: null, items: rest, own: ownOf(rest), must: kind === 'contract' || kind === 'vulnerability' })
+      const all = (kind: ScoreItem['kind']): boolean => rest.every((i) => i.kind === kind)
+      const kind = g.file !== null ? 'file' : all('contract') ? 'contract' : all('vulnerability') ? 'vulnerability' : all('unknown') ? 'unread' : 'other'
+      parts.push({ kind, file: g.file, line: null, items: rest, own: ownOf(rest), must: kind === 'contract' || kind === 'vulnerability' || kind === 'unread' })
     }
-    if (g.file !== null) for (const i of g.items.filter((x) => FINDING_KINDS.has(x.kind))) parts.push({ kind: 'finding', file: g.file, line: i.line ?? null, items: [i], own: ownOf([i]), must: true })
+    if (g.file !== null) {
+      for (const i of g.items.filter((x) => FINDING_KINDS.has(x.kind))) parts.push({ kind: 'finding', file: g.file, line: i.line ?? null, items: [i], own: ownOf([i]), must: true })
+      // Something farol could not read: checked by hand, not by reviewing the file.
+      for (const i of g.items.filter((x) => x.kind === 'unknown')) parts.push({ kind: 'unread', file: g.file, line: null, items: [i], own: ownOf([i]), must: true })
+    }
   }
   const logs = parts.map((p) => logOf(p.items))
   const total = logs.reduce((a, b) => a + b, 0)

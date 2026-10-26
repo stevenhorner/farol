@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "surface": "backend",
+  "tool": {
+    "name": "farol",
+    "version": "<version>"
+  },
+  "repo": null,
+  "pr": null,
+  "base": {
+    "ref": "main",
+    "sha": "<base>"
+  },
+  "mergeBase": "<base>",
+  "head": {
+    "ref": "feature",
+    "sha": "<head>"
+  },
+  "analyzedAt": "2026-01-15T12:00:00.000Z",
+  "classification": "unknown",
+  "reasons": [
+    {
+      "code": "dynamic-route",
+      "file": "src/rest/hooks.ts",
+      "detail": "line 6: POST {hook('stripe')}: path computed at run time"
+    },
+    {
+      "code": "route-added",
+      "detail": "new entry point POST {hook('stripe')}"
+    },
+    {
+      "code": "new-file-disconnected",
+      "file": "src/rest/hooks.ts",
+      "detail": "new file that no route reaches"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/rest/hooks.ts",
+      "status": "added",
+      "role": "resolvers",
+      "linesAdded": 7,
+      "linesRemoved": 0
+    }
+  ],
+  "ignoredFiles": [],
+  "dependencies": {
+    "manifests": [],
+    "lockfiles": [],
+    "changes": [],
+    "summary": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "patch": 0,
+      "added": 0,
+      "removed": 0
+    }
+  },
+  "risk": {
+    "totalPages": 6,
+    "files": [
+      {
+        "path": "src/rest/hooks.ts",
+        "change": "added",
+        "level": "low",
+        "directImporters": 0,
+        "transitiveDependents": 0,
+        "centrality": 0,
+        "pagesReached": 0,
+        "routesReached": 0,
+        "why": "new code not used by existing operations"
+      }
+    ],
+    "summary": {
+      "high": 0,
+      "medium": 0,
+      "low": 1
+    }
+  },
+  "routes": {
+    "added": [
+      {
+        "key": "POST {hook('stripe')}",
+        "path": "POST {hook('stripe')}",
+        "entry": null,
+        "hasChildren": false
+      }
+    ],
+    "affected": [],
+    "disconnectedNewFiles": [
+      "src/rest/hooks.ts"
+    ]
+  },
+  "signals": {
+    "coverage": {
+      "status": "not-provided",
+      "message": "no coverage report given (--coverage or signals.coverage)",
+      "files": [],
+      "total": null,
+      "ignoredFiles": []
+    },
+    "lint": {
+      "status": "not-provided",
+      "message": "no ESLint report given (--eslint or signals.eslint)",
+      "changedLines": null,
+      "otherLines": null,
+      "findings": [],
+      "omittedFindings": 0
+    },
+    "security": {
+      "status": "ok",
+      "findings": [],
+      "summary": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      }
+    },
+    "vulnerabilities": {
+      "status": "not-provided",
+      "message": "no audit report given (--audit or signals.audit)",
+      "related": [],
+      "total": null
+    },
+    "suppressions": {
+      "status": "ok",
+      "items": []
+    },
+    "testsModified": {
+      "status": "ok",
+      "files": []
+    }
+  },
+  "diagnostics": {
+    "unresolvedImports": [],
+    "dynamicRoutes": [
+      {
+        "file": "src/rest/hooks.ts",
+        "line": 6,
+        "detail": "POST {hook('stripe')}: path computed at run time"
+      }
+    ],
+    "parseErrors": [],
+    "timingsMs": {
+      "diff": 0,
+      "readTree": 0,
+      "program": 0,
+      "graph": 0,
+      "routes": 0,
+      "base": 0,
+      "classify": 0,
+      "signals": 0,
+      "diffs": 0
+    },
+    "error": null
+  },
+  "review": null,
+  "contracts": {
+    "readable": 4,
+    "entries": [],
+    "summary": {
+      "breaking": 0,
+      "dangerous": 0,
+      "safe": 0
+    }
+  }
+}

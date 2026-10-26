@@ -34,7 +34,7 @@ function rail() {
   const mustItem = (m) => {
     const g = m.groups[0]
     const target = m.contract ? 'contract' : 'finding:' + g.id
-    const title = m.contract ? T.must.contract : g.owner ? (g.items[0].kind === 'security' ? T.must.security : T.must.lint) : T.must.vulnerability
+    const title = m.contract ? T.must.contract : g.owner ? (g.items[0].kind === 'security' ? T.must.security : T.must.lint) : g.items[0].kind === UNREAD ? T.must.unknown : T.must.vulnerability
     const sub = m.contract ? breakingKeys().join(', ') : g.owner ? `${base(g.owner)}:${findingLine(g)}` : g.items[0].title
     const on = mustDone(m)
     const points = m.groups.reduce((n, x) => n + (POINTS0.get(x.id) ?? 0), 0)
@@ -133,7 +133,8 @@ function findingView(id) {
   if (!g) return summary()
   if (!g.owner) {
     const on = !groupActive(g)
-    return `<div class="muted small">${T.nav.must}</div><h1>${T.must.vulnerability}</h1><div class="mustbox${on ? ' done' : ''}"><p>${esc(g.items[0].title)}</p><label class="ack"><input type="checkbox" data-ack="${esc(g.id)}" ${on ? 'checked' : ''}> ${T.finding.ackVulnerability}</label></div>`
+    const unread = g.items[0].kind === UNREAD
+    return `<div class="muted small">${T.nav.must}</div><h1>${unread ? T.must.unknown : T.must.vulnerability}</h1><div class="mustbox${on ? ' done' : ''}"><p>${esc(g.items[0].title)}</p>${unread ? `<p class="small muted">${T.finding.unknownWhy}</p>` : ''}<label class="ack"><input type="checkbox" data-ack="${esc(g.id)}" ${on ? 'checked' : ''}> ${unread ? T.finding.ackUnknown : T.finding.ackVulnerability}</label></div>`
   }
   return `<div class="muted small">${T.nav.must}</div><h1>${esc(groupLabel(g))}</h1><p class="lead">${t(T.finding.lead, { points: POINTS0.get(id) ?? 0 })}</p>
   ${findingBox(g)}<p class="small"><a href="#file:${esc(g.owner)}">${t(T.finding.open, { file: esc(base(g.owner)) })}</a></p>${renderDiff(g.owner)}`

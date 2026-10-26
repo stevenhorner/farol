@@ -39,6 +39,15 @@ const SCENARIOS: Record<string, { classification: Output['classification']; affe
   // is the module: renameBrand uses services/brands.ts, which loads legacy.js, so it is listed too (conservative).
   'b6-global-changed': { classification: 'touches-existing', affected: ['Mutation.renameBrand', 'Query.brands'] },
   'b7-rest': { classification: 'touches-existing', affected: ['POST /webhooks/stripe'] },
+  // A new endpoint whose path is computed (issue #6) is registered before POST /webhooks/stripe, which it can shadow:
+  // farol cannot tell its URL, so the PR is unknown instead of isolated.
+  'b10-rest-computed': {
+    classification: 'unknown',
+    affected: [],
+    check: (o) => {
+      expect(o.reasons.filter((r) => r.code === 'dynamic-route').map((r) => [r.file, r.detail])).toEqual([['src/rest/hooks.ts', "line 6: POST {hook('stripe')}: path computed at run time"]])
+    },
+  },
   // Contracts (graphql-js rules): a required argument on Query.brand, Post.title removed (every operation returning a
   // Brand reaches Post), an optional argument on Query.brands (dangerous for graphql-js).
   'b9-schema-breaking': {

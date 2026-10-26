@@ -23,6 +23,7 @@ function lede(o: Output, parts: readonly ReviewPart[], why: ReadonlyMap<string, 
     const first = p.items[0]
     if (p.kind === 'contract') return fill(L.contract, { key: code(o.contracts?.entries.find((e) => e.level !== 'safe')?.key ?? '') })
     if (p.kind === 'finding') return fill(first?.kind === 'security' ? L.security : L.lint, { file: code(posix.basename(p.file ?? '')) })
+    if (p.kind === 'unread') return fill(L.unknown, { what: esc((first?.title ?? '').slice((first?.title ?? '').indexOf(': ') + 2), 160) })
     if (p.file === null) return esc(first?.title ?? '', 160)
     const file = code(posix.basename(p.file))
     if (p.items.some((i) => i.kind === 'global')) return fill(L.global, { file })
@@ -49,11 +50,11 @@ function mustLines(o: Output, parts: readonly ReviewPart[], l: Linker): string[]
     const text = breaking.length > 0 ? C.contract(breaking.join(', ')) : C.contractDangerous(entries.map((e) => code(e.key)).join(', '))
     lines.push(`- [ ] ${text} — **${contracts.reduce((n, p) => n + p.points, 0)}**`)
   }
-  for (const p of parts.filter((x) => x.kind === 'finding' || x.kind === 'vulnerability')) {
+  for (const p of parts.filter((x) => x.kind === 'finding' || x.kind === 'vulnerability' || x.kind === 'unread')) {
     const item = p.items[0]
     if (item === undefined) continue
-    if (p.kind === 'vulnerability') {
-      lines.push(`- [ ] ${C.vulnerability(esc(item.title, 200))} — **${p.points}**`)
+    if (p.kind === 'vulnerability' || p.kind === 'unread') {
+      lines.push(`- [ ] ${p.kind === 'unread' ? `⚠ ${C.unread(esc(item.title, 200))}` : C.vulnerability(esc(item.title, 200))} — **${p.points}**`)
       continue
     }
     const path = p.file ?? ''

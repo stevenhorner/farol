@@ -42,6 +42,8 @@ class RouteFinder:
         self.g = graph
         self.objects: dict[str, RouterObj] = {}
         self.problems: list[dict] = []
+        # Paths read as an expression in braces (see path): an entry whose key holds one is computed.
+        self.computed: set[str] = set()
         self.contracts = Contracts(graph, self)
 
     def qualified(self, module: Module, expr: ast.expr) -> str | None:
@@ -102,11 +104,16 @@ class RouteFinder:
 
     def path(self, module: Module, expr: ast.expr | None) -> str:
         """A route path or prefix: a constant, a settings default, or else the expression in braces (`{API_PREFIX}`):
-        the routes are still read, since their handlers are known; only their URL is not."""
+        the routes are still read, since their handlers are known; only their URL is not, and they are marked as
+        computed."""
         value = self.string(module, expr)
         if value is None and expr is not None:
             value = self.setting(module, expr)
-        return value if value is not None else "{" + ast.unparse(expr) + "}"  # type: ignore[arg-type]
+        if value is not None:
+            return value
+        braced = "{" + ast.unparse(expr) + "}"  # type: ignore[arg-type]
+        self.computed.add(braced)
+        return braced
 
     def problem(self, module: Module, node: ast.AST, detail: str) -> None:
         self.problems.append({"file": module.file, "line": getattr(node, "lineno", 1), "kind": "dynamic-route", "detail": detail})
@@ -220,6 +227,8 @@ def find_entries(graph: Graph) -> tuple[list[dict], list[dict]]:
             entry = {"key": f"{label}{method} {path or '/'}", "file": module.file, "line": line, "kind": "ws" if method == "WS" else "http", "anchors": sorted(set(anchors)), "inline": inline}
             if contract is not None:
                 entry["contract"] = contract
+            if any(c in path for c in finder.computed):
+                entry["computed"] = True
             entries.append(entry)
     more, more_problems = find_more_entries(graph, finder)
     entries += more

@@ -24,6 +24,8 @@ type Entry struct {
 	Inline string `json:"inline"`
 	// What the endpoint receives and returns, when the handler decodes and encodes typed values (or a gRPC method).
 	Contract *Contract `json:"contract,omitempty"`
+	// The path (or a prefix of it) is computed at run time: the key holds the expression in braces.
+	Computed bool `json:"computed,omitempty"`
 }
 
 // Problem is something the helper could not read: type errors, route paths it cannot compute.
@@ -57,6 +59,8 @@ type routeFinder struct {
 	vars map[types.Object]*scope
 	// Parameters each project function decodes or encodes (see ioParams), cached.
 	ioCache map[*types.Func]map[int]string
+	// Paths read as an expression in braces (see pattern): a key that holds one is computed.
+	computed map[string]bool
 }
 
 func isRouter(t types.Type) bool {
@@ -119,6 +123,11 @@ func (f *routeFinder) add(p *pkg, call *ast.CallExpr, sc *scope, key, kind strin
 	pos := f.g.fset.Position(call.Pos())
 	inline := append(append([]string{}, sc.inline...), f.inline...)
 	entry := Entry{Key: key, File: f.g.rel(pos.Filename), Line: pos.Line, Kind: kind, Anchors: uniqueInts(anchors), Inline: strings.Join(inline, ",")}
+	for c := range f.computed {
+		if strings.Contains(key, c) {
+			entry.Computed = true
+		}
+	}
 	if kind == "http" {
 		mws := map[int]bool{}
 		for _, m := range sc.mws {
@@ -329,7 +338,7 @@ func takesRouter(p *pkg, fd *ast.FuncDecl) bool {
 
 // findEntries: routes registered anywhere in the project, then binaries that register none.
 func findEntries(g *graph, pkgs []*pkg) ([]Entry, []Problem) {
-	f := &routeFinder{g: g, pkgs: pkgs, walked: map[string]bool{}, byFunc: map[*types.Func]*pkg{}, vars: map[types.Object]*scope{}}
+	f := &routeFinder{g: g, pkgs: pkgs, walked: map[string]bool{}, byFunc: map[*types.Func]*pkg{}, vars: map[types.Object]*scope{}, computed: map[string]bool{}}
 	for _, p := range pkgs {
 		if !p.project {
 			continue

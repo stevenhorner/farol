@@ -13,6 +13,7 @@ export const COMMENT_TEXT = {
   security: (where: string, severity: string, rule: string, message: string) => `Security finding at ${where}: ${severity} ${rule}, ${message}`,
   lint: (where: string, rule: string, message: string) => `Lint error at ${where}: ${rule}, ${message}`,
   vulnerability: (title: string) => `Vulnerable dependency: ${title}`,
+  unread: (title: string) => `farol could not read this, check it by hand: ${title}`,
   files: (score: number) => `**Files by risk** (points are each part's share of the ${score})`,
   tier: { high: '🔴', medium: '🟠' } as const,
   file: (points: number, coverage: string | null, reach: string | null) => `**${points}**${coverage ? ` · ${coverage}` : ''}${reach ? ` · ${reach}` : ''}`,

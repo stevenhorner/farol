@@ -67,7 +67,7 @@ export function resolverNodes(sf: ts.SourceFile, typeFields: ReadonlyMap<string,
 }
 
 /** Entry points defined in a file: GraphQL resolvers (`Type.field`) and REST handlers (`GET /path`). */
-export function entryNodes(sf: ts.SourceFile, typeFields: ReadonlyMap<string, ReadonlySet<string>>, rest: boolean): { key: string; node: ts.Node; value: ts.Node }[] {
+export function entryNodes(sf: ts.SourceFile, typeFields: ReadonlyMap<string, ReadonlySet<string>>, rest: boolean): { key: string; node: ts.Node; value: ts.Node; computed?: true }[] {
   return [...resolverNodes(sf, typeFields), ...(rest ? restNodes(sf) : [])]
 }
 

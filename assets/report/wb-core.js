@@ -40,17 +40,21 @@ const flagCovered = (file) => { const keys = FILE_OPS.get(file); return !!keys?.
 const FINDING_KINDS = new Set(['security', 'lint'])
 const lineOf = (title) => Number(title.match(/at line (\d+)/)?.[1] ?? 0)
 const logOf = (items) => items.reduce((s, it) => s - Math.log(1 - it.weight), 0)
+/* Something farol could not read (a route path computed at run time…): checked by hand, not by reviewing the file. */
+const UNREAD = 'unknown'
 const GROUPS = D.groups.flatMap((g, i) => {
-  const rest = g.items.filter((it) => !(g.file && FINDING_KINDS.has(it.kind)))
+  const rest = g.items.filter((it) => !(g.file && (FINDING_KINDS.has(it.kind) || it.kind === UNREAD)))
   const findings = g.file ? g.items.filter((it) => FINDING_KINDS.has(it.kind)) : []
+  const unread = g.file ? g.items.filter((it) => it.kind === UNREAD) : []
   return [
     ...(rest.length ? [{ file: g.file, items: rest, id: g.file ?? `item:${g.items[0].kind}:${i}`, log: logOf(rest) }] : []),
     ...findings.map((it) => ({ file: null, owner: g.file, items: [it], id: `finding:${it.kind}:${g.file}:${lineOf(it.title)}`, log: logOf([it]) })),
+    ...unread.map((it, j) => ({ file: null, items: [it], id: `unread:${g.file}:${j}`, log: logOf([it]) })),
   ]
 })
 const groupActive = (g) => (g.file ? !isReviewed(g.file) && !flagCovered(g.file) : !isAcked(g.id))
 /** What must be checked by hand, above every file: breaking contracts, security findings, lint errors, vulnerable dependencies. */
-const isMust = (g) => g.owner != null || g.items.every((i) => i.kind === 'contract' || i.kind === 'vulnerability')
+const isMust = (g) => g.owner != null || g.items.every((i) => i.kind === 'contract' || i.kind === 'vulnerability' || i.kind === UNREAD)
 const MUST = GROUPS.filter(isMust)
 /** Removable by the reviewer: files by reviewing them, the rest of Must check by checking it. */
 const groupRemovable = (g) => g.file !== null || isMust(g)
@@ -115,6 +119,7 @@ function riskLede() {
     const it = g.items[0]
     if (it.kind === 'contract') return t(T.lede.contract, { key: `<code>${esc(it.title.match(/of (.+?):/)?.[1] ?? '')}</code>` })
     if (g.owner) return t(it.kind === 'security' ? T.lede.security : T.lede.lint, { file: `<code>${esc(base(g.owner))}</code>` })
+    if (it.kind === UNREAD) return t(T.lede.unknown, { what: esc(it.title.slice(it.title.indexOf(': ') + 2)) })
     if (!g.file) return esc(it.title)
     const code = `<code>${esc(base(g.file))}</code>`
     if (g.items.some((i) => i.kind === 'global')) return t(T.lede.global, { file: code })

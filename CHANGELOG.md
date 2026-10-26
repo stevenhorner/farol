@@ -5,6 +5,8 @@
 - **PR comment follows the report.** Merge risk and verdict in the title, one sentence on where the risk comes from, *Must check* as a task list, the High and Medium files with their share of the score, and how much new code is tested; the other signals move to a collapsed *All signals* block. Points match the report: a file's findings are parts of their own (a file no longer shows "risk 34" with its security finding inside).
 - **Diff coverage: files left out on purpose are no longer untested.** A changed file missing from the coverage report is excluded by the project when the report lists files no test loaded (Vitest/Jest `coverage.include`, coverage.py `source`); files that only declare things (types, static constants) have nothing to run. Both, and `signals.coverageIgnore` files, keep half their risk instead of all of it, and the report lists them apart.
 - **Social preview image** in the new look.
+- **Routes with a computed path are no longer safe by default** ([#6](https://github.com/winnin/farol/issues/6)). In Python (FastAPI, Flask), Go and TypeScript REST (Express, Fastify), a route whose path is computed at run time is `dynamic-route` (the PR is `unknown`) when the PR adds it or changes the file that registers it: it may take the URL of an existing route. TypeScript REST used to drop such routes; they are now entry points. Untouched ones stay as they were.
+- **What farol could not read goes to Must check.** An `unknown` part of the score is checked by hand, never cleared by reviewing a file: a low score with such a part no longer says "likely safe to approve".
 
 ## 0.2.0 — 2026-10-26
 
