@@ -5,37 +5,17 @@ import { computeVerdict } from './verdict.js'
 import { CLASS_TEXT, FEEDBACK_OPTIONS, MARKER, PLAN_TEXT, TEST_TEXT, TEXT, REASON_TEXT, USAGE_TEXT, CONTRACT_TEXT, OWNER_TEXT, SINCE_TEXT, terms } from './strings.js'
 import { compactNumber, datadogErrorsUrl, usageSummary } from './usage.js'
 import { callersText } from './html-contracts.js'
+import { code, esc, fileMd, link, locationMd } from './markdown-format.js'
+import { reviewSection } from './markdown-review.js'
+import { COMMENT_TEXT } from './strings-comment.js'
 import { shortFile, testPlan } from './test-plan.js'
 
 export const MAX_COMMENT_LENGTH = 60_000
 
-/** Escapes text that GitHub would otherwise read as HTML or code. */
-function esc(text: string, max = 300): string {
-  const short = text.length > max ? `${text.slice(0, max - 1)}…` : text
-  return short.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('`', "'")
-}
-
 const NO_LINKS: Linker = { file: () => null, lines: () => null }
-
-function link(text: string, url: string | null): string {
-  return url === null ? text : `[${text}](${url})`
-}
-
-/** A file path in code style, linked to its diff when links are available. */
-function fileMd(l: Linker, path: string): string {
-  return link(code(path), l.file(path))
-}
-
-function locationMd(l: Linker, path: string, line: number): string {
-  return link(code(`${path}:${line}`), l.lines(path, line))
-}
 
 function rangesMd(l: Linker, path: string, list: readonly { start: number; end: number }[]): string {
   return list.map((r) => link(r.start === r.end ? `${r.start}` : `${r.start}–${r.end}`, l.lines(path, r.start, r.end))).join(', ')
-}
-
-function code(text: string): string {
-  return `\`${text.replaceAll('`', "'")}\``
 }
 
 function limited<T>(items: readonly T[], limit: number, render: (item: T) => string, indent = ''): string[] {
@@ -58,13 +38,8 @@ function describeChangeShort(c: Output['dependencies']['changes'][number]): stri
 
 function signalsSection(o: Output, limit: number, l: Linker): string[] {
   const { coverage, lint, suppressions, testsModified } = o.signals
-  const score = mergeScore(o)
   const verdict = computeVerdict(o)
-  const lines: string[] = [
-    `- **${TEXT.verdictLabel}:** ${TEXT.verdictValue[verdict.level]} — ${esc(verdict.reasons.slice(0, 3).join('; '), 400)}`,
-    ...limited(verdict.startHere.slice(0, 5), limit, (f) => `${fileMd(l, f.path)} ${TEXT.verdictFile(f.points, f.coverage?.label ?? null)}`, '  '),
-    `- **${TEXT.scoreLabel}:** ${TEXT.scoreValue(score.score, score.level)}`,
-  ]
+  const lines: string[] = [`- **${TEXT.verdictLabel}:** ${esc(verdict.reasons.slice(0, 5).join('; '), 600)}`]
   if (o.incremental) lines.unshift(`- **${PLAN_TEXT.incremental(o.incremental.since.slice(0, 12))}**`)
   if (o.ownership) {
     const own = o.ownership
@@ -233,8 +208,8 @@ function sinceLines(since: SinceBlock | undefined): string[] {
 
 function render(o: Output, limit: number, truncated: boolean, l: Linker, reportUrl: string | undefined, since?: SinceBlock): string {
   const commit = o.head.sha === null ? o.head.ref : o.head.sha.slice(0, 12)
-  const report = [...(reportUrl === undefined ? [] : [TEXT.fullReport(reportUrl), '']), ...sinceLines(since)]
-  const lines = [MARKER, TEXT.title, '', TEXT.intro, '', ...report, ...signalsSection(o, limit, l), '', ...detailsSection(o, limit, l), '', ...testSection(o, limit)]
+  const signals = ['<details>', `<summary>${COMMENT_TEXT.allSignals}</summary>`, '', ...signalsSection(o, limit, l), '', '</details>']
+  const lines = [MARKER, ...reviewSection(o, l, reportUrl), '', ...sinceLines(since), ...signals, '', ...detailsSection(o, limit, l), '', ...testSection(o, limit)]
   if (truncated) lines.push(`_${TEXT.truncated}_`, '')
   lines.push(`<sub>${esc(TEXT.footer(o.tool.version, commit))}</sub>`, '')
   return lines.join('\n')

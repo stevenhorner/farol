@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ChangedFile } from '../../src/git/types.js'
-import { coverageSignal, parseCoverageReport, ReportError } from '../../src/signals/coverage.js'
+import { coverageSignal, listsUnloadedFiles, parseCoverageReport, ReportError } from '../../src/signals/coverage.js'
 import { lintSignal, parseEslintReport } from '../../src/signals/lint.js'
 import { reportPathToRepo, toRanges } from '../../src/signals/paths.js'
 import { testsModifiedSignal } from '../../src/signals/tests-modified.js'
@@ -51,6 +51,22 @@ describe('coverage', () => {
   it('only counts added/modified source code files', () => {
     const files = [changed('src/a.ts', [1], 'renamed'), changed('src/b.css', [1]), changed('src/c.test.ts', [1]), changed('src/d.d.ts', [1])]
     expect(coverageSignal(report, files, (p) => (p.includes('.test.') ? 'test' : 'source')).files).toEqual([])
+  })
+
+  it('leaves out files the project excludes from coverage, and does not count declarations-only files as untested', () => {
+    const files = [changed('src/a.ts', [1, 2]), changed('src/types.ts', [1, 2, 3]), changed('src/gen.ts', [1, 2])]
+    const missing = coverageSignal(report, files, () => 'source', () => false, { declarationsOnly: (p) => p === 'src/types.ts' })
+    expect(missing.files.map((f) => [f.path, f.changedExecutableLines, f.missingFromReport])).toEqual([['src/a.ts', 2, false], ['src/gen.ts', 2, true], ['src/types.ts', 0, false]])
+    const excluded = coverageSignal(report, files, () => 'source', () => false, { missingIsExcluded: true, declarationsOnly: (p) => p === 'src/types.ts' })
+    expect(excluded.excludedByProject).toEqual(['src/gen.ts'])
+    expect(excluded.files.map((f) => f.path)).toEqual(['src/a.ts', 'src/types.ts'])
+  })
+
+  it('tells a report that lists files no test loaded from one that only lists loaded files', () => {
+    expect(listsUnloadedFiles(report)).toBe(false)
+    expect(listsUnloadedFiles(new Map([...report, ['src/never.ts', [{ start: 1, end: 1, count: 0 }]]]))).toBe(true)
+    // An empty module (an __init__.py) proves nothing.
+    expect(listsUnloadedFiles(new Map([...report, ['src/empty.ts', []]]))).toBe(false)
   })
 
   it('rejects files that are not Istanbul JSON', () => {

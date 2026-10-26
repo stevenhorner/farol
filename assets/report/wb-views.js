@@ -67,10 +67,12 @@ function summary() {
   const R = readiness()
   const rows = [...(COV?.files ?? [])].filter((f) => !f.missing).sort((a, b) => (b.total - b.covered) - (a.total - a.covered))
   const missing = (COV?.files ?? []).filter((f) => f.missing).sort((a, b) => b.total - a.total)
+  const leftOut = COV?.leftOut ?? []
   const table = S ? `<table class="t"><thead><tr><th>${T.cov.file}</th><th class="num">${T.cov.tested}</th><th class="mini"></th><th>${T.cov.notRun}</th></tr></thead><tbody>${rows.map((f) => `<tr><td class="p">${esc(short(f.path))}</td><td class="num">${f.covered}/${f.total} · ${pct(f.total ? f.covered / f.total : 1)}</td>
     <td class="mini"><div class="track"><span style="width:${f.total ? (f.covered / f.total) * 100 : 100}%"></span><span class="bad" style="width:${f.total ? ((f.total - f.covered) / f.total) * 100 : 0}%"></span></div></td>
     <td class="small muted">${f.uncovered.map(rangeText).join(', ') || '—'}</td></tr>`).join('')}</tbody></table>
-    ${missing.length ? `<h3 class="misshead">${t(T.cov.missingTitle, { files: pl(missing.length, T.files) })}</h3><p class="small muted">${T.cov.missingWhy}</p><table class="t"><tbody>${missing.map((f) => `<tr><td class="p">${esc(short(f.path))}</td><td class="num small muted">${pl(f.total, T.changedLines)}</td></tr>`).join('')}</tbody></table>` : ''}`
+    ${missing.length ? `<h3 class="misshead">${t(T.cov.missingTitle, { files: pl(missing.length, T.files) })}</h3><p class="small muted">${T.cov.missingWhy}</p><table class="t"><tbody>${missing.map((f) => `<tr><td class="p">${esc(short(f.path))}</td><td class="num small muted">${pl(f.total, T.changedLines)}</td></tr>`).join('')}</tbody></table>` : ''}
+    ${leftOut.length ? `<h3>${t(T.cov.leftOutTitle, { files: pl(leftOut.length, T.files) })}</h3><p class="small muted">${T.cov.leftOutWhy}</p><table class="t"><tbody>${leftOut.map((f) => `<tr><td class="p">${esc(short(f.path))}</td><td class="small muted">${T.cov.leftOutBy[f.by]}</td></tr>`).join('')}</tbody></table>` : ''}`
     : `<p class="muted">${D.coverage.status === 'ok' ? T.rail.noExecutable : T.cov.none}</p>`
   const parts = (() => {
     if (!att.length) return `<p class="muted">${T.summary.allReviewed}</p>`

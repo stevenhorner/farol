@@ -35,7 +35,8 @@ const isFlagged = (key) => state.flagged.includes(key)
 const flagCovered = (file) => { const keys = FILE_OPS.get(file); return !!keys?.length && keys.every(isFlagged) }
 
 /* Score groups: one per file, one per finding (security, lint: checked on their own, not by reviewing the file), and
- * one per item without a file (contract, vulnerable dependency, analysis problems). */
+ * one per item without a file (contract, vulnerable dependency, analysis problems). The PR comment splits the score
+ * the same way (src/report/review-parts.ts). */
 const FINDING_KINDS = new Set(['security', 'lint'])
 const lineOf = (title) => Number(title.match(/at line (\d+)/)?.[1] ?? 0)
 const logOf = (items) => items.reduce((s, it) => s - Math.log(1 - it.weight), 0)

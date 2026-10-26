@@ -1,11 +1,20 @@
 <!-- farol -->
-### farol · PR reading (shadow mode)
+### farol · merge risk 10/100 (low) · ◐ quick review
 
-Signals computed on the lines this PR changes. farol only informs: it never approves or blocks.
+Most of the risk comes from `unsafe.ts`, new code not used by existing pages and `legacy.ts`, additive change: nothing that existed changed. 2 code files changed; 0 of 4 existing pages run changed code.
 
-- **Review:** ◐ quick review — 3 new suppression(s) (lint/type/security ignores); diff coverage not verified: risk is counted as if nothing were tested
-  - `src/lib/unsafe.ts` risk 8
-- **Merge risk score:** 10/100 (low; higher is riskier)
+✓ Low risk and nothing to check by hand: likely safe to approve.
+
+<sub>farol only informs: it never approves or blocks.</sub>
+
+**Files by risk** (points are each part's share of the 10)
+- 🟠 `src/lib/unsafe.ts` **8**
+- and 1 file to skim: 2 points together
+
+<details>
+<summary>All signals</summary>
+
+- **Why this review:** 3 new suppression(s) (lint/type/security ignores); diff coverage not verified: risk is counted as if nothing were tested
 - **Risk:** 0 high, 0 medium, 2 low
 - **Vulnerabilities in added or changed dependencies:** not verified
 - **Diff coverage:** not verified
@@ -15,6 +24,8 @@ Signals computed on the lines this PR changes. farol only informs: it never appr
   - `src/lib/unsafe.ts:3` `ts-expect-error`
   - `src/lib/unsafe.ts:4` `as-any`
 - **Modified existing tests:** none
+
+</details>
 
 <details>
 <summary>Classification — open only after reviewing</summary>

@@ -72,8 +72,8 @@ export function workbenchModel(o: Output, links: Linker, prefix: string) {
     ops,
     coverage:
       c.status === 'ok' && c.total
-        ? { status: 'ok' as const, covered: c.total.coveredLines, total: c.total.changedExecutableLines, files: c.files.map((f) => ({ path: f.path, total: f.changedExecutableLines, covered: f.coveredLines, uncovered: f.uncovered, missing: f.missingFromReport })) }
-        : { status: c.status, covered: 0, total: 0, files: [] },
+        ? { status: 'ok' as const, covered: c.total.coveredLines, total: c.total.changedExecutableLines, files: c.files.map((f) => ({ path: f.path, total: f.changedExecutableLines, covered: f.coveredLines, uncovered: f.uncovered, missing: f.missingFromReport })), leftOut: [...c.ignoredFiles.map((path) => ({ path, by: 'ignore' as const })), ...(c.excludedByProject ?? []).map((path) => ({ path, by: 'project' as const }))] }
+        : { status: c.status, covered: 0, total: 0, files: [], leftOut: [] },
     contracts: o.contracts ? o.contracts.entries : null,
     callers: Object.fromEntries((o.usage?.status === 'ok' ? o.usage.callers : []).map((x) => [x.key, x.services])),
     security: o.signals.security.findings.map((s) => ({ path: s.path, line: s.line, severity: s.severity, rule: s.rule, message: s.message, text: s.text })),

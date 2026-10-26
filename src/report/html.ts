@@ -133,6 +133,8 @@ function coverageSection(o: Output, h: Html): string {
     body += h.table(T.coverageCols, rows, (f) => `<tr><td>${h.path(f.path)}${f.missingFromReport ? ` <span class="tag no">${T.missing}</span>` : ''}</td><td class="num">${f.changedExecutableLines}</td><td class="num">${f.coveredLines}</td><td class="ranges">${h.ranges(f.path, f.uncovered)}</td></tr>`, [1, 2])
   }
   if (c.ignoredFiles.length > 0) body += `<details><summary class="small">${T.coverageIgnoredTitle(c.ignoredFiles.length)}</summary><div class="finding-files">${c.ignoredFiles.map((p) => h.path(p)).join('')}</div></details>`
+  const excluded = c.excludedByProject ?? []
+  if (excluded.length > 0) body += `<details><summary class="small">${T.coverageExcludedTitle(excluded.length)}</summary><div class="finding-files">${excluded.map((p) => h.path(p)).join('')}</div></details>`
   return `<div id="coverage"><h3>${T.coverageTitle}</h3>${body}</div>`
 }
 

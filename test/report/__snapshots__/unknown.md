@@ -1,17 +1,27 @@
 <!-- farol -->
-### farol · PR reading (shadow mode)
+### farol · merge risk 28/100 (low) · ⚠ careful review
 
-Signals computed on the lines this PR changes. farol only informs: it never approves or blocks.
+Most of the risk comes from `routes.tsx`, 2 file(s) depend on it, no page reaches it. 1 code file changed; 2 of 2 existing pages run changed code.
 
-- **Review:** ⚠ careful review — farol could not read part of the change (unknown): nothing here is guaranteed; merge risk score 28/100; existing code changed: 2 existing page(s) run it
-  - `src/routes.tsx` risk 28
-- **Merge risk score:** 28/100 (low; higher is riskier)
+✓ Low risk and nothing to check by hand: likely safe to approve.
+
+<sub>farol only informs: it never approves or blocks.</sub>
+
+**Files by risk** (points are each part's share of the 28)
+- 🔴 `src/routes.tsx` **28**
+
+<details>
+<summary>All signals</summary>
+
+- **Why this review:** farol could not read part of the change (unknown): nothing here is guaranteed; merge risk score 28/100; existing code changed: 2 existing page(s) run it; diff coverage not verified: risk is counted as if nothing were tested
 - **Risk:** 0 high, 0 medium, 1 low
 - **Vulnerabilities in added or changed dependencies:** not verified
 - **Diff coverage:** not verified
 - **Lint on changed lines:** not verified
 - **Added suppressions:** none
 - **Modified existing tests:** none
+
+</details>
 
 <details>
 <summary>Classification — open only after reviewing</summary>

@@ -1,16 +1,27 @@
 <!-- farol -->
-### farol · PR reading (shadow mode)
+### farol · merge risk 8/100 (low) · ✓ fast track
 
-Signals computed on the lines this PR changes. farol only informs: it never approves or blocks.
+Most of the risk comes from `ReportChart.tsx`, new code not used by existing pages and `ReportTable.tsx`, new code not used by existing pages. 4 code files changed; 0 of 4 existing pages run changed code, plus 1 new page.
 
-- **Review:** ✓ fast track — only new code, tests or low-risk changes; nothing existing is widely affected; diff coverage not verified: risk is counted as if nothing were tested
-- **Merge risk score:** 8/100 (low; higher is riskier)
+✓ Low risk and nothing to check by hand: likely safe to approve.
+
+<sub>farol only informs: it never approves or blocks.</sub>
+
+**Files by risk** (points are each part's share of the 8)
+- 4 files to skim: 8 points together
+
+<details>
+<summary>All signals</summary>
+
+- **Why this review:** only new code, tests or low-risk changes; nothing existing is widely affected; diff coverage not verified: risk is counted as if nothing were tested
 - **Risk:** 0 high, 0 medium, 4 low
 - **Vulnerabilities in added or changed dependencies:** not verified
 - **Diff coverage:** not verified
 - **Lint on changed lines:** not verified
 - **Added suppressions:** none
 - **Modified existing tests:** none
+
+</details>
 
 <details>
 <summary>Classification — open only after reviewing</summary>

@@ -23,8 +23,6 @@ export function terms(surface: 'frontend' | 'backend'): Terms {
 }
 
 export const TEXT = {
-  title: '### farol · PR reading (shadow mode)',
-  intro: 'Signals computed on the lines this PR changes. farol only informs: it never approves or blocks.',
   notVerified: 'not verified',
   reportError: (message: string) => `could not read the report (${message})`,
   andMore: (n: number) => `and ${n} more`,
@@ -34,7 +32,7 @@ export const TEXT = {
   coverageNoLines: 'no changed executable lines',
   coverageUncoveredTitle: 'uncovered ranges:',
   coverageMissing: 'missing from the coverage report',
-  coverageIgnored: (n: number) => `${plural(n, 'file', 'files')} ignored for coverage`,
+  coverageIgnored: (n: number) => `${plural(n, 'file', 'files')} left out of coverage on purpose`,
 
   lintLabel: 'Lint on changed lines',
   lintValue: (errors: number, warnings: number) => `${plural(errors, 'error', 'errors')}, ${plural(warnings, 'warning', 'warnings')}`,
@@ -50,12 +48,7 @@ export const TEXT = {
   linesRemoved: (n: number) => plural(n, 'line removed', 'lines removed'),
   renamedFrom: (old: string) => `was ${old}`,
 
-  fullReport: (url: string) => `📄 [Full report (HTML)](${url}): review plan, files to start with, graphs of the affected routes.`,
-  verdictLabel: 'Review',
-  verdictValue: { pass: '✓ fast track', quick: '◐ quick review', careful: '⚠ careful review' } as const,
-  verdictFile: (points: number, coverage: string | null) => `risk ${points}${coverage ? ` · ${coverage}` : ''}`,
-  scoreLabel: 'Merge risk score',
-  scoreValue: (score: number, level: string) => `${score}/100 (${level}; higher is riskier)`,
+  verdictLabel: 'Why this review',
   riskLabel: 'Risk',
   riskValue: (high: number, medium: number, low: number) => `${high} high, ${medium} medium, ${low} low`,
   riskItem: (pages: number, total: number, dependents: number, t: Terms = FRONTEND_TERMS) => `${pages}/${total} ${t.many}, ${dependents} dependents`,
@@ -164,6 +157,7 @@ export const HTML_TEXT = {
   coverageCols: ['File', 'Changed executable lines', 'Covered', 'Uncovered ranges'],
   missing: 'missing from the report',
   coverageIgnoredTitle: (n: number) => `Ignored for coverage only (${n}; signals.coverageIgnore / --coverage-ignore)`,
+  coverageExcludedTitle: (n: number) => `Left out by the project's coverage settings (${n}): the report lists files no test loaded, but not these`,
   reportedOnly: (percent: string, covered: number, total: number) => `Files present in the report only: ${percent} (${covered} / ${total}).`,
   lintTitle: 'Lint on changed lines',
   lintCols: ['Location', 'Severity', 'Rule', 'Message'],
@@ -340,3 +334,4 @@ export const FINDINGS_TEXT = {
 
 export { OWNER_TEXT, PLAN_TEXT, SINCE_TEXT, TEST_TEXT, USAGE_TEXT } from './strings-review.js'
 export { CONTRACT_TEXT } from './strings-contracts.js'
+export { COMMENT_TEXT } from './strings-comment.js'

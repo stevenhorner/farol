@@ -87,7 +87,10 @@ export function workbenchText(surface: 'frontend' | 'backend') {
       notRun: 'Never ran',
       none: 'No coverage report: farol cannot tell which changed lines ran in the tests.',
       missingTitle: '{files} not in the coverage report',
-      missingWhy: 'No test loaded them, so their changed lines count as untested. Types, constants and translations are often excluded from coverage on purpose: if that is the case here, these files are not a gap.',
+      missingWhy: 'No test loaded them, so their changed lines count as untested. If they are left out of coverage on purpose (constants, migrations, generated code), list them in signals.coverageIgnore: they then count as neither tested nor untested.',
+      leftOutTitle: '{files} left out of coverage on purpose',
+      leftOutWhy: 'Neither tested nor untested: they are not in the numbers above, and each keeps half of its risk in the score.',
+      leftOutBy: { ignore: 'signals.coverageIgnore', project: "the project's coverage settings" },
     },
     file: {
       position: 'File {i} of {n} · {change}',

@@ -4651,7 +4651,7 @@ m2: ${this.mapper2.__debugToString().split("\n").join("\n    ")}`;
             return height2 + 1;
           }
           function computeColumnWidths(height2) {
-            const columns = fill(Array(height2), 0);
+            const columns = fill2(Array(height2), 0);
             for (const node2 of nodes) {
               columns[node2.level] = Math.max(columns[node2.level], node2.text.length);
             }
@@ -4723,9 +4723,9 @@ m2: ${this.mapper2.__debugToString().split("\n").join("\n    ")}`;
           function renderGraph() {
             const columnCount = columnWidths.length;
             const laneCount = maxBy(nodes, 0, (n) => n.lane) + 1;
-            const lanes = fill(Array(laneCount), "");
+            const lanes = fill2(Array(laneCount), "");
             const grid = columnWidths.map(() => Array(laneCount));
-            const connectors = columnWidths.map(() => fill(Array(laneCount), 0));
+            const connectors = columnWidths.map(() => fill2(Array(laneCount), 0));
             for (const node2 of nodes) {
               grid[node2.level][node2.lane] = node2;
               const children = getChildren(node2);
@@ -4764,17 +4764,17 @@ m2: ${this.mapper2.__debugToString().split("\n").join("\n    ")}`;
             for (let column = 0; column < columnCount; column++) {
               for (let lane = 0; lane < lanes.length; lane++) {
                 const connector = connectors[column][lane];
-                const fill2 = connector & 4 ? "\u2500" : " ";
+                const fill22 = connector & 4 ? "\u2500" : " ";
                 const node2 = grid[column][lane];
                 if (!node2) {
                   if (column < columnCount - 1) {
-                    writeLane(lane, repeat(fill2, columnWidths[column] + 1));
+                    writeLane(lane, repeat(fill22, columnWidths[column] + 1));
                   }
                 } else {
                   writeLane(lane, node2.text);
                   if (column < columnCount - 1) {
                     writeLane(lane, " ");
-                    writeLane(lane, repeat(fill2, columnWidths[column] - node2.text.length));
+                    writeLane(lane, repeat(fill22, columnWidths[column] - node2.text.length));
                   }
                 }
                 writeLane(lane, getBoxCharacter(connector));
@@ -4815,7 +4815,7 @@ ${lanes.join("\n")}
             }
             return " ";
           }
-          function fill(array2, value) {
+          function fill2(array2, value) {
             if (array2.fill) {
               array2.fill(value);
             } else {
@@ -176564,7 +176564,7 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
             /*isJavaScriptImplicitAny*/
             false
           );
-          if (filledIn.every((fill, i) => fill === fullTypeArguments[i])) {
+          if (filledIn.every((fill2, i) => fill2 === fullTypeArguments[i])) {
             return cutoff;
           }
         }
@@ -212704,9 +212704,9 @@ var require_parse = __commonJS({
                 const idx = prev.value.lastIndexOf("[");
                 const pre = prev.value.slice(0, idx);
                 const rest2 = prev.value.slice(idx + 2);
-                const posix18 = POSIX_REGEX_SOURCE[rest2];
-                if (posix18) {
-                  prev.value = pre + posix18;
+                const posix19 = POSIX_REGEX_SOURCE[rest2];
+                if (posix19) {
+                  prev.value = pre + posix19;
                   state.backtrack = true;
                   advance();
                   if (!bos.output && tokens2.indexOf(prev) === 1) {
@@ -213223,7 +213223,7 @@ var require_picomatch = __commonJS({
         throw new TypeError("Expected pattern to be a non-empty string");
       }
       const opts = options || {};
-      const posix18 = opts.windows;
+      const posix19 = opts.windows;
       const regex = isState ? picomatch4.compileRe(glob, options) : picomatch4.makeRe(glob, options, false, true);
       const state = regex.state;
       delete regex.state;
@@ -213233,8 +213233,8 @@ var require_picomatch = __commonJS({
         isIgnored = picomatch4(opts.ignore, ignoreOpts, returnState);
       }
       const matcher2 = (input2, returnObject = false) => {
-        const { isMatch, match, output: output2 } = picomatch4.test(input2, regex, options, { glob, posix: posix18 });
-        const result = { glob, state, regex, posix: posix18, input: input2, output: output2, match, isMatch };
+        const { isMatch, match, output: output2 } = picomatch4.test(input2, regex, options, { glob, posix: posix19 });
+        const result = { glob, state, regex, posix: posix19, input: input2, output: output2, match, isMatch };
         if (typeof opts.onResult === "function") {
           opts.onResult(result);
         }
@@ -213259,7 +213259,7 @@ var require_picomatch = __commonJS({
       }
       return matcher2;
     };
-    picomatch4.test = (input2, regex, options, { glob, posix: posix18 } = {}) => {
+    picomatch4.test = (input2, regex, options, { glob, posix: posix19 } = {}) => {
       if (typeof input2 !== "string") {
         throw new TypeError("Expected input to be a string");
       }
@@ -213267,7 +213267,7 @@ var require_picomatch = __commonJS({
         return { isMatch: false, output: "" };
       }
       const opts = options || {};
-      const format = opts.format || (posix18 ? utils.toPosixSlashes : null);
+      const format = opts.format || (posix19 ? utils.toPosixSlashes : null);
       let match = input2 === glob;
       let output2 = match && format ? format(input2) : input2;
       if (match === false) {
@@ -213276,16 +213276,16 @@ var require_picomatch = __commonJS({
       }
       if (match === false || opts.capture === true) {
         if (opts.matchBase === true || opts.basename === true) {
-          match = picomatch4.matchBase(input2, regex, options, posix18);
+          match = picomatch4.matchBase(input2, regex, options, posix19);
         } else {
           match = regex.exec(output2);
         }
       }
       return { isMatch: Boolean(match), match, output: output2 };
     };
-    picomatch4.matchBase = (input2, glob, options, posix18 = options && options.windows) => {
+    picomatch4.matchBase = (input2, glob, options, posix19 = options && options.windows) => {
       const regex = glob instanceof RegExp ? glob : picomatch4.makeRe(glob, options);
-      return regex.test(utils.basename(input2, { windows: posix18 }));
+      return regex.test(utils.basename(input2, { windows: posix19 }));
     };
     picomatch4.isMatch = (str2, patterns, options) => picomatch4(patterns, options)(str2);
     picomatch4.parse = (pattern, options) => {
@@ -227441,8 +227441,8 @@ var error43 = () => {
       case "not_multiple_of":
         return `N\xFAmero inv\xE1lido: deve ser m\xFAltiplo de ${issue2.divisor}`;
       case "unrecognized_keys": {
-        const plural3 = issue2.keys.length > 1 ? "s" : "";
-        return `Chave${plural3} inv\xE1lida${plural3}: ${joinValues(issue2.keys, ", ")}`;
+        const plural4 = issue2.keys.length > 1 ? "s" : "";
+        return `Chave${plural4} inv\xE1lida${plural4}: ${joinValues(issue2.keys, ", ")}`;
       }
       case "invalid_key":
         return `Entrada inv\xE1lida n${translateOriginWithArticle(issue2.origin, "definite")}`;
@@ -227586,8 +227586,8 @@ var error44 = () => {
       case "not_multiple_of":
         return `N\xFAmero inv\xE1lido: deve ser m\xFAltiplo de ${issue2.divisor}`;
       case "unrecognized_keys": {
-        const plural3 = issue2.keys.length > 1 ? "s" : "";
-        return `Chave${plural3} inv\xE1lida${plural3}: ${joinValues(issue2.keys, ", ")}`;
+        const plural4 = issue2.keys.length > 1 ? "s" : "";
+        return `Chave${plural4} inv\xE1lida${plural4}: ${joinValues(issue2.keys, ", ")}`;
       }
       case "invalid_key":
         return `Entrada inv\xE1lida n${translateOriginWithArticle(issue2.origin, "definite")}`;
@@ -238157,7 +238157,12 @@ var CoverageSignalSchema = external_exports.object({
   ),
   total: external_exports.object({ changedExecutableLines: count, coveredLines: count }).strict().nullable(),
   /** Changed source files left out of coverage by signals.coverageIgnore / --coverage-ignore. */
-  ignoredFiles: external_exports.array(path2)
+  ignoredFiles: external_exports.array(path2),
+  /**
+   * Changed source files the project's own coverage settings leave out: the report lists files no test loaded, so
+   * a file missing from it was excluded on purpose (coverage.py omit/source, Vitest/Jest coverage include/exclude).
+   */
+  excludedByProject: external_exports.array(path2).optional()
 }).strict();
 var LintFindingSchema = external_exports.object({ path: path2, line, rule: external_exports.string(), severity: external_exports.enum(["error", "warning"]), message: external_exports.string() }).strict();
 var LintSignalSchema = external_exports.object({
@@ -238595,9 +238600,13 @@ function parseCoverageReport(text, repoRoot2, projectPrefix, canonical2) {
   }
   return result;
 }
-function coverageSignal(report, files, roleOf, ignored = () => false) {
+function listsUnloadedFiles(report) {
+  return [...report.values()].some((statements) => statements.length > 0 && statements.every((s) => s.count === 0));
+}
+function coverageSignal(report, files, roleOf, ignored = () => false, options = {}) {
   const out = [];
   const ignoredFiles = [];
+  const excluded = [];
   for (const file2 of files) {
     if (file2.status !== "added" && file2.status !== "modified") continue;
     const role = roleOf(file2.path);
@@ -238608,6 +238617,14 @@ function coverageSignal(report, files, roleOf, ignored = () => false) {
     }
     const lines = file2.added.map((l) => l.line);
     const statements = report.get(file2.path);
+    if (statements === void 0 && options.declarationsOnly?.(file2.path) === true) {
+      out.push({ path: file2.path, changedExecutableLines: 0, coveredLines: 0, uncovered: [], missingFromReport: false });
+      continue;
+    }
+    if (statements === void 0 && options.missingIsExcluded === true) {
+      excluded.push(file2.path);
+      continue;
+    }
     if (statements === void 0) {
       out.push({ path: file2.path, changedExecutableLines: lines.length, coveredLines: 0, uncovered: toRanges(lines), missingFromReport: true });
       continue;
@@ -238626,7 +238643,7 @@ function coverageSignal(report, files, roleOf, ignored = () => false) {
   }
   out.sort((a, b) => compareStrings(a.path, b.path));
   const total = out.reduce((acc, f) => ({ changedExecutableLines: acc.changedExecutableLines + f.changedExecutableLines, coveredLines: acc.coveredLines + f.coveredLines }), { changedExecutableLines: 0, coveredLines: 0 });
-  return { status: "ok", files: out, total, ignoredFiles: ignoredFiles.sort(compareStrings) };
+  return { status: "ok", files: out, total, ignoredFiles: ignoredFiles.sort(compareStrings), ...excluded.length > 0 ? { excludedByProject: excluded.sort(compareStrings) } : {} };
 }
 
 // src/signals/python.ts
@@ -238854,6 +238871,51 @@ function parseGovulncheckReport(text) {
   return { advisories: [...best.values()].sort((a, b) => compareStrings(a.id, b.id) || compareStrings(a.package, b.package)), dependsOn: /* @__PURE__ */ new Map() };
 }
 
+// src/classify/declarations-only.ts
+var import_typescript4 = __toESM(require_typescript(), 1);
+var SCRIPT = /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs)$/;
+var isScriptFile = (file2) => SCRIPT.test(file2);
+function isStaticValue(e, depth = 0, calls = true) {
+  if (depth > 20) return false;
+  const value = (x) => isStaticValue(x, depth + 1, calls);
+  if (import_typescript4.default.isArrowFunction(e)) return !import_typescript4.default.isBlock(e.body) && value(e.body);
+  if (import_typescript4.default.isCallExpression(e)) return calls && (import_typescript4.default.isIdentifier(e.expression) || import_typescript4.default.isPropertyAccessExpression(e.expression)) && value(e.expression) && e.arguments.length > 0 && e.arguments.every((a) => !import_typescript4.default.isSpreadElement(a) && isStaticValue(a, depth + 1, false));
+  if (import_typescript4.default.isStringLiteral(e) || import_typescript4.default.isNumericLiteral(e) || import_typescript4.default.isNoSubstitutionTemplateLiteral(e) || import_typescript4.default.isBigIntLiteral(e) || import_typescript4.default.isRegularExpressionLiteral(e)) return true;
+  if (e.kind === import_typescript4.default.SyntaxKind.TrueKeyword || e.kind === import_typescript4.default.SyntaxKind.FalseKeyword || e.kind === import_typescript4.default.SyntaxKind.NullKeyword) return true;
+  if (import_typescript4.default.isIdentifier(e) || import_typescript4.default.isPropertyAccessExpression(e)) return import_typescript4.default.isIdentifier(e) || value(e.expression);
+  if (import_typescript4.default.isPrefixUnaryExpression(e)) return (e.operator === import_typescript4.default.SyntaxKind.MinusToken || e.operator === import_typescript4.default.SyntaxKind.PlusToken) && value(e.operand);
+  if (import_typescript4.default.isParenthesizedExpression(e) || import_typescript4.default.isAsExpression(e) || import_typescript4.default.isSatisfiesExpression(e) || import_typescript4.default.isTypeAssertionExpression(e)) return value(e.expression);
+  if (import_typescript4.default.isTemplateExpression(e)) return e.templateSpans.every((s) => value(s.expression));
+  if (import_typescript4.default.isArrayLiteralExpression(e)) return e.elements.every((x) => import_typescript4.default.isSpreadElement(x) ? value(x.expression) : value(x));
+  if (import_typescript4.default.isObjectLiteralExpression(e)) {
+    return e.properties.every((p) => {
+      if (import_typescript4.default.isPropertyAssignment(p)) return (!import_typescript4.default.isComputedPropertyName(p.name) || value(p.name.expression)) && value(p.initializer);
+      if (import_typescript4.default.isShorthandPropertyAssignment(p)) return true;
+      if (import_typescript4.default.isSpreadAssignment(p)) return value(p.expression);
+      return false;
+    });
+  }
+  return false;
+}
+function isDeclarationsOnlyModule(file2, code2) {
+  if (!SCRIPT.test(file2) || file2.endsWith(".test.ts")) return false;
+  const { sourceFile: sf, errors } = parseIsolated(file2, code2);
+  if (errors.length > 0) return false;
+  return sf.statements.every((s) => {
+    if (import_typescript4.default.isInterfaceDeclaration(s) || import_typescript4.default.isTypeAliasDeclaration(s) || import_typescript4.default.isEnumDeclaration(s)) return true;
+    if (import_typescript4.default.isImportDeclaration(s)) return s.importClause !== void 0;
+    if (import_typescript4.default.isExportDeclaration(s)) return true;
+    if (import_typescript4.default.isExportAssignment(s)) return isStaticValue(s.expression);
+    const modifiers = import_typescript4.default.canHaveModifiers(s) ? import_typescript4.default.getModifiers(s) ?? [] : [];
+    if (modifiers.some((m) => m.kind === import_typescript4.default.SyntaxKind.DeclareKeyword)) return true;
+    if (import_typescript4.default.isVariableStatement(s)) {
+      const isConst = (s.declarationList.flags & import_typescript4.default.NodeFlags.Const) !== 0;
+      return isConst && s.declarationList.declarations.every((d) => d.initializer !== void 0 && import_typescript4.default.isIdentifier(d.name) && isStaticValue(d.initializer));
+    }
+    return false;
+  });
+}
+
 // src/signals/audit.ts
 var SEVERITIES = ["critical", "high", "moderate", "low", "info"];
 var NpmV2 = external_exports.object({
@@ -238968,7 +239030,7 @@ function vulnerabilitiesSignal(report, changedPackages) {
 }
 
 // src/signals/security.ts
-var import_typescript4 = __toESM(require_typescript(), 1);
+var import_typescript5 = __toESM(require_typescript(), 1);
 var TOKEN_FORMATS = [
   [/AKIA[0-9A-Z]{16}/, "AWS access key id"],
   [/gh[pousr]_[A-Za-z0-9]{36,}/, "GitHub token"],
@@ -238990,22 +239052,22 @@ function entropy(text) {
 }
 function nameOf(node2) {
   if (!node2) return void 0;
-  if (import_typescript4.default.isIdentifier(node2) || import_typescript4.default.isPrivateIdentifier(node2)) return node2.text;
-  if (import_typescript4.default.isStringLiteral(node2) || import_typescript4.default.isNoSubstitutionTemplateLiteral(node2)) return node2.text;
-  if (import_typescript4.default.isPropertyAccessExpression(node2)) return node2.name.text;
+  if (import_typescript5.default.isIdentifier(node2) || import_typescript5.default.isPrivateIdentifier(node2)) return node2.text;
+  if (import_typescript5.default.isStringLiteral(node2) || import_typescript5.default.isNoSubstitutionTemplateLiteral(node2)) return node2.text;
+  if (import_typescript5.default.isPropertyAccessExpression(node2)) return node2.name.text;
   return void 0;
 }
 function calleeName(call) {
   const callee = call.expression;
-  if (import_typescript4.default.isPropertyAccessExpression(callee)) return { object: nameOf(callee.expression), name: callee.name.text };
+  if (import_typescript5.default.isPropertyAccessExpression(callee)) return { object: nameOf(callee.expression), name: callee.name.text };
   return { object: void 0, name: nameOf(callee) };
 }
 function assignedName(literal3) {
   const parent = literal3.parent;
   if (!parent) return void 0;
-  if (import_typescript4.default.isVariableDeclaration(parent) || import_typescript4.default.isPropertyAssignment(parent) || import_typescript4.default.isPropertyDeclaration(parent)) return nameOf(parent.name);
-  if (import_typescript4.default.isBinaryExpression(parent) && parent.operatorToken.kind === import_typescript4.default.SyntaxKind.EqualsToken) return nameOf(parent.left);
-  if (import_typescript4.default.isJsxAttribute(parent)) return nameOf(parent.name);
+  if (import_typescript5.default.isVariableDeclaration(parent) || import_typescript5.default.isPropertyAssignment(parent) || import_typescript5.default.isPropertyDeclaration(parent)) return nameOf(parent.name);
+  if (import_typescript5.default.isBinaryExpression(parent) && parent.operatorToken.kind === import_typescript5.default.SyntaxKind.EqualsToken) return nameOf(parent.left);
+  if (import_typescript5.default.isJsxAttribute(parent)) return nameOf(parent.name);
   return void 0;
 }
 function findSecurityIssues(path3, code2, addedLines) {
@@ -239017,30 +239079,30 @@ function findSecurityIssues(path3, code2, addedLines) {
     if (addedLines.has(line3)) out.push({ path: path3, line: line3, rule, severity, message, text: (lines[line3 - 1] ?? "").trim().slice(0, 200) });
   };
   const visit3 = (node2) => {
-    if (import_typescript4.default.isJsxAttribute(node2)) {
+    if (import_typescript5.default.isJsxAttribute(node2)) {
       const name = nameOf(node2.name);
       if (name === "dangerouslySetInnerHTML") report(node2, "dangerously-set-inner-html", "high", "raw HTML rendered with dangerouslySetInnerHTML: sanitize it (e.g. DOMPurify) or render text");
-      if (name === "target" && node2.initializer && import_typescript4.default.isStringLiteral(node2.initializer) && node2.initializer.text === "_blank") {
+      if (name === "target" && node2.initializer && import_typescript5.default.isStringLiteral(node2.initializer) && node2.initializer.text === "_blank") {
         const attrs = node2.parent.properties;
-        const rel = attrs.find((a) => import_typescript4.default.isJsxAttribute(a) && nameOf(a.name) === "rel");
-        const relText = rel && import_typescript4.default.isJsxAttribute(rel) && rel.initializer && import_typescript4.default.isStringLiteral(rel.initializer) ? rel.initializer.text : "";
+        const rel = attrs.find((a) => import_typescript5.default.isJsxAttribute(a) && nameOf(a.name) === "rel");
+        const relText = rel && import_typescript5.default.isJsxAttribute(rel) && rel.initializer && import_typescript5.default.isStringLiteral(rel.initializer) ? rel.initializer.text : "";
         if (!relText.includes("noopener") && !relText.includes("noreferrer")) report(node2, "target-blank", "low", 'target="_blank" without rel="noopener noreferrer"');
       }
-    } else if (import_typescript4.default.isPropertyAssignment(node2) && nameOf(node2.name) === "dangerouslySetInnerHTML") {
+    } else if (import_typescript5.default.isPropertyAssignment(node2) && nameOf(node2.name) === "dangerouslySetInnerHTML") {
       report(node2, "dangerously-set-inner-html", "high", "raw HTML passed through dangerouslySetInnerHTML: sanitize it or render text");
-    } else if (import_typescript4.default.isBinaryExpression(node2) && (node2.operatorToken.kind === import_typescript4.default.SyntaxKind.EqualsToken || node2.operatorToken.kind === import_typescript4.default.SyntaxKind.PlusEqualsToken)) {
-      const name = import_typescript4.default.isPropertyAccessExpression(node2.left) ? node2.left.name.text : void 0;
+    } else if (import_typescript5.default.isBinaryExpression(node2) && (node2.operatorToken.kind === import_typescript5.default.SyntaxKind.EqualsToken || node2.operatorToken.kind === import_typescript5.default.SyntaxKind.PlusEqualsToken)) {
+      const name = import_typescript5.default.isPropertyAccessExpression(node2.left) ? node2.left.name.text : void 0;
       if (name === "innerHTML" || name === "outerHTML") report(node2, "inner-html", "high", `assignment to ${name}: an XSS sink, use textContent or sanitize`);
-    } else if (import_typescript4.default.isCallExpression(node2) || import_typescript4.default.isNewExpression(node2)) {
+    } else if (import_typescript5.default.isCallExpression(node2) || import_typescript5.default.isNewExpression(node2)) {
       const { object: object2, name } = calleeName(node2);
       const first = node2.arguments?.[0];
       if (name === "eval" && object2 === void 0) report(node2, "eval", "high", "eval() executes arbitrary code");
       else if (name === "Function" && (object2 === void 0 || object2 === "window" || object2 === "globalThis")) report(node2, "eval", "high", "Function constructor executes arbitrary code");
-      else if ((name === "setTimeout" || name === "setInterval") && first && (import_typescript4.default.isStringLiteralLike(first) || import_typescript4.default.isTemplateExpression(first))) report(node2, "string-timer", "medium", `${name} with a string evaluates code`);
+      else if ((name === "setTimeout" || name === "setInterval") && first && (import_typescript5.default.isStringLiteralLike(first) || import_typescript5.default.isTemplateExpression(first))) report(node2, "string-timer", "medium", `${name} with a string evaluates code`);
       else if (name === "insertAdjacentHTML") report(node2, "inner-html", "high", "insertAdjacentHTML: an XSS sink, sanitize the HTML");
       else if ((name === "write" || name === "writeln") && object2 === "document") report(node2, "document-write", "medium", `document.${name} writes raw HTML`);
-      else if (name === "postMessage" && node2.arguments?.[1] && import_typescript4.default.isStringLiteralLike(node2.arguments[1]) && node2.arguments[1].text === "*") report(node2, "postmessage-wildcard", "medium", 'postMessage to any origin ("*"): pass the target origin');
-    } else if (import_typescript4.default.isStringLiteralLike(node2)) {
+      else if (name === "postMessage" && node2.arguments?.[1] && import_typescript5.default.isStringLiteralLike(node2.arguments[1]) && node2.arguments[1].text === "*") report(node2, "postmessage-wildcard", "medium", 'postMessage to any origin ("*"): pass the target origin');
+    } else if (import_typescript5.default.isStringLiteralLike(node2)) {
       const text = node2.text;
       const token = TOKEN_FORMATS.find(([pattern]) => pattern.test(text));
       if (token) report(node2, "hardcoded-secret", "high", `looks like a ${token[1]} in the code: move it to a secret store and rotate it`);
@@ -239053,7 +239115,7 @@ function findSecurityIssues(path3, code2, addedLines) {
         }
       }
     }
-    import_typescript4.default.forEachChild(node2, visit3);
+    import_typescript5.default.forEachChild(node2, visit3);
   };
   visit3(sf);
   return out;
@@ -239124,16 +239186,16 @@ function lintSignal(messages, files) {
 }
 
 // src/signals/suppressions.ts
-var import_typescript5 = __toESM(require_typescript(), 1);
+var import_typescript6 = __toESM(require_typescript(), 1);
 var TEXT_TOKENS = /* @__PURE__ */ new Set([
-  import_typescript5.default.SyntaxKind.JsxText,
-  import_typescript5.default.SyntaxKind.JsxTextAllWhiteSpaces,
-  import_typescript5.default.SyntaxKind.StringLiteral,
-  import_typescript5.default.SyntaxKind.NoSubstitutionTemplateLiteral,
-  import_typescript5.default.SyntaxKind.TemplateHead,
-  import_typescript5.default.SyntaxKind.TemplateMiddle,
-  import_typescript5.default.SyntaxKind.TemplateTail,
-  import_typescript5.default.SyntaxKind.RegularExpressionLiteral
+  import_typescript6.default.SyntaxKind.JsxText,
+  import_typescript6.default.SyntaxKind.JsxTextAllWhiteSpaces,
+  import_typescript6.default.SyntaxKind.StringLiteral,
+  import_typescript6.default.SyntaxKind.NoSubstitutionTemplateLiteral,
+  import_typescript6.default.SyntaxKind.TemplateHead,
+  import_typescript6.default.SyntaxKind.TemplateMiddle,
+  import_typescript6.default.SyntaxKind.TemplateTail,
+  import_typescript6.default.SyntaxKind.RegularExpressionLiteral
 ]);
 var DIRECTIVES2 = [
   ["eslint-disable-next-line", "eslint-disable-next-line"],
@@ -239175,10 +239237,10 @@ function findSuppressions(path3, code2, addedLines) {
       leaves.push(node2);
       if (TEXT_TOKENS.has(node2.kind)) textRanges.push([node2.getStart(sf), node2.end]);
     }
-    if (node2.kind === import_typescript5.default.SyntaxKind.AnyKeyword) {
+    if (node2.kind === import_typescript6.default.SyntaxKind.AnyKeyword) {
       const parent = node2.parent;
-      if (parent && import_typescript5.default.isAsExpression(parent)) add(node2.getStart(sf), "as-any");
-      else if (parent && !import_typescript5.default.isTypeAssertionExpression(parent) && parent.type === node2 && code2.slice(0, node2.getStart(sf)).trimEnd().endsWith(":")) add(node2.getStart(sf), "any-annotation");
+      if (parent && import_typescript6.default.isAsExpression(parent)) add(node2.getStart(sf), "as-any");
+      else if (parent && !import_typescript6.default.isTypeAssertionExpression(parent) && parent.type === node2 && code2.slice(0, node2.getStart(sf)).trimEnd().endsWith(":")) add(node2.getStart(sf), "any-annotation");
     }
     for (const child of children) collect(child);
   };
@@ -239187,7 +239249,7 @@ function findSuppressions(path3, code2, addedLines) {
   const seen = /* @__PURE__ */ new Set();
   for (const leaf of leaves) {
     if (TEXT_TOKENS.has(leaf.kind)) continue;
-    for (const range of [...import_typescript5.default.getLeadingCommentRanges(code2, leaf.pos) ?? [], ...import_typescript5.default.getTrailingCommentRanges(code2, leaf.end) ?? []]) {
+    for (const range of [...import_typescript6.default.getLeadingCommentRanges(code2, leaf.pos) ?? [], ...import_typescript6.default.getTrailingCommentRanges(code2, leaf.end) ?? []]) {
       if (seen.has(range.pos) || inText(range.pos)) continue;
       seen.add(range.pos);
       const kind = directiveOf(code2.slice(range.pos, range.end));
@@ -239500,8 +239562,12 @@ function computeSignals(ctx, inputs) {
   else if (cov.kind === "error") coverage = { ...coverageNotProvided(cov.message), status: "error" };
   else {
     try {
-      const report = inputs.lang && cov.text.startsWith("mode:") ? parseGoCoverProfile(cov.text, inputs.lang.module, ctx.projectPrefix) : isCoveragePyReport(cov.text) ? parseCoveragePyReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical) : parseCoverageReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical);
-      coverage = coverageSignal(report, inputs.files, inputs.roleOf, inputs.coverageIgnored);
+      const goProfile = inputs.lang !== void 0 && cov.text.startsWith("mode:");
+      const report = goProfile ? parseGoCoverProfile(cov.text, inputs.lang?.module ?? "", ctx.projectPrefix) : isCoveragePyReport(cov.text) ? parseCoveragePyReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical) : parseCoverageReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical);
+      coverage = coverageSignal(report, inputs.files, inputs.roleOf, inputs.coverageIgnored, {
+        missingIsExcluded: !goProfile && listsUnloadedFiles(report),
+        declarationsOnly: (p) => isScriptFile(p) && isDeclarationsOnlyModule(p, inputs.readHead(p) ?? "x(")
+      });
     } catch (error62) {
       coverage = { ...coverageNotProvided(asError(error62)), status: "error" };
     }
@@ -248386,37 +248452,37 @@ function backendFileImpact(table3, schema, resolvers) {
 }
 
 // src/backend/resolvers.ts
-var import_typescript7 = __toESM(require_typescript(), 1);
+var import_typescript8 = __toESM(require_typescript(), 1);
 
 // src/backend/rest.ts
-var import_typescript6 = __toESM(require_typescript(), 1);
+var import_typescript7 = __toESM(require_typescript(), 1);
 var METHODS2 = /* @__PURE__ */ new Set(["get", "post", "put", "patch", "delete", "del", "options", "head", "all"]);
 var SERVERS = /* @__PURE__ */ new Set(["app", "fastify", "server", "router", "instance", "api", "routes", "express", "srv"]);
 function receiverName(call) {
-  if (!import_typescript6.default.isPropertyAccessExpression(call.expression)) return void 0;
+  if (!import_typescript7.default.isPropertyAccessExpression(call.expression)) return void 0;
   let target = call.expression.expression;
-  while (import_typescript6.default.isCallExpression(target) && import_typescript6.default.isPropertyAccessExpression(target.expression)) target = target.expression.expression;
-  return import_typescript6.default.isIdentifier(target) ? target.text : import_typescript6.default.isPropertyAccessExpression(target) ? target.name.text : void 0;
+  while (import_typescript7.default.isCallExpression(target) && import_typescript7.default.isPropertyAccessExpression(target.expression)) target = target.expression.expression;
+  return import_typescript7.default.isIdentifier(target) ? target.text : import_typescript7.default.isPropertyAccessExpression(target) ? target.name.text : void 0;
 }
 function isHandler(node2, call) {
   if (node2 === void 0 || call.typeArguments) return false;
-  if (import_typescript6.default.isArrowFunction(node2) || import_typescript6.default.isFunctionExpression(node2)) return true;
-  return (import_typescript6.default.isIdentifier(node2) || import_typescript6.default.isPropertyAccessExpression(node2)) && SERVERS.has(receiverName(call) ?? "");
+  if (import_typescript7.default.isArrowFunction(node2) || import_typescript7.default.isFunctionExpression(node2)) return true;
+  return (import_typescript7.default.isIdentifier(node2) || import_typescript7.default.isPropertyAccessExpression(node2)) && SERVERS.has(receiverName(call) ?? "");
 }
 function literal2(node2) {
-  return node2 && (import_typescript6.default.isStringLiteral(node2) || import_typescript6.default.isNoSubstitutionTemplateLiteral(node2)) ? node2.text : void 0;
+  return node2 && (import_typescript7.default.isStringLiteral(node2) || import_typescript7.default.isNoSubstitutionTemplateLiteral(node2)) ? node2.text : void 0;
 }
 function objectProp(obj, name) {
   for (const p of obj.properties) {
-    if (import_typescript6.default.isPropertyAssignment(p) && (import_typescript6.default.isIdentifier(p.name) || import_typescript6.default.isStringLiteral(p.name)) && p.name.text === name) return p.initializer;
-    if (import_typescript6.default.isMethodDeclaration(p) && import_typescript6.default.isIdentifier(p.name) && p.name.text === name) return p;
+    if (import_typescript7.default.isPropertyAssignment(p) && (import_typescript7.default.isIdentifier(p.name) || import_typescript7.default.isStringLiteral(p.name)) && p.name.text === name) return p.initializer;
+    if (import_typescript7.default.isMethodDeclaration(p) && import_typescript7.default.isIdentifier(p.name) && p.name.text === name) return p;
   }
   return void 0;
 }
 function restNodes(sf) {
   const out = [];
   const visit3 = (node2) => {
-    if (import_typescript6.default.isCallExpression(node2) && import_typescript6.default.isPropertyAccessExpression(node2.expression)) {
+    if (import_typescript7.default.isCallExpression(node2) && import_typescript7.default.isPropertyAccessExpression(node2.expression)) {
       const method = node2.expression.name.text;
       const args = node2.arguments;
       const last = args[args.length - 1];
@@ -248424,27 +248490,27 @@ function restNodes(sf) {
         const path3 = literal2(args[0]);
         if (path3 !== void 0 && (path3.startsWith("/") || path3 === "*")) out.push({ key: `${method === "del" ? "DELETE" : method.toUpperCase()} ${path3}`, node: node2, value: last });
         const target = node2.expression.expression;
-        if (path3 === void 0 && import_typescript6.default.isCallExpression(target) && import_typescript6.default.isPropertyAccessExpression(target.expression) && target.expression.name.text === "route") {
+        if (path3 === void 0 && import_typescript7.default.isCallExpression(target) && import_typescript7.default.isPropertyAccessExpression(target.expression) && target.expression.name.text === "route") {
           const routePath = literal2(target.arguments[0]);
           if (routePath !== void 0) out.push({ key: `${method.toUpperCase()} ${routePath}`, node: node2, value: last });
         }
       } else if (METHODS2.has(method) && args.length === 1 && isHandler(args[0], node2)) {
         const target = node2.expression.expression;
-        if (import_typescript6.default.isCallExpression(target) && import_typescript6.default.isPropertyAccessExpression(target.expression) && target.expression.name.text === "route") {
+        if (import_typescript7.default.isCallExpression(target) && import_typescript7.default.isPropertyAccessExpression(target.expression) && target.expression.name.text === "route") {
           const routePath = literal2(target.arguments[0]);
           if (routePath !== void 0) out.push({ key: `${method.toUpperCase()} ${routePath}`, node: node2, value: args[0] });
         }
-      } else if (method === "route" && args.length === 1 && args[0] && import_typescript6.default.isObjectLiteralExpression(args[0])) {
+      } else if (method === "route" && args.length === 1 && args[0] && import_typescript7.default.isObjectLiteralExpression(args[0])) {
         const methods = objectProp(args[0], "method");
         const url2 = literal2(objectProp(args[0], "url")) ?? literal2(objectProp(args[0], "path"));
         const handler = objectProp(args[0], "handler");
-        const names = methods && import_typescript6.default.isArrayLiteralExpression(methods) ? methods.elements.map((e) => literal2(e)) : [literal2(methods)];
+        const names = methods && import_typescript7.default.isArrayLiteralExpression(methods) ? methods.elements.map((e) => literal2(e)) : [literal2(methods)];
         if (url2 !== void 0 && handler) {
           for (const m of names) if (m !== void 0) out.push({ key: `${m.toUpperCase()} ${url2}`, node: node2, value: handler });
         }
       }
     }
-    import_typescript6.default.forEachChild(node2, visit3);
+    import_typescript7.default.forEachChild(node2, visit3);
   };
   visit3(sf);
   return out;
@@ -248452,7 +248518,7 @@ function restNodes(sf) {
 
 // src/backend/resolvers.ts
 function propName(name) {
-  if (import_typescript7.default.isIdentifier(name) || import_typescript7.default.isStringLiteral(name) || import_typescript7.default.isNoSubstitutionTemplateLiteral(name)) return name.text;
+  if (import_typescript8.default.isIdentifier(name) || import_typescript8.default.isStringLiteral(name) || import_typescript8.default.isNoSubstitutionTemplateLiteral(name)) return name.text;
   return void 0;
 }
 function normalized(node2, sf) {
@@ -248460,7 +248526,7 @@ function normalized(node2, sf) {
 }
 function unwrap(e) {
   let x = e;
-  while (import_typescript7.default.isParenthesizedExpression(x) || import_typescript7.default.isAsExpression(x) || import_typescript7.default.isSatisfiesExpression(x)) x = x.expression;
+  while (import_typescript8.default.isParenthesizedExpression(x) || import_typescript8.default.isAsExpression(x) || import_typescript8.default.isSatisfiesExpression(x)) x = x.expression;
   return x;
 }
 var ENUM_MARKER = "__values";
@@ -248468,9 +248534,9 @@ var META_FIELDS = /* @__PURE__ */ new Set(["__resolveReference", "__resolveType"
 function resolverNodes(sf, typeFields) {
   const out = [];
   const visit3 = (node2) => {
-    if (import_typescript7.default.isObjectLiteralExpression(node2)) {
+    if (import_typescript8.default.isObjectLiteralExpression(node2)) {
       for (const prop of node2.properties) {
-        if (!import_typescript7.default.isPropertyAssignment(prop)) continue;
+        if (!import_typescript8.default.isPropertyAssignment(prop)) continue;
         const type = propName(prop.name);
         const inner = unwrap(prop.initializer);
         const fields = type === void 0 ? void 0 : typeFields.get(type);
@@ -248478,16 +248544,16 @@ function resolverNodes(sf, typeFields) {
           out.push({ key: `${type ?? ""}.${ENUM_MARKER}`, node: prop, value: prop.initializer });
           continue;
         }
-        if (fields === void 0 || !import_typescript7.default.isObjectLiteralExpression(inner)) continue;
+        if (fields === void 0 || !import_typescript8.default.isObjectLiteralExpression(inner)) continue;
         for (const member of inner.properties) {
           const field = member.name ? propName(member.name) : void 0;
           if (field === void 0 || !fields.has(field) && !META_FIELDS.has(field)) continue;
-          const value = import_typescript7.default.isPropertyAssignment(member) ? member.initializer : import_typescript7.default.isShorthandPropertyAssignment(member) ? member.name : member;
+          const value = import_typescript8.default.isPropertyAssignment(member) ? member.initializer : import_typescript8.default.isShorthandPropertyAssignment(member) ? member.name : member;
           out.push({ key: `${type}.${field}`, node: member, value });
         }
       }
     }
-    import_typescript7.default.forEachChild(node2, visit3);
+    import_typescript8.default.forEachChild(node2, visit3);
   };
   visit3(sf);
   return out;
@@ -248502,14 +248568,14 @@ function resolverEntries(file2, code2, typeFields, withRest = true) {
   const imports = /* @__PURE__ */ new Set();
   const removed = nodes.map(({ node: node2 }) => [node2.getStart(sf), node2.end]);
   for (const statement of sf.statements) {
-    if (import_typescript7.default.isImportDeclaration(statement) && import_typescript7.default.isStringLiteral(statement.moduleSpecifier)) {
+    if (import_typescript8.default.isImportDeclaration(statement) && import_typescript8.default.isStringLiteral(statement.moduleSpecifier)) {
       const clause = statement.importClause;
       const spec = statement.moduleSpecifier.text;
       if (!clause) imports.add(`${spec}|`);
       if (clause?.name) imports.add(`${spec}|default as ${clause.name.text}`);
       const named = clause?.namedBindings;
-      if (named && import_typescript7.default.isNamespaceImport(named)) imports.add(`${spec}|* as ${named.name.text}`);
-      if (named && import_typescript7.default.isNamedImports(named)) for (const el of named.elements) imports.add(`${spec}|${(el.propertyName ?? el.name).text} as ${el.name.text}`);
+      if (named && import_typescript8.default.isNamespaceImport(named)) imports.add(`${spec}|* as ${named.name.text}`);
+      if (named && import_typescript8.default.isNamedImports(named)) for (const el of named.elements) imports.add(`${spec}|${(el.propertyName ?? el.name).text} as ${el.name.text}`);
       removed.push([statement.getStart(sf), statement.end]);
     }
   }
@@ -248521,7 +248587,7 @@ function resolverEntries(file2, code2, typeFields, withRest = true) {
   };
   const items = [];
   for (const statement of sf.statements) {
-    if (import_typescript7.default.isImportDeclaration(statement)) continue;
+    if (import_typescript8.default.isImportDeclaration(statement)) continue;
     const object2 = topLevelObject(statement);
     if (!object2) {
       items.push(blank(statement));
@@ -248533,21 +248599,21 @@ function resolverEntries(file2, code2, typeFields, withRest = true) {
   return { entries: entries.sort((a, b) => compareStrings(a.key, b.key)), rest: items, imports };
 }
 function stripComments(code2) {
-  const scanner = import_typescript7.default.createScanner(import_typescript7.default.ScriptTarget.Latest, false, import_typescript7.default.LanguageVariant.Standard, code2);
+  const scanner = import_typescript8.default.createScanner(import_typescript8.default.ScriptTarget.Latest, false, import_typescript8.default.LanguageVariant.Standard, code2);
   let out = "";
-  for (let kind = scanner.scan(); kind !== import_typescript7.default.SyntaxKind.EndOfFileToken; kind = scanner.scan()) {
-    if (kind === import_typescript7.default.SyntaxKind.SingleLineCommentTrivia || kind === import_typescript7.default.SyntaxKind.MultiLineCommentTrivia) continue;
+  for (let kind = scanner.scan(); kind !== import_typescript8.default.SyntaxKind.EndOfFileToken; kind = scanner.scan()) {
+    if (kind === import_typescript8.default.SyntaxKind.SingleLineCommentTrivia || kind === import_typescript8.default.SyntaxKind.MultiLineCommentTrivia) continue;
     out += scanner.getTokenText();
   }
   return out;
 }
 function topLevelObject(statement) {
   let value;
-  if (import_typescript7.default.isVariableStatement(statement) && statement.declarationList.declarations.length === 1) value = statement.declarationList.declarations[0]?.initializer;
-  else if (import_typescript7.default.isExportAssignment(statement)) value = statement.expression;
-  else if (import_typescript7.default.isExpressionStatement(statement) && import_typescript7.default.isBinaryExpression(statement.expression) && statement.expression.operatorToken.kind === import_typescript7.default.SyntaxKind.EqualsToken) value = statement.expression.right;
+  if (import_typescript8.default.isVariableStatement(statement) && statement.declarationList.declarations.length === 1) value = statement.declarationList.declarations[0]?.initializer;
+  else if (import_typescript8.default.isExportAssignment(statement)) value = statement.expression;
+  else if (import_typescript8.default.isExpressionStatement(statement) && import_typescript8.default.isBinaryExpression(statement.expression) && statement.expression.operatorToken.kind === import_typescript8.default.SyntaxKind.EqualsToken) value = statement.expression.right;
   const inner = value ? unwrap(value) : void 0;
-  return inner && import_typescript7.default.isObjectLiteralExpression(inner) ? inner : void 0;
+  return inner && import_typescript8.default.isObjectLiteralExpression(inner) ? inner : void 0;
 }
 function diffResolvers(base, head) {
   const before = new Map(base.entries.map((e) => [e.key, e.text]));
@@ -248562,29 +248628,29 @@ function diffResolvers(base, head) {
 function accessChain(node2) {
   const parts = [];
   let current = node2;
-  while (import_typescript7.default.isPropertyAccessExpression(current)) {
+  while (import_typescript8.default.isPropertyAccessExpression(current)) {
     parts.unshift(current.name.text);
     current = current.expression;
   }
-  if (import_typescript7.default.isIdentifier(current)) parts.unshift(current.text);
-  else if (current.kind === import_typescript7.default.SyntaxKind.ThisKeyword) parts.unshift("this");
+  if (import_typescript8.default.isIdentifier(current)) parts.unshift(current.text);
+  else if (current.kind === import_typescript8.default.SyntaxKind.ThisKeyword) parts.unshift("this");
   else return [];
   return parts;
 }
-var TYPE_ONLY = /* @__PURE__ */ new Set([import_typescript7.default.SyntaxKind.InterfaceDeclaration, import_typescript7.default.SyntaxKind.TypeAliasDeclaration, import_typescript7.default.SyntaxKind.PropertySignature, import_typescript7.default.SyntaxKind.MethodSignature, import_typescript7.default.SyntaxKind.TypeParameter, import_typescript7.default.SyntaxKind.TypeLiteral]);
+var TYPE_ONLY = /* @__PURE__ */ new Set([import_typescript8.default.SyntaxKind.InterfaceDeclaration, import_typescript8.default.SyntaxKind.TypeAliasDeclaration, import_typescript8.default.SyntaxKind.PropertySignature, import_typescript8.default.SyntaxKind.MethodSignature, import_typescript8.default.SyntaxKind.TypeParameter, import_typescript8.default.SyntaxKind.TypeLiteral]);
 function resolverAnchors(value, checker, isProjectFile, rel, globals, context = () => []) {
   const own2 = value.getSourceFile();
   const modules = /* @__PURE__ */ new Set();
   const seen = /* @__PURE__ */ new Set();
   const visit3 = (node2) => {
-    if (import_typescript7.default.isTypeNode(node2) || import_typescript7.default.isTypeAliasDeclaration(node2) || import_typescript7.default.isInterfaceDeclaration(node2)) return;
-    if (import_typescript7.default.isPropertyAccessExpression(node2) && !(import_typescript7.default.isPropertyAccessExpression(node2.parent) && node2.parent.expression === node2)) {
+    if (import_typescript8.default.isTypeNode(node2) || import_typescript8.default.isTypeAliasDeclaration(node2) || import_typescript8.default.isInterfaceDeclaration(node2)) return;
+    if (import_typescript8.default.isPropertyAccessExpression(node2) && !(import_typescript8.default.isPropertyAccessExpression(node2.parent) && node2.parent.expression === node2)) {
       for (const m of context(accessChain(node2))) modules.add(m);
     }
-    if (import_typescript7.default.isIdentifier(node2)) {
+    if (import_typescript8.default.isIdentifier(node2)) {
       const symbol2 = checker.getSymbolAtLocation(node2);
-      const target = symbol2 && symbol2.flags & import_typescript7.default.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol2) : symbol2;
-      const decls = (target?.declarations ?? []).filter((d) => !TYPE_ONLY.has(d.kind) && !import_typescript7.default.isBinaryExpression(d) && !import_typescript7.default.isPropertyAccessExpression(d) && !import_typescript7.default.isElementAccessExpression(d) && !import_typescript7.default.isIdentifier(d));
+      const target = symbol2 && symbol2.flags & import_typescript8.default.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol2) : symbol2;
+      const decls = (target?.declarations ?? []).filter((d) => !TYPE_ONLY.has(d.kind) && !import_typescript8.default.isBinaryExpression(d) && !import_typescript8.default.isPropertyAccessExpression(d) && !import_typescript8.default.isElementAccessExpression(d) && !import_typescript8.default.isIdentifier(d));
       if (decls.every((d) => d.getSourceFile().isDeclarationFile) && globals.has(node2.text)) {
         modules.add(globals.get(node2.text) ?? "");
         return;
@@ -248592,7 +248658,7 @@ function resolverAnchors(value, checker, isProjectFile, rel, globals, context = 
       for (const d of decls) {
         const sf = d.getSourceFile();
         if (sf === own2) {
-          const body = import_typescript7.default.isFunctionDeclaration(d) ? d : import_typescript7.default.isVariableDeclaration(d) && d.initializer && (import_typescript7.default.isArrowFunction(d.initializer) || import_typescript7.default.isFunctionExpression(d.initializer)) ? d.initializer : void 0;
+          const body = import_typescript8.default.isFunctionDeclaration(d) ? d : import_typescript8.default.isVariableDeclaration(d) && d.initializer && (import_typescript8.default.isArrowFunction(d.initializer) || import_typescript8.default.isFunctionExpression(d.initializer)) ? d.initializer : void 0;
           if (body && !seen.has(body)) {
             seen.add(body);
             visit3(body);
@@ -248602,7 +248668,7 @@ function resolverAnchors(value, checker, isProjectFile, rel, globals, context = 
         }
       }
     }
-    import_typescript7.default.forEachChild(node2, visit3);
+    import_typescript8.default.forEachChild(node2, visit3);
   };
   seen.add(value);
   visit3(value);
@@ -248610,7 +248676,7 @@ function resolverAnchors(value, checker, isProjectFile, rel, globals, context = 
 }
 
 // src/backend/schema.ts
-var import_typescript8 = __toESM(require_typescript(), 1);
+var import_typescript9 = __toESM(require_typescript(), 1);
 var GQL_TAGS = /* @__PURE__ */ new Set(["gql", "graphql"]);
 function sdlSources(file2, code2) {
   if (file2.endsWith(".graphql") || file2.endsWith(".gql")) return { sources: [{ file: file2, line: 1, sdl: code2 }], problems: [] };
@@ -248619,15 +248685,15 @@ function sdlSources(file2, code2) {
   if (!code2.includes("gql") && !code2.includes("graphql")) return { sources, problems };
   const { sourceFile: sf } = parseIsolated(file2, code2);
   const visit3 = (node2) => {
-    if (import_typescript8.default.isTaggedTemplateExpression(node2) && import_typescript8.default.isIdentifier(node2.tag) && GQL_TAGS.has(node2.tag.text)) {
+    if (import_typescript9.default.isTaggedTemplateExpression(node2) && import_typescript9.default.isIdentifier(node2.tag) && GQL_TAGS.has(node2.tag.text)) {
       const line3 = sf.getLineAndCharacterOfPosition(node2.template.getStart(sf)).line + 1;
-      if (import_typescript8.default.isNoSubstitutionTemplateLiteral(node2.template)) sources.push({ file: file2, line: line3, sdl: node2.template.text });
+      if (import_typescript9.default.isNoSubstitutionTemplateLiteral(node2.template)) sources.push({ file: file2, line: line3, sdl: node2.template.text });
       else {
         problems.push({ file: file2, line: line3, detail: "gql template with interpolations: only its literal parts are read" });
         sources.push({ file: file2, line: line3, sdl: [node2.template.head.text, ...node2.template.templateSpans.map((s) => s.literal.text)].join("\n") });
       }
     }
-    import_typescript8.default.forEachChild(node2, visit3);
+    import_typescript9.default.forEachChild(node2, visit3);
   };
   visit3(sf);
   return { sources, problems };
@@ -248852,14 +248918,14 @@ async function schemaContracts(ctx, table3, files, baseSha) {
 }
 
 // src/cli/disk-fs.ts
-var import_typescript9 = __toESM(require_typescript(), 1);
+var import_typescript10 = __toESM(require_typescript(), 1);
 import { readdirSync, realpathSync as realpathSync3, statSync as statSync2 } from "fs";
 function createDiskFileSystem() {
   return {
-    fileExists: (p) => import_typescript9.default.sys.fileExists(p),
-    readFile: (p) => import_typescript9.default.sys.readFile(p),
-    directoryExists: (p) => import_typescript9.default.sys.directoryExists(p),
-    getDirectories: (p) => import_typescript9.default.sys.getDirectories(p),
+    fileExists: (p) => import_typescript10.default.sys.fileExists(p),
+    readFile: (p) => import_typescript10.default.sys.readFile(p),
+    directoryExists: (p) => import_typescript10.default.sys.directoryExists(p),
+    getDirectories: (p) => import_typescript10.default.sys.getDirectories(p),
     getEntries: (p) => {
       const files = [];
       const directories = [];
@@ -249394,15 +249460,15 @@ import { posix as posix12 } from "path";
 import { posix as posix7 } from "path";
 
 // src/backend/globals.ts
-var import_typescript10 = __toESM(require_typescript(), 1);
+var import_typescript11 = __toESM(require_typescript(), 1);
 function definedGlobals(sf) {
   const names = [];
   const visit3 = (node2) => {
-    if (import_typescript10.default.isBinaryExpression(node2) && node2.operatorToken.kind === import_typescript10.default.SyntaxKind.EqualsToken && import_typescript10.default.isPropertyAccessExpression(node2.left)) {
+    if (import_typescript11.default.isBinaryExpression(node2) && node2.operatorToken.kind === import_typescript11.default.SyntaxKind.EqualsToken && import_typescript11.default.isPropertyAccessExpression(node2.left)) {
       const target = node2.left.expression;
-      if (import_typescript10.default.isIdentifier(target) && (target.text === "global" || target.text === "globalThis" || target.text === "window")) names.push(node2.left.name.text);
+      if (import_typescript11.default.isIdentifier(target) && (target.text === "global" || target.text === "globalThis" || target.text === "window")) names.push(node2.left.name.text);
     }
-    import_typescript10.default.forEachChild(node2, visit3);
+    import_typescript11.default.forEachChild(node2, visit3);
   };
   visit3(sf);
   return names;
@@ -249411,12 +249477,12 @@ function usesGlobal(sf, name, checker) {
   let found = false;
   const visit3 = (node2) => {
     if (found) return;
-    if (import_typescript10.default.isIdentifier(node2) && node2.text === name && !(import_typescript10.default.isPropertyAccessExpression(node2.parent) && node2.parent.name === node2)) {
+    if (import_typescript11.default.isIdentifier(node2) && node2.text === name && !(import_typescript11.default.isPropertyAccessExpression(node2.parent) && node2.parent.name === node2)) {
       const symbol2 = checker.getSymbolAtLocation(node2);
       const decls = symbol2?.declarations ?? [];
       if (decls.every((d) => d.getSourceFile().isDeclarationFile)) found = true;
     }
-    import_typescript10.default.forEachChild(node2, visit3);
+    import_typescript11.default.forEachChild(node2, visit3);
   };
   visit3(sf);
   return found;
@@ -249573,13 +249639,13 @@ function createIgnoreMatcher(globs3) {
 }
 
 // src/project/graph.ts
-var import_typescript11 = __toESM(require_typescript(), 1);
+var import_typescript12 = __toESM(require_typescript(), 1);
 import { posix as posix8 } from "path";
 function lineOf(sf, node2) {
   return sf.getLineAndCharacterOfPosition(node2.getStart(sf)).line + 1;
 }
 function isReexportOnly(sf) {
-  return sf.statements.length > 0 && sf.statements.every((s) => import_typescript11.default.isExportDeclaration(s) && s.moduleSpecifier !== void 0);
+  return sf.statements.length > 0 && sf.statements.every((s) => import_typescript12.default.isExportDeclaration(s) && s.moduleSpecifier !== void 0);
 }
 var GraphBuilder = class {
   constructor(project, options) {
@@ -249628,10 +249694,10 @@ var GraphBuilder = class {
   declaringFiles(binding) {
     const local = this.checker.getSymbolAtLocation(binding);
     if (!local) return void 0;
-    const target = local.flags & import_typescript11.default.SymbolFlags.Alias ? this.checker.getAliasedSymbol(local) : local;
+    const target = local.flags & import_typescript12.default.SymbolFlags.Alias ? this.checker.getAliasedSymbol(local) : local;
     const decls = target.declarations ?? [];
     if (decls.length === 0) return void 0;
-    if ((target.flags & (import_typescript11.default.SymbolFlags.Value | import_typescript11.default.SymbolFlags.ConstEnum)) === 0) return [];
+    if ((target.flags & (import_typescript12.default.SymbolFlags.Value | import_typescript12.default.SymbolFlags.ConstEnum)) === 0) return [];
     const files = /* @__PURE__ */ new Set();
     for (const d of decls) {
       const file2 = d.getSourceFile().fileName;
@@ -249641,16 +249707,16 @@ var GraphBuilder = class {
     return [...files];
   }
   visitImport(sf, from, node2) {
-    if (!import_typescript11.default.isStringLiteralLike(node2.moduleSpecifier)) return;
+    if (!import_typescript12.default.isStringLiteralLike(node2.moduleSpecifier)) return;
     const clause = node2.importClause;
     if (!clause) {
       this.link(sf, from, node2.moduleSpecifier, "side-effect");
       return;
     }
     if (isTypeOnlyImport(clause)) return;
-    const named = clause.namedBindings && import_typescript11.default.isNamedImports(clause.namedBindings) ? clause.namedBindings.elements.filter((e) => !e.isTypeOnly) : [];
-    const namespace = clause.namedBindings && import_typescript11.default.isNamespaceImport(clause.namedBindings) ? clause.namedBindings : void 0;
-    const allTypes = clause.namedBindings && import_typescript11.default.isNamedImports(clause.namedBindings) && clause.namedBindings.elements.length > 0 && named.length === 0;
+    const named = clause.namedBindings && import_typescript12.default.isNamedImports(clause.namedBindings) ? clause.namedBindings.elements.filter((e) => !e.isTypeOnly) : [];
+    const namespace = clause.namedBindings && import_typescript12.default.isNamespaceImport(clause.namedBindings) ? clause.namedBindings : void 0;
+    const allTypes = clause.namedBindings && import_typescript12.default.isNamedImports(clause.namedBindings) && clause.namedBindings.elements.length > 0 && named.length === 0;
     if (!clause.name && !namespace && allTypes) return;
     const r = this.resolve(sf, node2.moduleSpecifier);
     if (r.kind !== "module") {
@@ -249672,25 +249738,25 @@ var GraphBuilder = class {
     }
   }
   visitExport(sf, from, node2) {
-    if (!node2.moduleSpecifier || !import_typescript11.default.isStringLiteralLike(node2.moduleSpecifier) || node2.isTypeOnly) return;
+    if (!node2.moduleSpecifier || !import_typescript12.default.isStringLiteralLike(node2.moduleSpecifier) || node2.isTypeOnly) return;
     const clause = node2.exportClause;
-    if (clause && import_typescript11.default.isNamedExports(clause) && clause.elements.length > 0 && clause.elements.every((e) => e.isTypeOnly)) return;
+    if (clause && import_typescript12.default.isNamedExports(clause) && clause.elements.length > 0 && clause.elements.every((e) => e.isTypeOnly)) return;
     this.link(sf, from, node2.moduleSpecifier, "reexport");
   }
   visitCalls(sf, from) {
     const visit3 = (node2) => {
-      if (import_typescript11.default.isCallExpression(node2)) {
+      if (import_typescript12.default.isCallExpression(node2)) {
         const arg = node2.arguments[0];
-        if (node2.expression.kind === import_typescript11.default.SyntaxKind.ImportKeyword) {
-          if (arg && import_typescript11.default.isStringLiteralLike(arg)) this.link(sf, from, arg, "dynamic");
+        if (node2.expression.kind === import_typescript12.default.SyntaxKind.ImportKeyword) {
+          if (arg && import_typescript12.default.isStringLiteralLike(arg)) this.link(sf, from, arg, "dynamic");
           else this.unresolved.push({ file: from, specifier: arg ? arg.getText(sf) : "", line: lineOf(sf, node2), reason: "non-literal" });
-        } else if (import_typescript11.default.isIdentifier(node2.expression) && node2.expression.text === "require" && arg && import_typescript11.default.isStringLiteralLike(arg) && node2.arguments.length === 1) {
+        } else if (import_typescript12.default.isIdentifier(node2.expression) && node2.expression.text === "require" && arg && import_typescript12.default.isStringLiteralLike(arg) && node2.arguments.length === 1) {
           this.link(sf, from, arg, "require");
-        } else if (import_typescript11.default.isPropertyAccessExpression(node2.expression) && import_typescript11.default.isMetaProperty(node2.expression.expression) && node2.expression.expression.keywordToken === import_typescript11.default.SyntaxKind.ImportKeyword && node2.expression.name.text === "glob") {
+        } else if (import_typescript12.default.isPropertyAccessExpression(node2.expression) && import_typescript12.default.isMetaProperty(node2.expression.expression) && node2.expression.expression.keywordToken === import_typescript12.default.SyntaxKind.ImportKeyword && node2.expression.name.text === "glob") {
           this.unresolved.push({ file: from, specifier: node2.getText(sf), line: lineOf(sf, node2), reason: "non-literal" });
         }
       }
-      import_typescript11.default.forEachChild(node2, visit3);
+      import_typescript12.default.forEachChild(node2, visit3);
     };
     visit3(sf);
   }
@@ -249699,11 +249765,11 @@ var GraphBuilder = class {
     this.nodes.add(from);
     if (!this.options.isOrigin(from) || sf.isDeclarationFile) return;
     for (const statement of sf.statements) {
-      if (import_typescript11.default.isImportDeclaration(statement)) this.visitImport(sf, from, statement);
-      else if (import_typescript11.default.isExportDeclaration(statement)) this.visitExport(sf, from, statement);
-      else if (import_typescript11.default.isImportEqualsDeclaration(statement) && !statement.isTypeOnly && import_typescript11.default.isExternalModuleReference(statement.moduleReference)) {
+      if (import_typescript12.default.isImportDeclaration(statement)) this.visitImport(sf, from, statement);
+      else if (import_typescript12.default.isExportDeclaration(statement)) this.visitExport(sf, from, statement);
+      else if (import_typescript12.default.isImportEqualsDeclaration(statement) && !statement.isTypeOnly && import_typescript12.default.isExternalModuleReference(statement.moduleReference)) {
         const expr = statement.moduleReference.expression;
-        if (import_typescript11.default.isStringLiteralLike(expr)) this.link(sf, from, expr, "require");
+        if (import_typescript12.default.isStringLiteralLike(expr)) this.link(sf, from, expr, "require");
       }
     }
     this.visitCalls(sf, from);
@@ -249718,7 +249784,7 @@ var GraphBuilder = class {
       if (isReexportOnly(sf)) reexportOnly.push(rel);
       for (const d of this.project.program.getSyntacticDiagnostics(sf)) {
         const line3 = sf.getLineAndCharacterOfPosition(d.start).line + 1;
-        parseErrors.push({ file: rel, line: line3, message: import_typescript11.default.flattenDiagnosticMessageText(d.messageText, " ") });
+        parseErrors.push({ file: rel, line: line3, message: import_typescript12.default.flattenDiagnosticMessageText(d.messageText, " ") });
       }
     }
     const edges = [...this.edges.values()].sort((a, b) => compareStrings(a.from, b.from) || compareStrings(a.to, b.to) || compareStrings(a.kind, b.kind));
@@ -249733,7 +249799,7 @@ function buildImportGraph(project, options) {
 }
 
 // src/project/program.ts
-var import_typescript12 = __toESM(require_typescript(), 1);
+var import_typescript13 = __toESM(require_typescript(), 1);
 import { posix as posix9 } from "path";
 var ProjectError = class extends Error {
   constructor(message) {
@@ -249742,7 +249808,7 @@ var ProjectError = class extends Error {
   }
 };
 function parseConfigHost(fs2, cwd) {
-  const matchFiles = import_typescript12.default.matchFiles;
+  const matchFiles = import_typescript13.default.matchFiles;
   if (typeof matchFiles !== "function") throw new ProjectError("this TypeScript version does not expose matchFiles; reinstall the pinned typescript version");
   return {
     useCaseSensitiveFileNames: true,
@@ -249751,17 +249817,17 @@ function parseConfigHost(fs2, cwd) {
     readFile: (p) => fs2.readFile(p),
     readDirectory: (root, extensions, excludes, includes, depth) => matchFiles(root, extensions, excludes, includes, true, cwd, depth, (p) => fs2.getEntries(p), (p) => fs2.realpath(p)),
     onUnRecoverableConfigFileDiagnostic: (d) => {
-      throw new ProjectError(`cannot read tsconfig: ${import_typescript12.default.flattenDiagnosticMessageText(d.messageText, "\n")}`);
+      throw new ProjectError(`cannot read tsconfig: ${import_typescript13.default.flattenDiagnosticMessageText(d.messageText, "\n")}`);
     }
   };
 }
 function parseTsconfig(configPath, fs2, cwd) {
   if (!fs2.fileExists(configPath)) throw new ProjectError(`tsconfig not found at ${configPath}; adjust "tsconfig" in the configuration`);
-  const parsed = import_typescript12.default.getParsedCommandLineOfConfigFile(configPath, {}, parseConfigHost(fs2, cwd));
+  const parsed = import_typescript13.default.getParsedCommandLineOfConfigFile(configPath, {}, parseConfigHost(fs2, cwd));
   if (!parsed) throw new ProjectError(`cannot parse ${configPath}`);
-  const fatal = parsed.errors.filter((d) => d.category === import_typescript12.default.DiagnosticCategory.Error && d.code !== 18003);
+  const fatal = parsed.errors.filter((d) => d.category === import_typescript13.default.DiagnosticCategory.Error && d.code !== 18003);
   if (fatal.length > 0) {
-    const messages = fatal.map((d) => import_typescript12.default.flattenDiagnosticMessageText(d.messageText, "\n"));
+    const messages = fatal.map((d) => import_typescript13.default.flattenDiagnosticMessageText(d.messageText, "\n"));
     throw new ProjectError(`invalid tsconfig ${configPath}: ${messages.join("; ")}`);
   }
   return parsed;
@@ -249790,7 +249856,7 @@ function createProjectProgram(input2) {
     declaration: false,
     emitDeclarationOnly: false
   };
-  const host = import_typescript12.default.createCompilerHost(options, true);
+  const host = import_typescript13.default.createCompilerHost(options, true);
   host.fileExists = (p) => fs2.fileExists(p);
   host.readFile = (p) => fs2.readFile(p);
   host.directoryExists = (p) => fs2.directoryExists(p);
@@ -249803,11 +249869,11 @@ function createProjectProgram(input2) {
   host.writeFile = () => void 0;
   host.getSourceFile = (fileName, languageVersionOrOptions) => {
     const text = fs2.readFile(fileName);
-    return text === void 0 ? void 0 : import_typescript12.default.createSourceFile(fileName, text, languageVersionOrOptions, true);
+    return text === void 0 ? void 0 : import_typescript13.default.createSourceFile(fileName, text, languageVersionOrOptions, true);
   };
   const rootNames = input2.anchorFile === void 0 || parsed.fileNames.includes(input2.anchorFile) ? parsed.fileNames : [...parsed.fileNames, input2.anchorFile];
-  const program3 = import_typescript12.default.createProgram({ rootNames, options, host, projectReferences: void 0 });
-  const resolutionCache = import_typescript12.default.createModuleResolutionCache(projectDir, (f) => f, options);
+  const program3 = import_typescript13.default.createProgram({ rootNames, options, host, projectReferences: void 0 });
+  const resolutionCache = import_typescript13.default.createModuleResolutionCache(projectDir, (f) => f, options);
   return { program: program3, options, configPath, resolutionHost: host, resolutionCache, fs: fs2 };
 }
 
@@ -249932,34 +249998,34 @@ function extract(input2) {
 var nextAdapter = { name: "next", source: "directory", extract };
 
 // src/routes/react-router/index.ts
-var import_typescript17 = __toESM(require_typescript(), 1);
+var import_typescript18 = __toESM(require_typescript(), 1);
 
 // src/routes/react-router/builders.ts
-var import_typescript16 = __toESM(require_typescript(), 1);
+var import_typescript17 = __toESM(require_typescript(), 1);
 
 // src/routes/react-router/elements.ts
-var import_typescript15 = __toESM(require_typescript(), 1);
+var import_typescript16 = __toESM(require_typescript(), 1);
 
 // src/routes/react-router/scope.ts
-var import_typescript14 = __toESM(require_typescript(), 1);
+var import_typescript15 = __toESM(require_typescript(), 1);
 
 // src/routes/react-router/lazy.ts
-var import_typescript13 = __toESM(require_typescript(), 1);
+var import_typescript14 = __toESM(require_typescript(), 1);
 function lazyImports(scope, fn, node2, seen = /* @__PURE__ */ new Set()) {
   const specs = [];
   const called = [];
   let nonLiteral;
   const visit3 = (n) => {
-    if (import_typescript13.default.isCallExpression(n)) {
-      if (n.expression.kind === import_typescript13.default.SyntaxKind.ImportKeyword) {
+    if (import_typescript14.default.isCallExpression(n)) {
+      if (n.expression.kind === import_typescript14.default.SyntaxKind.ImportKeyword) {
         const arg = n.arguments[0];
-        if (arg && import_typescript13.default.isStringLiteralLike(arg)) specs.push(arg);
+        if (arg && import_typescript14.default.isStringLiteralLike(arg)) specs.push(arg);
         else nonLiteral = n;
-      } else if (import_typescript13.default.isIdentifier(n.expression)) {
+      } else if (import_typescript14.default.isIdentifier(n.expression)) {
         called.push(n.expression);
       }
     }
-    import_typescript13.default.forEachChild(n, visit3);
+    import_typescript14.default.forEachChild(n, visit3);
   };
   visit3(fn);
   if (nonLiteral) return scope.fail(nonLiteral, "lazy import() with a computed path");
@@ -249977,7 +250043,7 @@ function lazyImports(scope, fn, node2, seen = /* @__PURE__ */ new Set()) {
     const b = scope.bindingQuiet(id.text);
     if (!b) continue;
     const value = b.value;
-    if (import_typescript13.default.isFunctionDeclaration(value) || import_typescript13.default.isArrowFunction(value) || import_typescript13.default.isFunctionExpression(value)) {
+    if (import_typescript14.default.isFunctionDeclaration(value) || import_typescript14.default.isArrowFunction(value) || import_typescript14.default.isFunctionExpression(value)) {
       const before = scope.registry.dynamic.length;
       const followed = lazyImports(b.scope, value, node2, seen);
       if (followed && followed.length > 0) return followed;
@@ -249990,14 +250056,14 @@ function lazyImports(scope, fn, node2, seen = /* @__PURE__ */ new Set()) {
 // src/routes/react-router/scope.ts
 function unwrap2(expr) {
   let e = expr;
-  while (import_typescript14.default.isParenthesizedExpression(e) || import_typescript14.default.isAsExpression(e) || import_typescript14.default.isSatisfiesExpression(e) || import_typescript14.default.isNonNullExpression(e) || import_typescript14.default.isTypeAssertionExpression(e)) e = e.expression;
+  while (import_typescript15.default.isParenthesizedExpression(e) || import_typescript15.default.isAsExpression(e) || import_typescript15.default.isSatisfiesExpression(e) || import_typescript15.default.isNonNullExpression(e) || import_typescript15.default.isTypeAssertionExpression(e)) e = e.expression;
   return e;
 }
 function isFunctionLike(node2) {
-  return import_typescript14.default.isArrowFunction(node2) || import_typescript14.default.isFunctionExpression(node2) || import_typescript14.default.isMethodDeclaration(node2) || import_typescript14.default.isFunctionDeclaration(node2);
+  return import_typescript15.default.isArrowFunction(node2) || import_typescript15.default.isFunctionExpression(node2) || import_typescript15.default.isMethodDeclaration(node2) || import_typescript15.default.isFunctionDeclaration(node2);
 }
 function propertyName(name) {
-  if (import_typescript14.default.isIdentifier(name) || import_typescript14.default.isStringLiteral(name) || import_typescript14.default.isNoSubstitutionTemplateLiteral(name)) return name.text;
+  if (import_typescript15.default.isIdentifier(name) || import_typescript15.default.isStringLiteral(name) || import_typescript15.default.isNoSubstitutionTemplateLiteral(name)) return name.text;
   return void 0;
 }
 var Registry = class {
@@ -250041,31 +250107,31 @@ var Scope = class {
   reexports = [];
   defaultExport;
   index(statement) {
-    const exported = import_typescript14.default.canHaveModifiers(statement) && (import_typescript14.default.getModifiers(statement) ?? []).some((m) => m.kind === import_typescript14.default.SyntaxKind.ExportKeyword);
-    if (import_typescript14.default.isImportDeclaration(statement) && import_typescript14.default.isStringLiteral(statement.moduleSpecifier) && statement.importClause && !isTypeOnlyImport(statement.importClause)) {
+    const exported = import_typescript15.default.canHaveModifiers(statement) && (import_typescript15.default.getModifiers(statement) ?? []).some((m) => m.kind === import_typescript15.default.SyntaxKind.ExportKeyword);
+    if (import_typescript15.default.isImportDeclaration(statement) && import_typescript15.default.isStringLiteral(statement.moduleSpecifier) && statement.importClause && !isTypeOnlyImport(statement.importClause)) {
       const spec = statement.moduleSpecifier.text;
       const clause = statement.importClause;
       if (clause.name) this.imports.set(clause.name.text, { spec, imported: "default" });
       const bindings = clause.namedBindings;
-      if (bindings && import_typescript14.default.isNamespaceImport(bindings)) this.imports.set(bindings.name.text, { spec, imported: "*" });
-      if (bindings && import_typescript14.default.isNamedImports(bindings)) {
+      if (bindings && import_typescript15.default.isNamespaceImport(bindings)) this.imports.set(bindings.name.text, { spec, imported: "*" });
+      if (bindings && import_typescript15.default.isNamedImports(bindings)) {
         for (const el of bindings.elements) if (!el.isTypeOnly) this.imports.set(el.name.text, { spec, imported: (el.propertyName ?? el.name).text });
       }
-    } else if (import_typescript14.default.isVariableStatement(statement) && statement.declarationList.flags & import_typescript14.default.NodeFlags.Const) {
+    } else if (import_typescript15.default.isVariableStatement(statement) && statement.declarationList.flags & import_typescript15.default.NodeFlags.Const) {
       for (const decl of statement.declarationList.declarations) {
-        if (!import_typescript14.default.isIdentifier(decl.name) || !decl.initializer) continue;
+        if (!import_typescript15.default.isIdentifier(decl.name) || !decl.initializer) continue;
         this.locals.set(decl.name.text, decl.initializer);
         if (exported) this.exportNames.set(decl.name.text, decl.name.text);
       }
-    } else if (import_typescript14.default.isFunctionDeclaration(statement) && statement.name) {
+    } else if (import_typescript15.default.isFunctionDeclaration(statement) && statement.name) {
       this.locals.set(statement.name.text, statement);
       if (exported) this.exportNames.set(statement.name.text, statement.name.text);
-    } else if (import_typescript14.default.isExportAssignment(statement) && !statement.isExportEquals) {
+    } else if (import_typescript15.default.isExportAssignment(statement) && !statement.isExportEquals) {
       this.defaultExport = statement.expression;
-    } else if (import_typescript14.default.isExportDeclaration(statement) && !statement.isTypeOnly) {
-      const spec = statement.moduleSpecifier && import_typescript14.default.isStringLiteral(statement.moduleSpecifier) ? statement.moduleSpecifier.text : void 0;
+    } else if (import_typescript15.default.isExportDeclaration(statement) && !statement.isTypeOnly) {
+      const spec = statement.moduleSpecifier && import_typescript15.default.isStringLiteral(statement.moduleSpecifier) ? statement.moduleSpecifier.text : void 0;
       const clause = statement.exportClause;
-      if (clause && import_typescript14.default.isNamedExports(clause)) {
+      if (clause && import_typescript15.default.isNamedExports(clause)) {
         const names = new Map(clause.elements.filter((e) => !e.isTypeOnly).map((e) => [e.name.text, (e.propertyName ?? e.name).text]));
         if (spec === void 0) for (const [exportedName, local] of names) this.exportNames.set(exportedName, local);
         else this.reexports.push({ spec, names });
@@ -250082,7 +250148,7 @@ var Scope = class {
   /** Top-level constant or function of this module (no imports). */
   local(name) {
     const value = this.locals.get(name);
-    return value && !import_typescript14.default.isFunctionDeclaration(value) ? unwrap2(value) : value;
+    return value && !import_typescript15.default.isFunctionDeclaration(value) ? unwrap2(value) : value;
   }
   /** Repo path of an imported module, `package:<spec>` for packages, null (recorded) when unresolved. */
   resolveSpecifier(specifier, node2) {
@@ -250138,10 +250204,10 @@ var Scope = class {
   /** Object literal behind an expression (a literal, or a constant holding one, here or in another module). */
   objectLiteral(expr, depth = 0) {
     const e = unwrap2(expr);
-    if (import_typescript14.default.isObjectLiteralExpression(e)) return { scope: this, object: e };
-    if (import_typescript14.default.isIdentifier(e) && depth < 20) {
+    if (import_typescript15.default.isObjectLiteralExpression(e)) return { scope: this, object: e };
+    if (import_typescript15.default.isIdentifier(e) && depth < 20) {
       const b = this.bindingQuiet(e.text);
-      if (b && !import_typescript14.default.isFunctionDeclaration(b.value)) return b.scope.objectLiteral(b.value, depth + 1);
+      if (b && !import_typescript15.default.isFunctionDeclaration(b.value)) return b.scope.objectLiteral(b.value, depth + 1);
     }
     return void 0;
   }
@@ -250156,8 +250222,8 @@ var Scope = class {
   stringValue(expr, depth = 0) {
     if (depth > 20) return void 0;
     const e = unwrap2(expr);
-    if (import_typescript14.default.isStringLiteral(e) || import_typescript14.default.isNoSubstitutionTemplateLiteral(e)) return e.text;
-    if (import_typescript14.default.isTemplateExpression(e)) {
+    if (import_typescript15.default.isStringLiteral(e) || import_typescript15.default.isNoSubstitutionTemplateLiteral(e)) return e.text;
+    if (import_typescript15.default.isTemplateExpression(e)) {
       let text = e.head.text;
       for (const span of e.templateSpans) {
         const part = this.stringValue(span.expression, depth + 1);
@@ -250166,16 +250232,16 @@ var Scope = class {
       }
       return text;
     }
-    if (import_typescript14.default.isIdentifier(e)) {
+    if (import_typescript15.default.isIdentifier(e)) {
       const b = this.bindingQuiet(e.text);
-      return b && !import_typescript14.default.isFunctionDeclaration(b.value) ? b.scope.stringValue(b.value, depth + 1) : void 0;
+      return b && !import_typescript15.default.isFunctionDeclaration(b.value) ? b.scope.stringValue(b.value, depth + 1) : void 0;
     }
-    if (import_typescript14.default.isPropertyAccessExpression(e) || import_typescript14.default.isElementAccessExpression(e) && import_typescript14.default.isStringLiteralLike(e.argumentExpression)) {
-      const key = import_typescript14.default.isPropertyAccessExpression(e) ? e.name.text : e.argumentExpression.text;
+    if (import_typescript15.default.isPropertyAccessExpression(e) || import_typescript15.default.isElementAccessExpression(e) && import_typescript15.default.isStringLiteralLike(e.argumentExpression)) {
+      const key = import_typescript15.default.isPropertyAccessExpression(e) ? e.name.text : e.argumentExpression.text;
       const holder = this.objectLiteral(e.expression);
       if (!holder) return void 0;
       for (const prop of holder.object.properties) {
-        if (import_typescript14.default.isPropertyAssignment(prop) && propertyName(prop.name) === key) return holder.scope.stringValue(prop.initializer, depth + 1);
+        if (import_typescript15.default.isPropertyAssignment(prop) && propertyName(prop.name) === key) return holder.scope.stringValue(prop.initializer, depth + 1);
       }
     }
     return void 0;
@@ -250185,7 +250251,7 @@ var Scope = class {
     const imp = this.imports.get(name);
     if (imp !== void 0) return this.resolveSpecifier(imp.spec, node2);
     const value = this.local(name);
-    if (value && import_typescript14.default.isCallExpression(value)) {
+    if (value && import_typescript15.default.isCallExpression(value)) {
       const loader = value.arguments.find((a) => isFunctionLike(a));
       if (loader) return lazyImports(this, loader, node2)?.[0] ?? null;
     }
@@ -250195,22 +250261,22 @@ var Scope = class {
   /** Component given as a value (`Component: X`, `ErrorBoundary: X`). */
   componentValue(expr) {
     const e = unwrap2(expr);
-    if (e.kind === import_typescript14.default.SyntaxKind.NullKeyword || import_typescript14.default.isIdentifier(e) && e.text === "undefined") return { entry: null, modules: [] };
+    if (e.kind === import_typescript15.default.SyntaxKind.NullKeyword || import_typescript15.default.isIdentifier(e) && e.text === "undefined") return { entry: null, modules: [] };
     let id = e;
-    while (import_typescript14.default.isPropertyAccessExpression(id)) id = id.expression;
-    if (!import_typescript14.default.isIdentifier(id)) return this.fail(e, `unsupported component value "${e.getText(this.sf)}"`);
+    while (import_typescript15.default.isPropertyAccessExpression(id)) id = id.expression;
+    if (!import_typescript15.default.isIdentifier(id)) return this.fail(e, `unsupported component value "${e.getText(this.sf)}"`);
     const m = this.resolveComponent(id.text, e);
     return m === null ? null : { entry: m, modules: [m] };
   }
   /** Modules of a `lazy` value: a function, an object of functions (lazy: { Component: … }) or a function constant. */
   lazyValue(value) {
-    const v = import_typescript14.default.isExpression(value) ? unwrap2(value) : value;
-    if (import_typescript14.default.isIdentifier(v)) {
+    const v = import_typescript15.default.isExpression(value) ? unwrap2(value) : value;
+    if (import_typescript15.default.isIdentifier(v)) {
       const b = this.binding(v.text, v);
       if (!b) return null;
       return b.scope.lazyValue(b.value);
     }
-    if (isFunctionLike(v) || import_typescript14.default.isObjectLiteralExpression(v) || import_typescript14.default.isCallExpression(v)) {
+    if (isFunctionLike(v) || import_typescript15.default.isObjectLiteralExpression(v) || import_typescript15.default.isCallExpression(v)) {
       const modules = lazyImports(this, v, v);
       return modules === null ? null : { entry: modules[0] ?? null, modules };
     }
@@ -250220,18 +250286,18 @@ var Scope = class {
 
 // src/routes/react-router/elements.ts
 function isJsx(node2) {
-  return import_typescript15.default.isJsxElement(node2) || import_typescript15.default.isJsxSelfClosingElement(node2) || import_typescript15.default.isJsxFragment(node2);
+  return import_typescript16.default.isJsxElement(node2) || import_typescript16.default.isJsxSelfClosingElement(node2) || import_typescript16.default.isJsxFragment(node2);
 }
 function containsJsx(node2) {
   if (isJsx(node2)) return true;
-  return import_typescript15.default.forEachChild(node2, (child) => containsJsx(child) ? true : void 0) ?? false;
+  return import_typescript16.default.forEachChild(node2, (child) => containsJsx(child) ? true : void 0) ?? false;
 }
 function elementModules(scope, expr) {
   const e = unwrap2(expr);
-  if (e.kind === import_typescript15.default.SyntaxKind.NullKeyword || import_typescript15.default.isIdentifier(e) && e.text === "undefined") return { entry: null, modules: [] };
-  if (import_typescript15.default.isIdentifier(e)) {
+  if (e.kind === import_typescript16.default.SyntaxKind.NullKeyword || import_typescript16.default.isIdentifier(e) && e.text === "undefined") return { entry: null, modules: [] };
+  if (import_typescript16.default.isIdentifier(e)) {
     const b = scope.bindingQuiet(e.text);
-    if (!b || import_typescript15.default.isFunctionDeclaration(b.value) || !isJsx(unwrap2(b.value))) return scope.fail(e, `element ${e.text} is not a JSX constant`);
+    if (!b || import_typescript16.default.isFunctionDeclaration(b.value) || !isJsx(unwrap2(b.value))) return scope.fail(e, `element ${e.text} is not a JSX constant`);
     return elementModules(b.scope, b.value);
   }
   const root = e;
@@ -250240,8 +250306,8 @@ function elementModules(scope, expr) {
   const state = { failed: false };
   const tag = (name, node2) => {
     let id = name;
-    while (import_typescript15.default.isPropertyAccessExpression(id)) id = id.expression;
-    if (!import_typescript15.default.isIdentifier(id)) return;
+    while (import_typescript16.default.isPropertyAccessExpression(id)) id = id.expression;
+    if (!import_typescript16.default.isIdentifier(id)) return;
     const text = id.text;
     const first = text[0] ?? "";
     if (first === first.toLowerCase() && !text.includes(".")) return;
@@ -250251,17 +250317,17 @@ function elementModules(scope, expr) {
   };
   const inExpression = (node2) => {
     if (isJsx(node2)) visit3(node2);
-    else import_typescript15.default.forEachChild(node2, inExpression);
+    else import_typescript16.default.forEachChild(node2, inExpression);
   };
   const attributes = (attrs) => {
-    for (const attr of attrs.properties) if (import_typescript15.default.isJsxAttribute(attr) && attr.initializer && import_typescript15.default.isJsxExpression(attr.initializer)) inExpression(attr.initializer);
+    for (const attr of attrs.properties) if (import_typescript16.default.isJsxAttribute(attr) && attr.initializer && import_typescript16.default.isJsxExpression(attr.initializer)) inExpression(attr.initializer);
   };
   const children = (list2) => {
     for (const child of list2) {
-      if (import_typescript15.default.isJsxText(child)) continue;
-      if (import_typescript15.default.isJsxExpression(child)) {
+      if (import_typescript16.default.isJsxText(child)) continue;
+      if (import_typescript16.default.isJsxExpression(child)) {
         const inner = child.expression;
-        if (!inner || import_typescript15.default.isStringLiteralLike(inner) || import_typescript15.default.isNumericLiteral(inner)) continue;
+        if (!inner || import_typescript16.default.isStringLiteralLike(inner) || import_typescript16.default.isNumericLiteral(inner)) continue;
         if (containsJsx(inner)) inExpression(inner);
         else {
           scope.fail(child, `element content is computed: "${child.getText(scope.sf)}"`);
@@ -250273,9 +250339,9 @@ function elementModules(scope, expr) {
     }
   };
   function visit3(node2) {
-    if (import_typescript15.default.isJsxFragment(node2)) {
+    if (import_typescript16.default.isJsxFragment(node2)) {
       children(node2.children);
-    } else if (import_typescript15.default.isJsxSelfClosingElement(node2)) {
+    } else if (import_typescript16.default.isJsxSelfClosingElement(node2)) {
       tag(node2.tagName, node2);
       attributes(node2.attributes);
     } else {
@@ -250318,7 +250384,7 @@ var DefBuilder = class {
   }
   set(name, value, node2) {
     const s = this.scope;
-    const expr = import_typescript16.default.isExpression(value) ? value : void 0;
+    const expr = import_typescript17.default.isExpression(value) ? value : void 0;
     switch (name) {
       case "path": {
         const p = expr ? s.stringValue(expr) : void 0;
@@ -250328,8 +250394,8 @@ var DefBuilder = class {
       }
       case "index": {
         const e = expr ? unwrap2(expr) : void 0;
-        if (e?.kind === import_typescript16.default.SyntaxKind.TrueKeyword) this.index = true;
-        else if (e?.kind !== import_typescript16.default.SyntaxKind.FalseKeyword) this.reject(node2, `computed index flag "${value.getText(s.sf)}"`);
+        if (e?.kind === import_typescript17.default.SyntaxKind.TrueKeyword) this.index = true;
+        else if (e?.kind !== import_typescript17.default.SyntaxKind.FalseKeyword) this.reject(node2, `computed index flag "${value.getText(s.sf)}"`);
         return;
       }
       case "element":
@@ -250373,38 +250439,38 @@ var RouteCollector = class {
       s.fail(e, "route definitions nest too deeply (circular constants?)");
       return;
     }
-    if (import_typescript16.default.isArrayLiteralExpression(e)) {
+    if (import_typescript17.default.isArrayLiteralExpression(e)) {
       for (const el of e.elements) {
-        if (import_typescript16.default.isSpreadElement(el)) {
+        if (import_typescript17.default.isSpreadElement(el)) {
           const spread = unwrap2(el.expression);
-          if (import_typescript16.default.isIdentifier(spread)) this.fromExpression(s, spread, ctx, depth + 1);
+          if (import_typescript17.default.isIdentifier(spread)) this.fromExpression(s, spread, ctx, depth + 1);
           else s.fail(el, `spread in route array "${el.getText(s.sf)}"`);
-        } else if (import_typescript16.default.isObjectLiteralExpression(unwrap2(el))) this.fromObject(s, unwrap2(el), ctx);
-        else if (import_typescript16.default.isIdentifier(unwrap2(el))) this.fromExpression(s, el, ctx, depth + 1);
+        } else if (import_typescript17.default.isObjectLiteralExpression(unwrap2(el))) this.fromObject(s, unwrap2(el), ctx);
+        else if (import_typescript17.default.isIdentifier(unwrap2(el))) this.fromExpression(s, el, ctx, depth + 1);
         else s.fail(el, `unsupported route "${el.getText(s.sf)}"`);
       }
       return;
     }
-    if (import_typescript16.default.isObjectLiteralExpression(e)) {
+    if (import_typescript17.default.isObjectLiteralExpression(e)) {
       this.fromObject(s, e, ctx);
       return;
     }
-    if (import_typescript16.default.isIdentifier(e)) {
+    if (import_typescript17.default.isIdentifier(e)) {
       const b = s.binding(e.text, e);
       if (!b) return;
-      if (import_typescript16.default.isFunctionDeclaration(b.value)) {
+      if (import_typescript17.default.isFunctionDeclaration(b.value)) {
         s.fail(e, `routes come from ${e.text}, which is a function`);
         return;
       }
       this.fromExpression(b.scope, b.value, ctx, depth + 1);
       return;
     }
-    if (import_typescript16.default.isCallExpression(e) && isCallTo(e, ROUTES_FROM_ELEMENTS)) {
+    if (import_typescript17.default.isCallExpression(e) && isCallTo(e, ROUTES_FROM_ELEMENTS)) {
       const arg = e.arguments[0];
       if (arg) this.fromJsxNodes(s, [arg], ctx);
       return;
     }
-    if (import_typescript16.default.isCallExpression(e) && import_typescript16.default.isPropertyAccessExpression(e.expression)) {
+    if (import_typescript17.default.isCallExpression(e) && import_typescript17.default.isPropertyAccessExpression(e.expression)) {
       s.fail(e, `routes generated by .${e.expression.name.text}()`);
       return;
     }
@@ -250414,7 +250480,7 @@ var RouteCollector = class {
     const def = new DefBuilder(s);
     let children;
     for (const prop of obj.properties) {
-      if (import_typescript16.default.isSpreadAssignment(prop)) {
+      if (import_typescript17.default.isSpreadAssignment(prop)) {
         def.reject(prop, `spread in route object "${prop.getText(s.sf)}"`);
         continue;
       }
@@ -250424,15 +250490,15 @@ var RouteCollector = class {
         continue;
       }
       let value;
-      if (import_typescript16.default.isPropertyAssignment(prop)) value = prop.initializer;
-      else if (import_typescript16.default.isShorthandPropertyAssignment(prop)) value = prop.name;
-      else if (import_typescript16.default.isMethodDeclaration(prop)) value = prop;
+      if (import_typescript17.default.isPropertyAssignment(prop)) value = prop.initializer;
+      else if (import_typescript17.default.isShorthandPropertyAssignment(prop)) value = prop.name;
+      else if (import_typescript17.default.isMethodDeclaration(prop)) value = prop;
       if (value === void 0) {
         if (ROUTE_KEYS.has(name)) def.reject(prop, `unsupported "${name}" accessor`);
         continue;
       }
       if (name === "children") {
-        if (import_typescript16.default.isExpression(value)) children = value;
+        if (import_typescript17.default.isExpression(value)) children = value;
         else def.reject(prop, "unsupported children");
         continue;
       }
@@ -250446,15 +250512,15 @@ var RouteCollector = class {
   /** Routes from JSX children of <Routes>, a fragment, or the argument of createRoutesFromElements(). */
   fromJsxNodes(s, nodes, ctx) {
     for (const raw of nodes) {
-      const node2 = import_typescript16.default.isExpression(raw) ? unwrap2(raw) : raw;
-      if (import_typescript16.default.isJsxText(node2)) continue;
-      if (import_typescript16.default.isJsxFragment(node2)) {
+      const node2 = import_typescript17.default.isExpression(raw) ? unwrap2(raw) : raw;
+      if (import_typescript17.default.isJsxText(node2)) continue;
+      if (import_typescript17.default.isJsxFragment(node2)) {
         this.fromJsxNodes(s, node2.children, ctx);
-      } else if (import_typescript16.default.isJsxElement(node2) || import_typescript16.default.isJsxSelfClosingElement(node2)) {
-        const tagName = import_typescript16.default.isJsxElement(node2) ? node2.openingElement.tagName : node2.tagName;
-        if (import_typescript16.default.isIdentifier(tagName) && tagName.text === "Route") this.fromJsxRoute(s, node2, ctx);
+      } else if (import_typescript17.default.isJsxElement(node2) || import_typescript17.default.isJsxSelfClosingElement(node2)) {
+        const tagName = import_typescript17.default.isJsxElement(node2) ? node2.openingElement.tagName : node2.tagName;
+        if (import_typescript17.default.isIdentifier(tagName) && tagName.text === "Route") this.fromJsxRoute(s, node2, ctx);
         else s.fail(node2, `unexpected <${tagName.getText(s.sf)}> among routes`);
-      } else if (import_typescript16.default.isJsxExpression(node2)) {
+      } else if (import_typescript17.default.isJsxExpression(node2)) {
         if (node2.expression) s.fail(node2, `routes generated in JSX: "${node2.getText(s.sf).slice(0, 80)}"`);
       } else {
         s.fail(node2, `unsupported routes "${node2.getText(s.sf).slice(0, 80)}"`);
@@ -250463,13 +250529,13 @@ var RouteCollector = class {
   }
   fromJsxRoute(s, node2, ctx) {
     const def = new DefBuilder(s);
-    const attrs = import_typescript16.default.isJsxElement(node2) ? node2.openingElement.attributes : node2.attributes;
+    const attrs = import_typescript17.default.isJsxElement(node2) ? node2.openingElement.attributes : node2.attributes;
     for (const attr of attrs.properties) {
-      if (import_typescript16.default.isJsxSpreadAttribute(attr)) {
+      if (import_typescript17.default.isJsxSpreadAttribute(attr)) {
         def.reject(attr, "spread attributes on <Route>");
         continue;
       }
-      const name = import_typescript16.default.isIdentifier(attr.name) ? attr.name.text : void 0;
+      const name = import_typescript17.default.isIdentifier(attr.name) ? attr.name.text : void 0;
       if (name === void 0) continue;
       const init = attr.initializer;
       if (init === void 0) {
@@ -250477,12 +250543,12 @@ var RouteCollector = class {
         else if (ROUTE_KEYS.has(name)) def.reject(attr, `attribute ${name} without a value`);
         continue;
       }
-      const value = import_typescript16.default.isJsxExpression(init) ? init.expression : init;
+      const value = import_typescript17.default.isJsxExpression(init) ? init.expression : init;
       if (!value) continue;
       def.set(name, value, attr);
     }
     const built = def.build();
-    if (built) this.emit(built, ctx, import_typescript16.default.isJsxElement(node2) ? (child) => {
+    if (built) this.emit(built, ctx, import_typescript17.default.isJsxElement(node2) ? (child) => {
       this.fromJsxNodes(s, node2.children, child);
     } : void 0);
   }
@@ -250491,30 +250557,30 @@ var ROUTER_FACTORIES = /* @__PURE__ */ new Set(["createBrowserRouter", "createHa
 var ROUTES_FROM_ELEMENTS = /* @__PURE__ */ new Set(["createRoutesFromElements", "createRoutesFromChildren"]);
 function isCallTo(call, names) {
   const callee = call.expression;
-  if (import_typescript16.default.isIdentifier(callee)) return names.has(callee.text);
-  if (import_typescript16.default.isPropertyAccessExpression(callee)) return names.has(callee.name.text);
+  if (import_typescript17.default.isIdentifier(callee)) return names.has(callee.text);
+  if (import_typescript17.default.isPropertyAccessExpression(callee)) return names.has(callee.name.text);
   return false;
 }
 
 // src/routes/react-router/index.ts
 function looksLikeRouteArray(expr) {
   const e = unwrap2(expr);
-  if (!import_typescript17.default.isArrayLiteralExpression(e) || e.elements.length === 0) return false;
+  if (!import_typescript18.default.isArrayLiteralExpression(e) || e.elements.length === 0) return false;
   return e.elements.every((el) => {
     const o = unwrap2(el);
-    if (!import_typescript17.default.isObjectLiteralExpression(o)) return true;
+    if (!import_typescript18.default.isObjectLiteralExpression(o)) return true;
     return o.properties.some((p) => p.name !== void 0 && ROUTE_KEYS.has(propertyName(p.name) ?? ""));
   });
 }
 function isRoutesElement(node2) {
-  return import_typescript17.default.isJsxElement(node2) && import_typescript17.default.isIdentifier(node2.openingElement.tagName) && node2.openingElement.tagName.text === "Routes";
+  return import_typescript18.default.isJsxElement(node2) && import_typescript18.default.isIdentifier(node2.openingElement.tagName) && node2.openingElement.tagName.text === "Routes";
 }
 function collectRoots(scope, collector) {
   const handled = /* @__PURE__ */ new Set();
   let roots = 0;
   const handleArray = (expr) => {
     const target = unwrap2(expr);
-    const resolved = import_typescript17.default.isIdentifier(target) ? scope.local(target.text) : target;
+    const resolved = import_typescript18.default.isIdentifier(target) ? scope.local(target.text) : target;
     if (resolved && handled.has(resolved)) return;
     if (resolved) handled.add(resolved);
     roots++;
@@ -250522,11 +250588,11 @@ function collectRoots(scope, collector) {
   };
   const visit3 = (node2) => {
     if (handled.has(node2)) return;
-    if (import_typescript17.default.isCallExpression(node2) && isCallTo(node2, ROUTER_FACTORIES)) {
+    if (import_typescript18.default.isCallExpression(node2) && isCallTo(node2, ROUTER_FACTORIES)) {
       const arg = node2.arguments[0];
       if (arg) handleArray(arg);
       else scope.fail(node2, "router created without routes");
-    } else if (import_typescript17.default.isCallExpression(node2) && isCallTo(node2, ROUTES_FROM_ELEMENTS)) {
+    } else if (import_typescript18.default.isCallExpression(node2) && isCallTo(node2, ROUTES_FROM_ELEMENTS)) {
       handled.add(node2);
       roots++;
       collector.fromJsxNodes(scope, node2.arguments, ROOT_CTX);
@@ -250536,15 +250602,15 @@ function collectRoots(scope, collector) {
       collector.fromJsxNodes(scope, node2.children, ROOT_CTX);
       return;
     }
-    import_typescript17.default.forEachChild(node2, visit3);
+    import_typescript18.default.forEachChild(node2, visit3);
   };
   visit3(scope.sf);
   for (const statement of scope.sf.statements) {
-    if (import_typescript17.default.isVariableStatement(statement) && statement.modifiers?.some((m) => m.kind === import_typescript17.default.SyntaxKind.ExportKeyword)) {
+    if (import_typescript18.default.isVariableStatement(statement) && statement.modifiers?.some((m) => m.kind === import_typescript18.default.SyntaxKind.ExportKeyword)) {
       for (const decl of statement.declarationList.declarations) {
         if (decl.initializer && !handled.has(unwrap2(decl.initializer)) && looksLikeRouteArray(decl.initializer)) handleArray(decl.initializer);
       }
-    } else if (import_typescript17.default.isExportAssignment(statement) && !handled.has(unwrap2(statement.expression)) && looksLikeRouteArray(statement.expression)) {
+    } else if (import_typescript18.default.isExportAssignment(statement) && !handled.has(unwrap2(statement.expression)) && looksLikeRouteArray(statement.expression)) {
       handleArray(statement.expression);
     }
   }
@@ -250569,30 +250635,30 @@ function extract2(input2) {
 var reactRouterAdapter = { name: "react-router", source: "file", extract: extract2 };
 
 // src/routes/tanstack-router/index.ts
-var import_typescript18 = __toESM(require_typescript(), 1);
+var import_typescript19 = __toESM(require_typescript(), 1);
 var FILE_ROUTE_FACTORIES = /* @__PURE__ */ new Set(["createFileRoute", "createLazyFileRoute"]);
 var ROOT_ROUTE_FACTORIES = /* @__PURE__ */ new Set(["createRootRoute", "createRootRouteWithContext"]);
 var ROOT_ID = "__root__";
 function calleeName2(call) {
   let callee = call.expression;
-  while (import_typescript18.default.isCallExpression(callee)) callee = callee.expression;
-  return import_typescript18.default.isIdentifier(callee) ? callee.text : void 0;
+  while (import_typescript19.default.isCallExpression(callee)) callee = callee.expression;
+  return import_typescript19.default.isIdentifier(callee) ? callee.text : void 0;
 }
 function routesOf(file2, code2, dynamic) {
   const { sourceFile: sf } = parseIsolated(file2, code2);
   const found = [];
   const visit3 = (node2) => {
-    if (import_typescript18.default.isCallExpression(node2)) {
+    if (import_typescript19.default.isCallExpression(node2)) {
       const name = calleeName2(node2);
       if (name !== void 0 && ROOT_ROUTE_FACTORIES.has(name)) {
         if (!found.some((f) => f.id === ROOT_ID)) found.push({ id: ROOT_ID, lazy: false });
-      } else if (name !== void 0 && FILE_ROUTE_FACTORIES.has(name) && import_typescript18.default.isIdentifier(node2.expression)) {
+      } else if (name !== void 0 && FILE_ROUTE_FACTORIES.has(name) && import_typescript19.default.isIdentifier(node2.expression)) {
         const arg = node2.arguments[0];
-        if (arg !== void 0 && import_typescript18.default.isStringLiteralLike(arg)) found.push({ id: arg.text, lazy: name === "createLazyFileRoute" });
+        if (arg !== void 0 && import_typescript19.default.isStringLiteralLike(arg)) found.push({ id: arg.text, lazy: name === "createLazyFileRoute" });
         else dynamic.push({ file: file2, line: sf.getLineAndCharacterOfPosition(node2.getStart(sf)).line + 1, detail: `${name} without a literal route id` });
       }
     }
-    import_typescript18.default.forEachChild(node2, visit3);
+    import_typescript19.default.forEachChild(node2, visit3);
   };
   visit3(sf);
   return found;
@@ -250848,51 +250914,6 @@ function loadBackendWorkspace(ctx, fs2, treeFiles, lap) {
   for (const p of backend.problems) if (p.detail.startsWith("invalid GraphQL")) graph.parseErrors.push({ file: p.file, line: p.line, message: p.detail });
   lap("routes");
   return { fs: fs2, project, graph, routes: { routes: backend.operations, dynamic: [], sources: [] }, routesFile: "", backend, ...treeFiles ? { treeFiles } : {} };
-}
-
-// src/classify/declarations-only.ts
-var import_typescript19 = __toESM(require_typescript(), 1);
-var SCRIPT = /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs)$/;
-var isScriptFile = (file2) => SCRIPT.test(file2);
-function isStaticValue(e, depth = 0, calls = true) {
-  if (depth > 20) return false;
-  const value = (x) => isStaticValue(x, depth + 1, calls);
-  if (import_typescript19.default.isArrowFunction(e)) return !import_typescript19.default.isBlock(e.body) && value(e.body);
-  if (import_typescript19.default.isCallExpression(e)) return calls && (import_typescript19.default.isIdentifier(e.expression) || import_typescript19.default.isPropertyAccessExpression(e.expression)) && value(e.expression) && e.arguments.length > 0 && e.arguments.every((a) => !import_typescript19.default.isSpreadElement(a) && isStaticValue(a, depth + 1, false));
-  if (import_typescript19.default.isStringLiteral(e) || import_typescript19.default.isNumericLiteral(e) || import_typescript19.default.isNoSubstitutionTemplateLiteral(e) || import_typescript19.default.isBigIntLiteral(e) || import_typescript19.default.isRegularExpressionLiteral(e)) return true;
-  if (e.kind === import_typescript19.default.SyntaxKind.TrueKeyword || e.kind === import_typescript19.default.SyntaxKind.FalseKeyword || e.kind === import_typescript19.default.SyntaxKind.NullKeyword) return true;
-  if (import_typescript19.default.isIdentifier(e) || import_typescript19.default.isPropertyAccessExpression(e)) return import_typescript19.default.isIdentifier(e) || value(e.expression);
-  if (import_typescript19.default.isPrefixUnaryExpression(e)) return (e.operator === import_typescript19.default.SyntaxKind.MinusToken || e.operator === import_typescript19.default.SyntaxKind.PlusToken) && value(e.operand);
-  if (import_typescript19.default.isParenthesizedExpression(e) || import_typescript19.default.isAsExpression(e) || import_typescript19.default.isSatisfiesExpression(e) || import_typescript19.default.isTypeAssertionExpression(e)) return value(e.expression);
-  if (import_typescript19.default.isTemplateExpression(e)) return e.templateSpans.every((s) => value(s.expression));
-  if (import_typescript19.default.isArrayLiteralExpression(e)) return e.elements.every((x) => import_typescript19.default.isSpreadElement(x) ? value(x.expression) : value(x));
-  if (import_typescript19.default.isObjectLiteralExpression(e)) {
-    return e.properties.every((p) => {
-      if (import_typescript19.default.isPropertyAssignment(p)) return (!import_typescript19.default.isComputedPropertyName(p.name) || value(p.name.expression)) && value(p.initializer);
-      if (import_typescript19.default.isShorthandPropertyAssignment(p)) return true;
-      if (import_typescript19.default.isSpreadAssignment(p)) return value(p.expression);
-      return false;
-    });
-  }
-  return false;
-}
-function isDeclarationsOnlyModule(file2, code2) {
-  if (!SCRIPT.test(file2) || file2.endsWith(".test.ts")) return false;
-  const { sourceFile: sf, errors } = parseIsolated(file2, code2);
-  if (errors.length > 0) return false;
-  return sf.statements.every((s) => {
-    if (import_typescript19.default.isInterfaceDeclaration(s) || import_typescript19.default.isTypeAliasDeclaration(s) || import_typescript19.default.isEnumDeclaration(s)) return true;
-    if (import_typescript19.default.isImportDeclaration(s)) return s.importClause !== void 0;
-    if (import_typescript19.default.isExportDeclaration(s)) return true;
-    if (import_typescript19.default.isExportAssignment(s)) return isStaticValue(s.expression);
-    const modifiers = import_typescript19.default.canHaveModifiers(s) ? import_typescript19.default.getModifiers(s) ?? [] : [];
-    if (modifiers.some((m) => m.kind === import_typescript19.default.SyntaxKind.DeclareKeyword)) return true;
-    if (import_typescript19.default.isVariableStatement(s)) {
-      const isConst = (s.declarationList.flags & import_typescript19.default.NodeFlags.Const) !== 0;
-      return isConst && s.declarationList.declarations.every((d) => d.initializer !== void 0 && import_typescript19.default.isIdentifier(d.name) && isStaticValue(d.initializer));
-    }
-    return false;
-  });
 }
 
 // src/contracts/compare.ts
@@ -251535,9 +251556,12 @@ function reachWeight(f, totalPages) {
 }
 var COVERED_RISK = 0.3;
 var DECLARATIONS_RISK = 0.5;
+var LEFT_OUT_RISK = 0.5;
 function fileCoverage(o) {
   const out = /* @__PURE__ */ new Map();
   if (o.signals.coverage.status !== "ok") return out;
+  for (const path3 of o.signals.coverage.ignoredFiles) out.set(path3, { ratio: null, factor: LEFT_OUT_RISK, label: "left out of diff coverage (coverageIgnore)" });
+  for (const path3 of o.signals.coverage.excludedByProject ?? []) out.set(path3, { ratio: null, factor: LEFT_OUT_RISK, label: "left out by the project's coverage settings" });
   for (const f of o.signals.coverage.files) {
     if (f.changedExecutableLines === 0) {
       out.set(f.path, { ratio: null, factor: DECLARATIONS_RISK, label: "only declarations changed (no executable line)" });
@@ -251550,8 +251574,8 @@ function fileCoverage(o) {
 }
 function scoreItems(o) {
   const items = [];
-  const add = (file2, kind, weight, title) => {
-    if (round(weight) > 0) items.push({ file: file2, kind, weight: round(Math.min(weight, 0.95)), title });
+  const add = (file2, kind, weight, title, line3) => {
+    if (round(weight) > 0) items.push({ file: file2, kind, weight: round(Math.min(weight, 0.95)), title, ...line3 === void 0 ? {} : { line: line3 } });
   };
   const coverage = fileCoverage(o);
   const coverageNote = o.signals.coverage.status === "ok" ? "not measured" : "coverage not verified";
@@ -251570,10 +251594,10 @@ function scoreItems(o) {
   for (const f of infra) add(f.path, "infra", 1 - (1 - INFRA_WEIGHT) ** (1 / infra.length), `${f.status} environment, infrastructure or CI file: check it per environment`);
   const outside = new Set(o.files.filter((f) => f.role === "excluded").map((f) => f.path));
   const security = o.signals.security.findings.filter((s) => !outside.has(s.path));
-  for (const s of security) add(s.path, "security", SECURITY_WEIGHT[s.severity], `${s.severity} ${s.rule} at line ${s.line}`);
+  for (const s of security) add(s.path, "security", SECURITY_WEIGHT[s.severity], `${s.severity} ${s.rule} at line ${s.line}`, s.line);
   const securityLines = new Set(security.map((s) => `${s.path}:${s.line}`));
-  for (const l of o.signals.lint.findings) if (l.severity === "error" && !outside.has(l.path) && !securityLines.has(`${l.path}:${l.line}`)) add(l.path, "lint", 0.05, `lint error ${l.rule} at line ${l.line}`);
-  for (const s of o.signals.suppressions.items) if (!outside.has(s.path)) add(s.path, "suppression", 0.02, `${s.kind} at line ${s.line}`);
+  for (const l of o.signals.lint.findings) if (l.severity === "error" && !outside.has(l.path) && !securityLines.has(`${l.path}:${l.line}`)) add(l.path, "lint", 0.05, `lint error ${l.rule} at line ${l.line}`, l.line);
+  for (const s of o.signals.suppressions.items) if (!outside.has(s.path)) add(s.path, "suppression", 0.02, `${s.kind} at line ${s.line}`, s.line);
   for (const t of o.signals.testsModified.files) if (t.linesRemoved > 0) add(t.path, "tests", t.status === "deleted" ? 0.1 : t.linesRemoved >= 10 ? 0.05 : 0.02, `existing test ${t.status}, ${t.linesRemoved} line(s) removed`);
   for (const c of o.dependencies.changes) add(c.manifest, "dependency", dependencyWeight(c), `${c.name} ${c.change}${c.bump ? ` (${c.bump})` : ""}${c.critical ? ", critical" : ""}`);
   for (const v of o.signals.vulnerabilities.related) add(null, "vulnerability", VULN_WEIGHT[v.severity] * (v.kind === "direct" ? 1 : 0.6), `${v.severity} advisory on ${v.package}: ${v.title}`);
@@ -251611,6 +251635,43 @@ function scoreGroups(items) {
 
 // src/report/verdict.ts
 import { posix as posix15 } from "path";
+
+// src/report/review-parts.ts
+var FINDING_KINDS = /* @__PURE__ */ new Set(["security", "lint"]);
+var HIGH_TIER = 20;
+var MEDIUM_TIER = 5;
+var logOf = (items) => items.reduce((s, i) => s - Math.log(1 - i.weight), 0);
+var ownOf = (items) => Math.round(100 * (1 - Math.exp(-logOf(items))));
+function reviewParts(items) {
+  const parts = [];
+  for (const g of scoreGroups(items)) {
+    const rest = g.items.filter((i) => !(g.file !== null && FINDING_KINDS.has(i.kind)));
+    if (rest.length > 0) {
+      const kind = g.file !== null ? "file" : rest.every((i) => i.kind === "contract") ? "contract" : rest.every((i) => i.kind === "vulnerability") ? "vulnerability" : "other";
+      parts.push({ kind, file: g.file, line: null, items: rest, own: ownOf(rest), must: kind === "contract" || kind === "vulnerability" });
+    }
+    if (g.file !== null) for (const i of g.items.filter((x) => FINDING_KINDS.has(x.kind))) parts.push({ kind: "finding", file: g.file, line: i.line ?? null, items: [i], own: ownOf([i]), must: true });
+  }
+  const logs = parts.map((p) => logOf(p.items));
+  const total = logs.reduce((a, b) => a + b, 0);
+  const score = 100 * (1 - Math.exp(-total));
+  const rows = parts.map((p, i) => {
+    const v = total === 0 ? 0 : score * (logs[i] ?? 0) / total;
+    return { part: p, v, points: Math.floor(v) };
+  });
+  let left = Math.round(score) - rows.reduce((a, r) => a + r.points, 0);
+  for (const r of [...rows].sort((a, b) => b.v - b.points - (a.v - a.points))) {
+    if (left <= 0) break;
+    r.points++;
+    left--;
+  }
+  return rows.map((r) => ({ ...r.part, points: r.points })).sort((a, b) => b.points - a.points || b.own - a.own);
+}
+function tierOf(part) {
+  return part.own >= HIGH_TIER ? "high" : part.own >= MEDIUM_TIER ? "medium" : "skim";
+}
+
+// src/report/verdict.ts
 var QUICK_SCORE = 25;
 var CAREFUL_SCORE = 60;
 var START_HERE_MAX = 7;
@@ -251622,7 +251683,7 @@ function percent(ratio) {
 function computeVerdict(o) {
   const { score, items } = mergeScore(o);
   const coverage = fileCoverage(o);
-  const points = new Map(scoreGroups(items).flatMap((g) => g.file === null ? [] : [[g.file, g.points]]));
+  const points = new Map(reviewParts(items).flatMap((p) => p.kind === "file" && p.file !== null ? [[p.file, p.own]] : []));
   const riskOf = new Map(o.risk.files.map((f) => [f.path, f]));
   const entriesOf = /* @__PURE__ */ new Map();
   const addEntry = (file2, path3) => {
@@ -252025,17 +252086,42 @@ var CONTRACT_TEXT = {
   columns: { level: "Level", where: "Where", change: "Change" }
 };
 
+// src/report/strings-comment.ts
+var plural2 = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+var COMMENT_TEXT = {
+  title: (score, level, verdict) => `### farol \xB7 merge risk ${score}/100 (${level}) \xB7 ${verdict}`,
+  verdict: { pass: "\u2713 fast track", quick: "\u25D0 quick review", careful: "\u26A0 careful review" },
+  ready: "\u2713 Low risk and nothing to check by hand: likely safe to approve.",
+  workbench: (url2) => `\u{1F4C4} **[Open the review workbench](${url2})**: mark files as reviewed and the score drops; copy the results back here.`,
+  shadow: "farol only informs: it never approves or blocks.",
+  must: "**Must check** (by hand, before approving)",
+  contract: (keys) => `Breaking API change: ${keys}`,
+  contractDangerous: (keys) => `API change that may affect clients: ${keys}`,
+  security: (where, severity, rule, message) => `Security finding at ${where}: ${severity} ${rule}, ${message}`,
+  lint: (where, rule, message) => `Lint error at ${where}: ${rule}, ${message}`,
+  vulnerability: (title) => `Vulnerable dependency: ${title}`,
+  files: (score) => `**Files by risk** (points are each part's share of the ${score})`,
+  tier: { high: "\u{1F534}", medium: "\u{1F7E0}" },
+  file: (points, coverage, reach) => `**${points}**${coverage ? ` \xB7 ${coverage}` : ""}${reach ? ` \xB7 ${reach}` : ""}`,
+  reach: (n, total, many) => `${n} of ${total} ${many}`,
+  rest: (skim, tests) => [skim > 0 ? `${plural2(skim, "file", "files")} to skim` : "", tests > 0 ? plural2(tests, "test file", "test files") : ""].filter((x) => x !== "").join(", "),
+  restLine: (what, points, alone) => `- ${alone ? "" : "and "}${what}: ${points} ${points === 1 ? "point" : "points"} together`,
+  other: (what, points) => `- ${what}: **${points}**`,
+  tested: (ratio, covered, total) => `**New code tested:** ${ratio} (${covered} of ${total} changed lines)`,
+  testedWithout: (ratio, files) => `, ${ratio} without ${plural2(files, "file", "files")} not in the coverage report`,
+  leftOut: (files) => ` \xB7 ${plural2(files, "file", "files")} left out of coverage on purpose`,
+  allSignals: "All signals"
+};
+
 // src/report/strings.ts
 var MARKER = "<!-- farol -->";
-var plural2 = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+var plural3 = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 var FRONTEND_TERMS = { aOne: "a page", one: "page", many: "pages", Many: "Pages", section: "Routes" };
 var BACKEND_TERMS = { aOne: "an operation", one: "operation", many: "operations", Many: "Operations", section: "Operations" };
 function terms(surface) {
   return surface === "backend" ? BACKEND_TERMS : FRONTEND_TERMS;
 }
 var TEXT = {
-  title: "### farol \xB7 PR reading (shadow mode)",
-  intro: "Signals computed on the lines this PR changes. farol only informs: it never approves or blocks.",
   notVerified: "not verified",
   reportError: (message) => `could not read the report (${message})`,
   andMore: (n) => `and ${n} more`,
@@ -252044,24 +252130,19 @@ var TEXT = {
   coverageNoLines: "no changed executable lines",
   coverageUncoveredTitle: "uncovered ranges:",
   coverageMissing: "missing from the coverage report",
-  coverageIgnored: (n) => `${plural2(n, "file", "files")} ignored for coverage`,
+  coverageIgnored: (n) => `${plural3(n, "file", "files")} left out of coverage on purpose`,
   lintLabel: "Lint on changed lines",
-  lintValue: (errors, warnings) => `${plural2(errors, "error", "errors")}, ${plural2(warnings, "warning", "warnings")}`,
-  lintOther: (errors, warnings) => `outside the changed lines: ${plural2(errors, "error", "errors")}, ${plural2(warnings, "warning", "warnings")}`,
+  lintValue: (errors, warnings) => `${plural3(errors, "error", "errors")}, ${plural3(warnings, "warning", "warnings")}`,
+  lintOther: (errors, warnings) => `outside the changed lines: ${plural3(errors, "error", "errors")}, ${plural3(warnings, "warning", "warnings")}`,
   severity: { error: "error", warning: "warning" },
   suppressionsLabel: "Added suppressions",
   none: "none",
   testsLabel: "Modified existing tests",
-  testsValue: (n, removed) => `${plural2(n, "file", "files")}, ${plural2(removed, "line removed", "lines removed")}`,
+  testsValue: (n, removed) => `${plural3(n, "file", "files")}, ${plural3(removed, "line removed", "lines removed")}`,
   testStatus: { modified: "modified", deleted: "deleted", renamed: "renamed" },
-  linesRemoved: (n) => plural2(n, "line removed", "lines removed"),
+  linesRemoved: (n) => plural3(n, "line removed", "lines removed"),
   renamedFrom: (old) => `was ${old}`,
-  fullReport: (url2) => `\u{1F4C4} [Full report (HTML)](${url2}): review plan, files to start with, graphs of the affected routes.`,
-  verdictLabel: "Review",
-  verdictValue: { pass: "\u2713 fast track", quick: "\u25D0 quick review", careful: "\u26A0 careful review" },
-  verdictFile: (points, coverage) => `risk ${points}${coverage ? ` \xB7 ${coverage}` : ""}`,
-  scoreLabel: "Merge risk score",
-  scoreValue: (score, level) => `${score}/100 (${level}; higher is riskier)`,
+  verdictLabel: "Why this review",
   riskLabel: "Risk",
   riskValue: (high, medium, low) => `${high} high, ${medium} medium, ${low} low`,
   riskItem: (pages, total, dependents, t = FRONTEND_TERMS) => `${pages}/${total} ${t.many}, ${dependents} dependents`,
@@ -252070,7 +252151,7 @@ var TEXT = {
   vulnerabilitiesLabel: "Vulnerabilities in added or changed dependencies",
   vulnerabilityItem: (sev, pkg, title, kind, via) => `${sev} ${pkg}: ${title} (${kind}${kind === "transitive" ? ` via ${via}` : ""})`,
   dependenciesLabel: "Dependencies",
-  dependenciesValue: (critical, other) => `${plural2(critical, "critical change", "critical changes")}, ${plural2(other, "other change", "other changes")}`,
+  dependenciesValue: (critical, other) => `${plural3(critical, "critical change", "critical changes")}, ${plural3(other, "other change", "other changes")}`,
   lockfilesChanged: (files) => `lockfile changed: ${files}`,
   detailsSummary: "Classification \u2014 open only after reviewing",
   classLabel: "Class",
@@ -252162,6 +252243,7 @@ var HTML_TEXT = {
   coverageCols: ["File", "Changed executable lines", "Covered", "Uncovered ranges"],
   missing: "missing from the report",
   coverageIgnoredTitle: (n) => `Ignored for coverage only (${n}; signals.coverageIgnore / --coverage-ignore)`,
+  coverageExcludedTitle: (n) => `Left out by the project's coverage settings (${n}): the report lists files no test loaded, but not these`,
   reportedOnly: (percent2, covered, total) => `Files present in the report only: ${percent2} (${covered} / ${total}).`,
   lintTitle: "Lint on changed lines",
   lintCols: ["Location", "Severity", "Rule", "Message"],
@@ -252240,7 +252322,7 @@ var HTML_TEXT = {
   reviewBadRegex: "invalid regular expression",
   viewList: "List",
   viewTree: "Tree (by module)",
-  treePages: (n, t = FRONTEND_TERMS) => plural2(n, t.one, t.many),
+  treePages: (n, t = FRONTEND_TERMS) => plural3(n, t.one, t.many),
   routeFiles: (n) => n === 0 ? "" : `${n} changed file${n === 1 ? "" : "s"}`,
   diagramNote: "Loading the diagram (needs internet access to load Mermaid).",
   routeRiskTitle: "highest risk among the changed files behind this route",
@@ -252390,8 +252472,353 @@ function contractsSection2(o) {
   return `<section class="panel"><p class="small muted">${CONTRACT_TEXT.intro}</p>${problem}<p><strong>${esc2(CONTRACT_TEXT.summary(c.summary.breaking, c.summary.dangerous, c.summary.safe))}</strong> <span class="muted small">\xB7 ${esc2(CONTRACT_TEXT.readable(c.readable))}</span></p>${notable.map((e) => entryRow(o, e)).join("\n")}${safeBlock}</section>`;
 }
 
-// src/report/test-plan.ts
+// src/report/markdown-format.ts
+function esc3(text, max = 300) {
+  const short = text.length > max ? `${text.slice(0, max - 1)}\u2026` : text;
+  return short.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("`", "'");
+}
+function code(text) {
+  return `\`${text.replaceAll("`", "'")}\``;
+}
+function link(text, url2) {
+  return url2 === null ? text : `[${text}](${url2})`;
+}
+function fileMd(l, path3, label2 = path3) {
+  return link(code(label2), l.file(path3));
+}
+function locationMd(l, path3, line3, label2 = path3) {
+  return link(code(`${label2}:${line3}`), l.lines(path3, line3));
+}
+
+// src/report/markdown-review.ts
 import { posix as posix16 } from "path";
+
+// src/report/strings-workbench.ts
+function workbenchText(surface) {
+  const t = terms(surface);
+  const pair = (one, many) => [`{n} ${one}`, `{n} ${many}`];
+  return {
+    lang: "en",
+    title: "farol \xB7 {repo}",
+    themeToggle: "Theme",
+    footer: "farol {version} \xB7 shadow mode: it informs, it never blocks",
+    noscript: "This report needs JavaScript.",
+    keysHint: "next / previous",
+    keysReviewed: "reviewed",
+    copyResults: "Copy results",
+    commentOnGithub: "Comment on GitHub \u2197",
+    listAnd: "{items} and {last}",
+    andMore: "and {n} more",
+    none: "None.",
+    files: pair("file", "files"),
+    codeFiles: pair("code file", "code files"),
+    lines: pair("line", "lines"),
+    changedLines: pair("changed line", "changed lines"),
+    items: pair("item", "items"),
+    packages: pair("package changed", "packages changed"),
+    otherParts: pair("other part", "other parts"),
+    entriesPair: pair(t.one, t.many),
+    newEntries: pair(`new ${t.one}`, `new ${t.many}`),
+    levels: { high: "High", medium: "Medium", low: "Low" },
+    verdict: { careful: "Careful review", quick: "Quick review", pass: "Fast track" },
+    tiers: { high: "High risk", medium: "Medium risk", skim: "Skim", tests: "Test files" },
+    kinds: { contract: "Breaking API change", vulnerability: "Vulnerable dependency", global: "Global change", unknown: "Unknown impact", dependency: "Dependency", infra: "Infrastructure", tests: "Tests" },
+    rail: {
+      risk: "Merge risk",
+      was: " \xB7 was {score}",
+      ready: "\u2713 Low risk: likely safe to approve",
+      lowButMust: "Low score, but {items} left in Must check",
+      tested: "New code tested",
+      testedSub: "{covered} of {total} changed lines",
+      testedWithout: " \xB7 {ratio} without {files} not in the report",
+      noReport: "no coverage report",
+      noExecutable: "no executable line changed",
+      reviewed: "Reviewed",
+      reviewedBox: "Reviewed",
+      checkedBox: "Checked",
+      flagged: "Behind a feature flag"
+    },
+    nav: { summary: "Summary", must: "Must check", before: "Before approving", contract: "API contract", contractSafe: "safe", plan: "Can affect", details: "Details", finish: "Finish", results: "Results", resultsHint: "copy to GitHub" },
+    must: { contract: "Breaking API change", security: "Security finding", lint: "Lint error", vulnerability: "Vulnerable dependency", securityAt: "Security \xB7 {file}:{line}", lintAt: "Lint error \xB7 {file}:{line}" },
+    lede: {
+      top: "Most of the risk comes from {parts}.",
+      contract: "a breaking change to {key}",
+      security: "a security finding in {file}",
+      lint: "a lint error in {file}",
+      global: "{file}, a change that can affect the whole app",
+      bump: "the {name} bump ({from} \u2192 {to})",
+      bumpMayBreak: "the {name} bump ({from} \u2192 {to}, may break)",
+      dependency: "{name} ({change})",
+      tests: "tests trimmed in {file}",
+      file: "{file}, {why}",
+      reach: `{files} changed; {n} of {total} existing {many} run changed code`,
+      added: ", plus {what}"
+    },
+    summary: {
+      incremental: "Incremental: only the changes since {since} (your last review).",
+      ready: "Ready to approve",
+      readyTitle: "\u2713 Low risk ({score}/100).",
+      readyDown: "Down from {score}: what needed a careful read is reviewed and nothing is left in Must check.",
+      readyNothing: "Nothing here needs a careful read.",
+      copyResults: "Copy the results for the pull request.",
+      startMust: "Start with Must check, then the files on the left: the score drops as you review.",
+      start: "Start with the first file on the left: the score drops as you review.",
+      makesUp: "What makes up the {score}",
+      allReviewed: "Everything is reviewed."
+    },
+    cov: {
+      title: "How much of the new code is tested",
+      summary: "{ratio} \xB7 {covered} of {total} changed lines",
+      summaryWithout: " ({ratio} without {files} not in the report)",
+      show: "Click to see it file by file",
+      hide: "Click to hide",
+      file: "Changed file",
+      tested: "Lines tested",
+      notRun: "Never ran",
+      none: "No coverage report: farol cannot tell which changed lines ran in the tests.",
+      missingTitle: "{files} not in the coverage report",
+      missingWhy: "No test loaded them, so their changed lines count as untested. If they are left out of coverage on purpose (constants, migrations, generated code), list them in signals.coverageIgnore: they then count as neither tested nor untested.",
+      leftOutTitle: "{files} left out of coverage on purpose",
+      leftOutWhy: "Neither tested nor untested: they are not in the numbers above, and each keeps half of its risk in the score.",
+      leftOutBy: { ignore: "signals.coverageIgnore", project: "the project's coverage settings" }
+    },
+    file: {
+      position: "File {i} of {n} \xB7 {change}",
+      markBtn: "Mark as reviewed",
+      reviewedBtn: "\u2713 Reviewed",
+      next: "Next file",
+      comment: "Comment on GitHub \u2197",
+      commentTitle: "Opens this file's diff in the pull request, where you can comment on any line",
+      of: "of {score}",
+      part: "part of the score",
+      reach: "{many} run it",
+      linesTested: "{covered} of {total} lines tested",
+      notInReport: "not in the coverage report",
+      declarations: "only declarations changed",
+      noCoverage: "no coverage data",
+      errors: "errors thrown here",
+      testTitle: "Test file changed",
+      testWhy: "{why}. Check that the removed lines did not drop an assertion that still matters.",
+      note: "Your note",
+      notePlaceholder: "Anything you found. It goes into the results.",
+      entries: `{Many} that run it`,
+      knows: "Who knows this file",
+      noHistory: "No history"
+    },
+    finding: {
+      security: "Security finding \xB7 {severity}",
+      lint: "Lint error \xB7 {rule}",
+      atLine: "at line {line}",
+      ackSecurity: "Checked: fixed, or safe in this context",
+      ackLint: "Checked: fixed, or fine to merge as is",
+      ackVulnerability: "Checked: fixed, or the vulnerable code is not reachable",
+      comment: "Comment on line {line} in GitHub \u2197",
+      lead: "Reviewing the file does not clear this: tick it once you checked it. It is {points} points of the score.",
+      open: "Open {file}"
+    },
+    dep: {
+      change: "dependency change",
+      none: "none",
+      removed: "removed",
+      zeroMinorTag: "0.x minor \xB7 may break",
+      where: "{section} in {file}",
+      howTitle: "How to check it",
+      how1: "Read the release notes between {from} and {to}",
+      how2: "Search the code for imports of {name} and compare with what changed.",
+      how3: "Open a {one} that uses it.",
+      npm: "versions on npm \u2197",
+      means: {
+        major: "Major version: breaking changes are expected. Code that uses this package may stop compiling or behave differently.",
+        zeroMinor: "Before 1.0, semver lets a minor version break the API: anything this project uses from the package may have changed.",
+        minor: "Minor version: new features, compatible by semver.",
+        patch: "Patch version: fixes only, compatible by semver.",
+        removed: "Removed: any code that still imports it fails.",
+        added: "New package: nothing used it before this pull request.",
+        moved: "Moved to another section of the manifest: check it is still installed where the code runs.",
+        unknown: "The versions cannot be compared (a tag, URL or range): read what changed by hand.",
+        range: "Only the range changed: the installed version may stay the same."
+      }
+    },
+    diff: {
+      none: "farol keeps diffs of code files only.",
+      seeInPr: "See this file in the pull request \u2197",
+      hint: "Click a line number to comment on that line in GitHub.",
+      commentLine: "Comment on this line in GitHub",
+      noReport: "No coverage report: farol cannot tell which lines ran in the tests.",
+      missing: "<b>Not in the coverage report.</b> No test loaded this file, so none of its {n} changed executable lines ran.",
+      declarations: "Only declarations changed: nothing executable to cover.",
+      allRan: "<b>All {n} changed executable lines ran in the tests.</b>",
+      someRan: "<b>{covered} of {total} changed lines ran in the tests.</b> {missing} never ran: {ranges}.",
+      notRun: "Not run by tests \xB7 lines {lines}",
+      security: "Security \xB7 {severity}",
+      lint: "Lint \xB7 {rule}",
+      suppression: "Suppression \xB7 {kind}"
+    },
+    plan: {
+      title: "What this change can affect",
+      lead: `{n} existing {many} run code this pull request changed{added}. Try them by hand before approving, riskiest first. Mark the ones that ship behind a feature flag: once every {one} that runs a file is flagged, that file leaves the score.`,
+      leadNew: ", plus {what}",
+      none: "No existing {many} run changed code.",
+      tried: "{done} of {total} tried",
+      flagged: "{n} behind a flag",
+      left: "{file} left the score (\u2212{points})",
+      head: `Tried by hand \xB7 {one} \xB7 changed files it runs`,
+      flagHead: "Feature flag",
+      triedBox: "Tried by hand",
+      newTag: "new",
+      servedBy: "new, served by",
+      runs: "runs changed",
+      flagTitle: "This {one} ships behind a feature flag",
+      flagOn: "\u2691 Behind a flag",
+      flagOff: "\u2690 Behind a flag?",
+      more: "Show {what} more, lower risk",
+      views: "{n} views",
+      requests: "{n} requests",
+      errors: pair("error", "errors")
+    },
+    contract: {
+      title: "API contract",
+      lead: "What clients of the API see change. Breaking changes need the clients updated in this pull request, or a new version.",
+      ack: "Clients are updated in this pull request, or the change is versioned",
+      breaking: "Can break clients",
+      safe: "Compatible",
+      callers: "Called by {services}",
+      levels: { breaking: "breaking", dangerous: "may break", safe: "safe" }
+    },
+    details: {
+      title: "Details",
+      lead: "The full analysis: every changed file and its reach, routes, signals, dependencies, reasons and diagnostics."
+    },
+    results: {
+      title: "Results",
+      lead: "What you checked, as a comment for the pull request. Copy it and paste it in GitHub.",
+      copy: "Copy results",
+      copied: "Copied \u2713",
+      openPr: "Open the pull request \u2197",
+      saved: "of the changed lines needed a careful read: {read} of {total}, in {files} of {all} files. The rest was a skim, tests or outside the project. At a review pace of about {pace} lines an hour, that is <b>{time}</b> instead of {full}.",
+      curiosity: "Just for curiosity: an estimate, not part of the comment.",
+      minutes: "{m} min",
+      hours: "{h} h {m}"
+    },
+    md: {
+      title: "### farol review",
+      score: "Merge risk **{from} \u2192 {to}** after review ({level}).",
+      must: "**Must check**",
+      contract: "Breaking API change ({keys}): clients updated or versioned",
+      security: "Security finding at {where}",
+      lint: "Lint error at {where}",
+      files: "**Files reviewed: {done} of {total}**",
+      left: "Not reviewed yet: {files}",
+      flaggedFiles: "Behind a feature flag: {files}",
+      tried: "**Tried by hand: {done} of {total} {many}**",
+      behindFlag: "(behind a flag)",
+      flagged: "behind a flag:",
+      coverage: "**New code tested:** {ratio} ({covered} of {total} changed lines)",
+      coverageWithout: ", {ratio} without {files} not in the coverage report",
+      notes: "**Notes**",
+      footer: "farol {version} \xB7 {base} \u2192 {head}"
+    }
+  };
+}
+
+// src/report/markdown-review.ts
+var MAX_FILES2 = 8;
+var fill = (text, values) => text.replace(/\{(\w+)\}/g, (m, k) => values[k] === void 0 ? m : String(values[k]));
+var listAnd = (xs) => xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1] ?? ""}`;
+var isTests = (p) => p.items.every((i) => i.kind === "tests");
+function lede(o, parts, why, codeFiles) {
+  const L = workbenchText(o.surface).lede;
+  const top = parts.filter((p) => p.points > 0).slice(0, 2).map((p) => {
+    const first = p.items[0];
+    if (p.kind === "contract") return fill(L.contract, { key: code(o.contracts?.entries.find((e) => e.level !== "safe")?.key ?? "") });
+    if (p.kind === "finding") return fill(first?.kind === "security" ? L.security : L.lint, { file: code(posix16.basename(p.file ?? "")) });
+    if (p.file === null) return esc3(first?.title ?? "", 160);
+    const file2 = code(posix16.basename(p.file));
+    if (p.items.some((i) => i.kind === "global")) return fill(L.global, { file: file2 });
+    const dep = o.dependencies.changes.filter((c) => c.manifest === p.file && p.items.some((i) => i.kind === "dependency" && i.title.startsWith(`${c.name} `))).sort((a, b) => Number(b.critical) - Number(a.critical))[0];
+    if (dep !== void 0) return dep.from !== null && dep.to !== null ? fill(dep.critical ? L.bumpMayBreak : L.bump, { name: code(dep.name), from: esc3(dep.from), to: esc3(dep.to) }) : fill(L.dependency, { name: code(dep.name), change: dep.change });
+    if (isTests(p)) return fill(L.tests, { file: file2 });
+    const reason2 = why.get(p.file);
+    return reason2 ? fill(L.file, { file: file2, why: esc3(reason2, 160) }) : file2;
+  });
+  const t = terms(o.surface);
+  const affected = o.routes.affected.filter((r) => !r.hasChildren).length;
+  const added = o.routes.added.filter((r) => !r.hasChildren).length;
+  const reach = fill(L.reach, { files: `${codeFiles} code file${codeFiles === 1 ? "" : "s"}`, n: affected, total: o.risk.totalPages, many: t.many });
+  const plus = added > 0 ? fill(L.added, { what: `${added} new ${added === 1 ? t.one : t.many}` }) : "";
+  return `${top.length > 0 ? `${fill(L.top, { parts: listAnd(top) })} ` : ""}${reach}${plus}.`;
+}
+function mustLines(o, parts, l) {
+  const lines = [];
+  const contracts = parts.filter((p) => p.kind === "contract");
+  if (contracts.length > 0) {
+    const entries = (o.contracts?.entries ?? []).filter((e) => e.level !== "safe");
+    const breaking = entries.filter((e) => e.level === "breaking").map((e) => code(e.key));
+    const text = breaking.length > 0 ? COMMENT_TEXT.contract(breaking.join(", ")) : COMMENT_TEXT.contractDangerous(entries.map((e) => code(e.key)).join(", "));
+    lines.push(`- [ ] ${text} \u2014 **${contracts.reduce((n, p) => n + p.points, 0)}**`);
+  }
+  for (const p of parts.filter((x) => x.kind === "finding" || x.kind === "vulnerability")) {
+    const item = p.items[0];
+    if (item === void 0) continue;
+    if (p.kind === "vulnerability") {
+      lines.push(`- [ ] ${COMMENT_TEXT.vulnerability(esc3(item.title, 200))} \u2014 **${p.points}**`);
+      continue;
+    }
+    const path3 = p.file ?? "";
+    const where = locationMd(l, path3, p.line ?? 0, posix16.basename(path3));
+    if (item.kind === "security") {
+      const s = o.signals.security.findings.find((f) => f.path === path3 && f.line === p.line);
+      lines.push(`- [ ] \u{1F534} ${COMMENT_TEXT.security(where, s?.severity ?? "", code(s?.rule ?? ""), esc3(s?.message ?? item.title, 160))} \u2014 **${p.points}**`);
+    } else {
+      const f = o.signals.lint.findings.find((x) => x.path === path3 && x.line === p.line && x.severity === "error");
+      lines.push(`- [ ] ${COMMENT_TEXT.lint(where, code(f?.rule ?? ""), esc3(f?.message ?? item.title, 160))} \u2014 **${p.points}**`);
+    }
+  }
+  return lines;
+}
+function reviewSection(o, l, reportUrl) {
+  const { score, level, items } = mergeScore(o);
+  const verdict = computeVerdict(o);
+  const parts = reviewParts(items);
+  const coverage = fileCoverage(o);
+  const codeFiles = [...verdict.startHere, ...verdict.skim];
+  const byPath = new Map(codeFiles.map((f) => [f.path, f]));
+  const must = mustLines(o, parts, l);
+  const ready = level === "low" && must.length === 0;
+  const lines = [COMMENT_TEXT.title(score, level, COMMENT_TEXT.verdict[verdict.level]), "", lede(o, parts, new Map(codeFiles.map((f) => [f.path, f.why])), codeFiles.length)];
+  if (ready) lines.push("", COMMENT_TEXT.ready);
+  lines.push("", reportUrl === void 0 ? `<sub>${COMMENT_TEXT.shadow}</sub>` : `${COMMENT_TEXT.workbench(reportUrl)} ${COMMENT_TEXT.shadow}`);
+  if (must.length > 0) lines.push("", COMMENT_TEXT.must, ...must);
+  const files = parts.filter((p) => p.kind === "file" && p.file !== null && !isTests(p));
+  const shown = files.filter((p) => tierOf(p) !== "skim").sort((a, b) => b.own - a.own || b.points - a.points).slice(0, MAX_FILES2);
+  const rest = parts.filter((p) => p.kind === "file" && !shown.includes(p));
+  const t = terms(o.surface);
+  if (shown.length > 0 || rest.length > 0) {
+    lines.push("", COMMENT_TEXT.files(score));
+    for (const p of shown) {
+      const path3 = p.file ?? "";
+      const f = byPath.get(path3);
+      const reach = f !== void 0 && f.pagesReached > 0 ? COMMENT_TEXT.reach(f.pagesReached, o.risk.totalPages, t.many) : null;
+      lines.push(`- ${COMMENT_TEXT.tier[tierOf(p) === "high" ? "high" : "medium"]} ${fileMd(l, path3)} ${COMMENT_TEXT.file(p.points, coverage.get(path3)?.label ?? null, reach)}`);
+    }
+    if (rest.length > 0) lines.push(COMMENT_TEXT.restLine(COMMENT_TEXT.rest(rest.filter((p) => !isTests(p)).length, rest.filter(isTests).length), rest.reduce((n, p) => n + p.points, 0), shown.length === 0));
+  }
+  for (const p of parts.filter((x) => x.kind === "other" && x.points > 0)) lines.push(COMMENT_TEXT.other(esc3(p.items[0]?.title ?? "", 200), p.points));
+  const c = o.signals.coverage;
+  if (c.status === "ok" && c.total !== null && c.total.changedExecutableLines > 0) {
+    const reported = c.files.filter((f) => !f.missingFromReport);
+    const rTotal = reported.reduce((n, f) => n + f.changedExecutableLines, 0);
+    const rCovered = reported.reduce((n, f) => n + f.coveredLines, 0);
+    const missing = c.files.length - reported.length;
+    const pct2 = (r) => `${Math.round(r * 100)}%`;
+    const leftOut = c.ignoredFiles.length + (c.excludedByProject?.length ?? 0);
+    lines.push("", `${COMMENT_TEXT.tested(pct2(c.total.coveredLines / c.total.changedExecutableLines), c.total.coveredLines, c.total.changedExecutableLines)}${missing > 0 ? COMMENT_TEXT.testedWithout(pct2(rTotal === 0 ? 1 : rCovered / rTotal), missing) : ""}${leftOut > 0 ? COMMENT_TEXT.leftOut(leftOut) : ""}`);
+  }
+  return lines;
+}
+
+// src/report/test-plan.ts
+import { posix as posix17 } from "path";
 function moduleOf(o, path3) {
   if (o.surface === "backend") {
     const parts = path3.split(" ");
@@ -252419,30 +252846,14 @@ function testPlan(o) {
   return [...groups.entries()].map(([label2, list2]) => ({ label: label2, items: list2.sort((a, b) => b.priority - a.priority || compareStrings(a.path, b.path)) })).sort((a, b) => Math.max(...b.items.map((i) => i.priority)) - Math.max(...a.items.map((i) => i.priority)) || compareStrings(a.label, b.label));
 }
 function shortFile(path3) {
-  return path3 === null ? "" : posix16.basename(path3);
+  return path3 === null ? "" : posix17.basename(path3);
 }
 
 // src/report/markdown.ts
 var MAX_COMMENT_LENGTH = 6e4;
-function esc3(text, max = 300) {
-  const short = text.length > max ? `${text.slice(0, max - 1)}\u2026` : text;
-  return short.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("`", "'");
-}
 var NO_LINKS = { file: () => null, lines: () => null };
-function link(text, url2) {
-  return url2 === null ? text : `[${text}](${url2})`;
-}
-function fileMd(l, path3) {
-  return link(code(path3), l.file(path3));
-}
-function locationMd(l, path3, line3) {
-  return link(code(`${path3}:${line3}`), l.lines(path3, line3));
-}
 function rangesMd(l, path3, list2) {
   return list2.map((r) => link(r.start === r.end ? `${r.start}` : `${r.start}\u2013${r.end}`, l.lines(path3, r.start, r.end))).join(", ");
-}
-function code(text) {
-  return `\`${text.replaceAll("`", "'")}\``;
 }
 function limited(items, limit, render2, indent2 = "") {
   const lines = items.slice(0, limit).map((item) => `${indent2}- ${render2(item)}`);
@@ -252461,13 +252872,8 @@ function describeChangeShort(c) {
 }
 function signalsSection(o, limit, l) {
   const { coverage, lint, suppressions, testsModified } = o.signals;
-  const score = mergeScore(o);
   const verdict = computeVerdict(o);
-  const lines = [
-    `- **${TEXT.verdictLabel}:** ${TEXT.verdictValue[verdict.level]} \u2014 ${esc3(verdict.reasons.slice(0, 3).join("; "), 400)}`,
-    ...limited(verdict.startHere.slice(0, 5), limit, (f) => `${fileMd(l, f.path)} ${TEXT.verdictFile(f.points, f.coverage?.label ?? null)}`, "  "),
-    `- **${TEXT.scoreLabel}:** ${TEXT.scoreValue(score.score, score.level)}`
-  ];
+  const lines = [`- **${TEXT.verdictLabel}:** ${esc3(verdict.reasons.slice(0, 5).join("; "), 600)}`];
   if (o.incremental) lines.unshift(`- **${PLAN_TEXT.incremental(o.incremental.since.slice(0, 12))}**`);
   if (o.ownership) {
     const own2 = o.ownership;
@@ -252617,8 +253023,8 @@ function sinceLines(since) {
 }
 function render(o, limit, truncated, l, reportUrl, since) {
   const commit = o.head.sha === null ? o.head.ref : o.head.sha.slice(0, 12);
-  const report = [...reportUrl === void 0 ? [] : [TEXT.fullReport(reportUrl), ""], ...sinceLines(since)];
-  const lines = [MARKER, TEXT.title, "", TEXT.intro, "", ...report, ...signalsSection(o, limit, l), "", ...detailsSection(o, limit, l), "", ...testSection(o, limit)];
+  const signals = ["<details>", `<summary>${COMMENT_TEXT.allSignals}</summary>`, "", ...signalsSection(o, limit, l), "", "</details>"];
+  const lines = [MARKER, ...reviewSection(o, l, reportUrl), "", ...sinceLines(since), ...signals, "", ...detailsSection(o, limit, l), "", ...testSection(o, limit)];
   if (truncated) lines.push(`_${TEXT.truncated}_`, "");
   lines.push(`<sub>${esc3(TEXT.footer(o.tool.version, commit))}</sub>`, "");
   return lines.join("\n");
@@ -253300,9 +253706,9 @@ var ASSETS = {
     letter-spacing="-0.04em" 
     fill="#0F172A">farol</text>
 </svg>`,
-  "report/wb-core.js": "/* farol report, in the browser (1/3): review state, live score, attribution, tiers, coverage, diffs and the\n * pages/operations list. Reads window.FAROL = { D: view model (src/report/workbench-model.ts), T: texts\n * (src/report/strings-workbench.ts) }. No user-facing text here: every text comes from T. */\nconst { D, T } = window.FAROL\nconst esc = (s) => String(s ?? '').replace(/[&<>\"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' })[c])\n/** Fills {name} placeholders of a text. */\nconst t = (text, values = {}) => String(text).replace(/\\{(\\w+)\\}/g, (m, k) => (values[k] === undefined ? m : String(values[k])))\n/** \"1 file\" / \"3 files\", from a [one, many] pair of T. */\nconst pl = (n, pair) => t(n === 1 ? pair[0] : pair[1], { n })\nconst short = (p) => (p && D.prefix && p.startsWith(D.prefix) ? p.slice(D.prefix.length) : p ?? '')\nconst base = (p) => (p ?? '').split('/').pop()\nconst dir = (p) => { const s = short(p).split('/'); s.pop(); return s.length ? s.join('/') + '/' : '' }\nconst pct = (r) => `${Math.round(r * 100)}%`\nconst listText = (xs) => (xs.length <= 1 ? xs.join('') : t(T.listAnd, { items: xs.slice(0, -1).join(', '), last: xs[xs.length - 1] }))\nconst TERM = D.term\n\n/* Review state, kept in this browser per commit. */\nconst KEY = `farol-review:${D.repo ?? ''}:${D.head}:${D.surface}`\nconst EMPTY = () => ({ reviewed: [], acked: [], tested: [], flagged: [], notes: {} })\nconst state = (() => { try { return { ...EMPTY(), ...JSON.parse(localStorage.getItem(KEY)) } } catch { return EMPTY() } })()\nconst save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)) } catch { /* private window: state lives until the page closes */ } }\nconst listeners = []\nconst onChange = (fn) => listeners.push(fn)\nconst emit = () => { save(); listeners.forEach((fn) => fn()) }\nconst setIn = (list, id, on) => { const set = new Set(state[list]); if (on) set.add(id); else set.delete(id); state[list] = [...set] }\nconst toggle = (list, id, on) => { setIn(list, id, on ?? !state[list].includes(id)); emit() }\nconst isReviewed = (file) => state.reviewed.includes(file)\nconst isAcked = (id) => state.acked.includes(id)\n\n/* Feature flags: a changed file whose pages/operations all ship behind a flag leaves the score, like a reviewed one. */\nconst OPS = D.ops\nconst FILE_OPS = new Map()\nfor (const op of OPS) for (const f of op.files) FILE_OPS.set(f, [...(FILE_OPS.get(f) ?? []), op.key])\nconst isFlagged = (key) => state.flagged.includes(key)\nconst flagCovered = (file) => { const keys = FILE_OPS.get(file); return !!keys?.length && keys.every(isFlagged) }\n\n/* Score groups: one per file, one per finding (security, lint: checked on their own, not by reviewing the file), and\n * one per item without a file (contract, vulnerable dependency, analysis problems). */\nconst FINDING_KINDS = new Set(['security', 'lint'])\nconst lineOf = (title) => Number(title.match(/at line (\\d+)/)?.[1] ?? 0)\nconst logOf = (items) => items.reduce((s, it) => s - Math.log(1 - it.weight), 0)\nconst GROUPS = D.groups.flatMap((g, i) => {\n  const rest = g.items.filter((it) => !(g.file && FINDING_KINDS.has(it.kind)))\n  const findings = g.file ? g.items.filter((it) => FINDING_KINDS.has(it.kind)) : []\n  return [\n    ...(rest.length ? [{ file: g.file, items: rest, id: g.file ?? `item:${g.items[0].kind}:${i}`, log: logOf(rest) }] : []),\n    ...findings.map((it) => ({ file: null, owner: g.file, items: [it], id: `finding:${it.kind}:${g.file}:${lineOf(it.title)}`, log: logOf([it]) })),\n  ]\n})\nconst groupActive = (g) => (g.file ? !isReviewed(g.file) && !flagCovered(g.file) : !isAcked(g.id))\n/** What must be checked by hand, above every file: breaking contracts, security findings, lint errors, vulnerable dependencies. */\nconst isMust = (g) => g.owner != null || g.items.every((i) => i.kind === 'contract' || i.kind === 'vulnerability')\nconst MUST = GROUPS.filter(isMust)\n/** Removable by the reviewer: files by reviewing them, the rest of Must check by checking it. */\nconst groupRemovable = (g) => g.file !== null || isMust(g)\nconst findingLine = (g) => lineOf(g.items[0].title)\nconst SCORE0 = Math.round(100 * (1 - Math.exp(-GROUPS.reduce((n, g) => n + g.log, 0))))\n\nfunction liveScore() {\n  const L = GROUPS.filter(groupActive).reduce((s, g) => s + g.log, 0)\n  return Math.round(100 * (1 - Math.exp(-L)))\n}\n/** Integer shares of the score that add up to it (log attribution, largest remainder). */\nfunction shares(groups) {\n  const L = groups.reduce((s, g) => s + g.log, 0)\n  const score = 100 * (1 - Math.exp(-L))\n  const rows = groups.map((g) => { const v = L === 0 ? 0 : (score * g.log) / L; return { group: g, v, points: Math.floor(v) } })\n  let left = Math.round(score) - rows.reduce((s, r) => s + r.points, 0)\n  ;[...rows].sort((a, b) => (b.v - b.points) - (a.v - a.points)).forEach((r) => { if (left > 0) { r.points++; left-- } })\n  return rows.sort((a, b) => b.v - a.v)\n}\n/** Share of the current score owed to each part still active. */\nconst attribution = () => shares(GROUPS.filter(groupActive))\n/** Shares with nothing reviewed: the points each part had at first. */\nconst attributionAll = () => shares(GROUPS)\nconst POINTS0 = new Map(attributionAll().map((a) => [a.group.id, a.points]))\n/** Each file's share of the current score: what ticking it removes now. */\nconst shareOf = () => new Map(attribution().filter((a) => a.group.file).map((a) => [a.group.file, a.points]))\nfunction topParts(att, max) {\n  const list = att.filter((a) => a.points > 0)\n  return list.length <= max + 1 ? { top: list, rest: [] } : { top: list.slice(0, max), rest: list.slice(max) }\n}\nconst levelOf = (s) => (s >= 60 ? 'high' : s >= 30 ? 'medium' : 'low')\n/** A low score and nothing left in Must check: what is left looks safe to approve. */\nfunction readiness() {\n  const s = liveScore()\n  const mustLeft = MUST.filter(groupActive).length\n  return { s, mustLeft, ready: levelOf(s) === 'low' && mustLeft === 0 }\n}\n\n/* Files to review: their own points leave the findings out, so tiers rank the code change itself. */\nconst FILES = D.files.map((f) => { const g = GROUPS.find((x) => x.file === f.path); return { ...f, points: g ? Math.round(100 * (1 - Math.exp(-g.log))) : 0 } })\n  .sort((a, b) => b.points - a.points || (a.path < b.path ? -1 : 1))\nconst TIERS = [{ id: 'high', min: 20 }, { id: 'medium', min: 5 }, { id: 'skim', min: -1, collapsed: true }, { id: 'tests', min: Infinity, collapsed: true }]\nconst tierOf = (f) => (f.extra === 'tests' ? 'tests' : TIERS.find((x) => f.points >= x.min).id)\nconst filesByTier = () => TIERS.map((x) => ({ ...x, label: T.tiers[x.id], files: FILES.filter((f) => tierOf(f) === x.id) })).filter((x) => x.files.length)\nconst fileDone = (f) => isReviewed(f.path) || flagCovered(f.path)\n\nfunction groupLabel(g) {\n  if (g.file) return short(g.file)\n  const it = g.items[0]\n  if (g.owner) return t(it.kind === 'security' ? T.must.securityAt : T.must.lintAt, { file: base(g.owner), line: findingLine(g) })\n  return T.kinds[it.kind] ?? it.kind\n}\nfunction groupWhy(g) {\n  const f = g.file && FILES.find((x) => x.path === g.file)\n  if (f && f.why) return f.why\n  return g.items.map((i) => i.title).join(' \xB7 ')\n}\n\n/** One sentence on where the risk comes from (the two largest parts at first) and how far the change reaches. */\nfunction riskLede() {\n  const top = attributionAll().filter((a) => a.points > 0).slice(0, 2).map(({ group: g }) => {\n    const it = g.items[0]\n    if (it.kind === 'contract') return t(T.lede.contract, { key: `<code>${esc(it.title.match(/of (.+?):/)?.[1] ?? '')}</code>` })\n    if (g.owner) return t(it.kind === 'security' ? T.lede.security : T.lede.lint, { file: `<code>${esc(base(g.owner))}</code>` })\n    if (!g.file) return esc(it.title)\n    const code = `<code>${esc(base(g.file))}</code>`\n    if (g.items.some((i) => i.kind === 'global')) return t(T.lede.global, { file: code })\n    const deps = D.dependencies.filter((c) => c.manifest === g.file && g.items.some((i) => i.kind === 'dependency' && i.title.startsWith(c.name + ' ')))\n    if (deps.length) {\n      const c = [...deps].sort((a, b) => Number(b.critical) - Number(a.critical))[0]\n      return c.from && c.to ? t(c.critical ? T.lede.bumpMayBreak : T.lede.bump, { name: `<code>${esc(c.name)}</code>`, from: esc(c.from), to: esc(c.to) }) : t(T.lede.dependency, { name: `<code>${esc(c.name)}</code>`, change: esc(c.change) })\n    }\n    if (it.kind === 'tests') return t(T.lede.tests, { file: code })\n    const f = FILES.find((x) => x.path === g.file)\n    return f?.why ? t(T.lede.file, { file: code, why: esc(f.why) }) : code\n  })\n  const code = FILES.filter((f) => !f.extra).length\n  const reach = t(T.lede.reach, { files: pl(code, T.codeFiles), n: D.routes.affected, total: D.totalEntries, many: TERM.many })\n  const added = D.routes.added ? t(T.lede.added, { what: pl(D.routes.added, T.newEntries) }) : ''\n  return `${top.length ? t(T.lede.top, { parts: listText(top) }) + ' ' : ''}${reach}${added}.`\n}\n\n/* Coverage of the changed lines. */\nconst COV = D.coverage.status === 'ok' ? D.coverage : null\nconst covOf = (path) => COV?.files.find((f) => f.path === path) ?? null\nfunction coverageSummary() {\n  if (!COV || !COV.total) return null\n  const reported = COV.files.filter((f) => !f.missing)\n  const rTotal = reported.reduce((s, f) => s + f.total, 0)\n  const rCovered = reported.reduce((s, f) => s + f.covered, 0)\n  const missing = COV.files.filter((f) => f.missing)\n  return { ratio: COV.covered / COV.total, covered: COV.covered, total: COV.total, missing, missingLines: missing.reduce((s, f) => s + f.total, 0), reportedRatio: rTotal ? rCovered / rTotal : 1 }\n}\nconst inRanges = (line, ranges) => ranges.some((r) => line >= r.start && line <= r.end)\nconst rangeText = (r) => (r.start === r.end ? `${r.start}` : `${r.start}\u2013${r.end}`)\n\n/* GitHub: a changed file in the pull request, and one line of it (where a comment can be left). */\nconst ghFile = (path) => D.links.files[path] ?? null\nconst ghLine = (path, side, n) => (D.links.files[path] ? `${D.links.files[path]}${side}${n}` : null)\n\n/** Findings on a file's lines, to annotate its diff. */\nfunction notesOf(path) {\n  const notes = []\n  for (const s of D.security) if (s.path === path) notes.push({ line: s.line, tone: 'bad', label: t(T.diff.security, { severity: s.severity }), text: s.message })\n  for (const l of D.lint) if (l.path === path && !D.security.some((s) => s.path === path && s.line === l.line)) notes.push({ line: l.line, tone: '', label: t(T.diff.lint, { rule: l.rule }), text: l.message })\n  for (const s of D.suppressions) if (s.path === path) notes.push({ line: s.line, tone: '', label: t(T.diff.suppression, { kind: s.kind }), text: s.text })\n  return notes\n}\nfunction addedLines(path) {\n  const out = new Map()\n  for (const h of D.diffs[path] ?? []) {\n    let n = h.newStart\n    for (const line of h.lines) { if (line[0] === '+') out.set(n++, line.slice(1)); else if (line[0] !== '-') n++ }\n  }\n  return out\n}\n/** One sentence on a file's diff coverage, with links that jump to each stretch that never ran. */\nfunction coverageNote(path) {\n  const cf = covOf(path)\n  if (!cf) return COV ? '' : `<div class=\"covhead\">${T.diff.noReport}</div>`\n  if (cf.missing) return `<div class=\"covhead bad\">${t(T.diff.missing, { n: cf.total })}</div>`\n  if (cf.total === 0) return `<div class=\"covhead\">${T.diff.declarations}</div>`\n  const added = addedLines(path)\n  const blocks = cf.uncovered.filter((r) => [...added.keys()].some((k) => k >= r.start && k <= r.end))\n  if (!blocks.length) return `<div class=\"covhead\">${t(T.diff.allRan, { n: cf.total })}</div>`\n  const links = blocks.map((b) => `<a href=\"#\" data-jump=\"${b.start}\">${rangeText(b)}</a>`)\n  return `<div class=\"covhead bad\">${t(T.diff.someRan, { covered: cf.covered, total: cf.total, missing: pl(cf.total - cf.covered, T.lines), ranges: listText(links) })}</div>`\n}\nconst lnk = (path, side, n) => { const url = ghLine(path, side, n); return url ? `<a class=\"d-gh\" href=\"${esc(url)}\" target=\"_blank\" rel=\"noopener\" title=\"${esc(T.diff.commentLine)}\">${n}</a>` : n }\n/** Unified diff of a file; lines the tests never ran are marked and each stretch of them is labeled. */\nfunction renderDiff(path, maxLines = 1500) {\n  const hunks = D.diffs[path]\n  if (!hunks) return `<p class=\"muted small\">${T.diff.none}${ghFile(path) ? ` <a href=\"${esc(ghFile(path))}\" target=\"_blank\" rel=\"noopener\">${T.diff.seeInPr}</a>` : ''}</p>`\n  const cf = covOf(path)\n  const marks = cf && !cf.missing && cf.total > 0\n  const notes = notesOf(path)\n  const added = addedLines(path)\n  let rows = ''\n  let count = 0\n  let inBlock = false\n  for (const h of hunks) {\n    rows += `<tr class=\"d-hunk\"><td colspan=\"3\">${esc(h.header)}</td></tr>`\n    let o = h.oldStart\n    let n = h.newStart\n    for (const line of h.lines) {\n      if (count++ > maxLines) break\n      const kind = line[0]\n      const text = esc(line.slice(1)) || ' '\n      if (kind === '+') {\n        const unc = marks && inRanges(n, cf.uncovered)\n        if (unc && !inBlock) {\n          const r = cf.uncovered.find((x) => n >= x.start && n <= x.end)\n          const shown = [...added.keys()].filter((k) => k >= r.start && k <= r.end)\n          rows += `<tr class=\"d-unclabel\" data-ln=\"${n}\"><td colspan=\"2\"></td><td>${t(T.diff.notRun, { lines: rangeText({ start: shown[0] ?? r.start, end: shown[shown.length - 1] ?? r.end }) })}</td></tr>`\n        }\n        inBlock = unc\n        rows += `<tr class=\"d-add${unc ? ' d-unc' : ''}\" data-new=\"${n}\"><td class=\"d-n\"></td><td class=\"d-n\">${lnk(path, 'R', n)}</td><td class=\"d-c\">${text}</td></tr>`\n        for (const nt of notes.filter((x) => x.line === n)) rows += `<tr class=\"d-note\"><td colspan=\"2\"></td><td><div class=\"note ${nt.tone}\"><b>${esc(nt.label)}</b> ${esc(nt.text)}</div></td></tr>`\n        n++\n      } else if (kind === '-') {\n        rows += `<tr class=\"d-del\"><td class=\"d-n\">${lnk(path, 'L', o)}</td><td class=\"d-n\"></td><td class=\"d-c\">${text}</td></tr>`\n        o++\n      } else {\n        inBlock = false\n        rows += `<tr data-new=\"${n}\"><td class=\"d-n\">${o}</td><td class=\"d-n\">${lnk(path, 'R', n)}</td><td class=\"d-c\">${text}</td></tr>`\n        o++\n        n++\n      }\n    }\n  }\n  return `<div class=\"diffbox\">${ghFile(path) ? `<div class=\"ghhint\">${T.diff.hint}</div>` : ''}${coverageNote(path)}<div class=\"diff\"><table>${rows}</table></div></div>`\n}\n/** Scrolls a diff to a line and flashes it. */\nfunction flashRow(row) {\n  if (!row) return\n  row.scrollIntoView({ behavior: 'smooth', block: 'center' })\n  row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash')\n}\ndocument.addEventListener('click', (e) => {\n  const a = e.target.closest?.('[data-jump]')\n  if (!a) return\n  e.preventDefault()\n  flashRow(document.querySelector(`tr[data-ln=\"${a.dataset.jump}\"]`) ?? document.querySelector(`tr[data-new=\"${a.dataset.jump}\"]`))\n})\n\n/* Theme: follows the system, with a manual override. */\nfunction initTheme(button) {\n  const root = document.documentElement\n  try { const saved = localStorage.getItem('farol-theme'); if (saved) root.dataset.theme = saved } catch { /* no storage */ }\n  button?.addEventListener('click', () => {\n    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches\n    root.dataset.theme = dark ? 'light' : 'dark'\n    try { localStorage.setItem('farol-theme', root.dataset.theme) } catch { /* no storage */ }\n    window.dispatchEvent(new Event('farol-theme'))\n  })\n}\n",
+  "report/wb-core.js": "/* farol report, in the browser (1/3): review state, live score, attribution, tiers, coverage, diffs and the\n * pages/operations list. Reads window.FAROL = { D: view model (src/report/workbench-model.ts), T: texts\n * (src/report/strings-workbench.ts) }. No user-facing text here: every text comes from T. */\nconst { D, T } = window.FAROL\nconst esc = (s) => String(s ?? '').replace(/[&<>\"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' })[c])\n/** Fills {name} placeholders of a text. */\nconst t = (text, values = {}) => String(text).replace(/\\{(\\w+)\\}/g, (m, k) => (values[k] === undefined ? m : String(values[k])))\n/** \"1 file\" / \"3 files\", from a [one, many] pair of T. */\nconst pl = (n, pair) => t(n === 1 ? pair[0] : pair[1], { n })\nconst short = (p) => (p && D.prefix && p.startsWith(D.prefix) ? p.slice(D.prefix.length) : p ?? '')\nconst base = (p) => (p ?? '').split('/').pop()\nconst dir = (p) => { const s = short(p).split('/'); s.pop(); return s.length ? s.join('/') + '/' : '' }\nconst pct = (r) => `${Math.round(r * 100)}%`\nconst listText = (xs) => (xs.length <= 1 ? xs.join('') : t(T.listAnd, { items: xs.slice(0, -1).join(', '), last: xs[xs.length - 1] }))\nconst TERM = D.term\n\n/* Review state, kept in this browser per commit. */\nconst KEY = `farol-review:${D.repo ?? ''}:${D.head}:${D.surface}`\nconst EMPTY = () => ({ reviewed: [], acked: [], tested: [], flagged: [], notes: {} })\nconst state = (() => { try { return { ...EMPTY(), ...JSON.parse(localStorage.getItem(KEY)) } } catch { return EMPTY() } })()\nconst save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)) } catch { /* private window: state lives until the page closes */ } }\nconst listeners = []\nconst onChange = (fn) => listeners.push(fn)\nconst emit = () => { save(); listeners.forEach((fn) => fn()) }\nconst setIn = (list, id, on) => { const set = new Set(state[list]); if (on) set.add(id); else set.delete(id); state[list] = [...set] }\nconst toggle = (list, id, on) => { setIn(list, id, on ?? !state[list].includes(id)); emit() }\nconst isReviewed = (file) => state.reviewed.includes(file)\nconst isAcked = (id) => state.acked.includes(id)\n\n/* Feature flags: a changed file whose pages/operations all ship behind a flag leaves the score, like a reviewed one. */\nconst OPS = D.ops\nconst FILE_OPS = new Map()\nfor (const op of OPS) for (const f of op.files) FILE_OPS.set(f, [...(FILE_OPS.get(f) ?? []), op.key])\nconst isFlagged = (key) => state.flagged.includes(key)\nconst flagCovered = (file) => { const keys = FILE_OPS.get(file); return !!keys?.length && keys.every(isFlagged) }\n\n/* Score groups: one per file, one per finding (security, lint: checked on their own, not by reviewing the file), and\n * one per item without a file (contract, vulnerable dependency, analysis problems). The PR comment splits the score\n * the same way (src/report/review-parts.ts). */\nconst FINDING_KINDS = new Set(['security', 'lint'])\nconst lineOf = (title) => Number(title.match(/at line (\\d+)/)?.[1] ?? 0)\nconst logOf = (items) => items.reduce((s, it) => s - Math.log(1 - it.weight), 0)\nconst GROUPS = D.groups.flatMap((g, i) => {\n  const rest = g.items.filter((it) => !(g.file && FINDING_KINDS.has(it.kind)))\n  const findings = g.file ? g.items.filter((it) => FINDING_KINDS.has(it.kind)) : []\n  return [\n    ...(rest.length ? [{ file: g.file, items: rest, id: g.file ?? `item:${g.items[0].kind}:${i}`, log: logOf(rest) }] : []),\n    ...findings.map((it) => ({ file: null, owner: g.file, items: [it], id: `finding:${it.kind}:${g.file}:${lineOf(it.title)}`, log: logOf([it]) })),\n  ]\n})\nconst groupActive = (g) => (g.file ? !isReviewed(g.file) && !flagCovered(g.file) : !isAcked(g.id))\n/** What must be checked by hand, above every file: breaking contracts, security findings, lint errors, vulnerable dependencies. */\nconst isMust = (g) => g.owner != null || g.items.every((i) => i.kind === 'contract' || i.kind === 'vulnerability')\nconst MUST = GROUPS.filter(isMust)\n/** Removable by the reviewer: files by reviewing them, the rest of Must check by checking it. */\nconst groupRemovable = (g) => g.file !== null || isMust(g)\nconst findingLine = (g) => lineOf(g.items[0].title)\nconst SCORE0 = Math.round(100 * (1 - Math.exp(-GROUPS.reduce((n, g) => n + g.log, 0))))\n\nfunction liveScore() {\n  const L = GROUPS.filter(groupActive).reduce((s, g) => s + g.log, 0)\n  return Math.round(100 * (1 - Math.exp(-L)))\n}\n/** Integer shares of the score that add up to it (log attribution, largest remainder). */\nfunction shares(groups) {\n  const L = groups.reduce((s, g) => s + g.log, 0)\n  const score = 100 * (1 - Math.exp(-L))\n  const rows = groups.map((g) => { const v = L === 0 ? 0 : (score * g.log) / L; return { group: g, v, points: Math.floor(v) } })\n  let left = Math.round(score) - rows.reduce((s, r) => s + r.points, 0)\n  ;[...rows].sort((a, b) => (b.v - b.points) - (a.v - a.points)).forEach((r) => { if (left > 0) { r.points++; left-- } })\n  return rows.sort((a, b) => b.v - a.v)\n}\n/** Share of the current score owed to each part still active. */\nconst attribution = () => shares(GROUPS.filter(groupActive))\n/** Shares with nothing reviewed: the points each part had at first. */\nconst attributionAll = () => shares(GROUPS)\nconst POINTS0 = new Map(attributionAll().map((a) => [a.group.id, a.points]))\n/** Each file's share of the current score: what ticking it removes now. */\nconst shareOf = () => new Map(attribution().filter((a) => a.group.file).map((a) => [a.group.file, a.points]))\nfunction topParts(att, max) {\n  const list = att.filter((a) => a.points > 0)\n  return list.length <= max + 1 ? { top: list, rest: [] } : { top: list.slice(0, max), rest: list.slice(max) }\n}\nconst levelOf = (s) => (s >= 60 ? 'high' : s >= 30 ? 'medium' : 'low')\n/** A low score and nothing left in Must check: what is left looks safe to approve. */\nfunction readiness() {\n  const s = liveScore()\n  const mustLeft = MUST.filter(groupActive).length\n  return { s, mustLeft, ready: levelOf(s) === 'low' && mustLeft === 0 }\n}\n\n/* Files to review: their own points leave the findings out, so tiers rank the code change itself. */\nconst FILES = D.files.map((f) => { const g = GROUPS.find((x) => x.file === f.path); return { ...f, points: g ? Math.round(100 * (1 - Math.exp(-g.log))) : 0 } })\n  .sort((a, b) => b.points - a.points || (a.path < b.path ? -1 : 1))\nconst TIERS = [{ id: 'high', min: 20 }, { id: 'medium', min: 5 }, { id: 'skim', min: -1, collapsed: true }, { id: 'tests', min: Infinity, collapsed: true }]\nconst tierOf = (f) => (f.extra === 'tests' ? 'tests' : TIERS.find((x) => f.points >= x.min).id)\nconst filesByTier = () => TIERS.map((x) => ({ ...x, label: T.tiers[x.id], files: FILES.filter((f) => tierOf(f) === x.id) })).filter((x) => x.files.length)\nconst fileDone = (f) => isReviewed(f.path) || flagCovered(f.path)\n\nfunction groupLabel(g) {\n  if (g.file) return short(g.file)\n  const it = g.items[0]\n  if (g.owner) return t(it.kind === 'security' ? T.must.securityAt : T.must.lintAt, { file: base(g.owner), line: findingLine(g) })\n  return T.kinds[it.kind] ?? it.kind\n}\nfunction groupWhy(g) {\n  const f = g.file && FILES.find((x) => x.path === g.file)\n  if (f && f.why) return f.why\n  return g.items.map((i) => i.title).join(' \xB7 ')\n}\n\n/** One sentence on where the risk comes from (the two largest parts at first) and how far the change reaches. */\nfunction riskLede() {\n  const top = attributionAll().filter((a) => a.points > 0).slice(0, 2).map(({ group: g }) => {\n    const it = g.items[0]\n    if (it.kind === 'contract') return t(T.lede.contract, { key: `<code>${esc(it.title.match(/of (.+?):/)?.[1] ?? '')}</code>` })\n    if (g.owner) return t(it.kind === 'security' ? T.lede.security : T.lede.lint, { file: `<code>${esc(base(g.owner))}</code>` })\n    if (!g.file) return esc(it.title)\n    const code = `<code>${esc(base(g.file))}</code>`\n    if (g.items.some((i) => i.kind === 'global')) return t(T.lede.global, { file: code })\n    const deps = D.dependencies.filter((c) => c.manifest === g.file && g.items.some((i) => i.kind === 'dependency' && i.title.startsWith(c.name + ' ')))\n    if (deps.length) {\n      const c = [...deps].sort((a, b) => Number(b.critical) - Number(a.critical))[0]\n      return c.from && c.to ? t(c.critical ? T.lede.bumpMayBreak : T.lede.bump, { name: `<code>${esc(c.name)}</code>`, from: esc(c.from), to: esc(c.to) }) : t(T.lede.dependency, { name: `<code>${esc(c.name)}</code>`, change: esc(c.change) })\n    }\n    if (it.kind === 'tests') return t(T.lede.tests, { file: code })\n    const f = FILES.find((x) => x.path === g.file)\n    return f?.why ? t(T.lede.file, { file: code, why: esc(f.why) }) : code\n  })\n  const code = FILES.filter((f) => !f.extra).length\n  const reach = t(T.lede.reach, { files: pl(code, T.codeFiles), n: D.routes.affected, total: D.totalEntries, many: TERM.many })\n  const added = D.routes.added ? t(T.lede.added, { what: pl(D.routes.added, T.newEntries) }) : ''\n  return `${top.length ? t(T.lede.top, { parts: listText(top) }) + ' ' : ''}${reach}${added}.`\n}\n\n/* Coverage of the changed lines. */\nconst COV = D.coverage.status === 'ok' ? D.coverage : null\nconst covOf = (path) => COV?.files.find((f) => f.path === path) ?? null\nfunction coverageSummary() {\n  if (!COV || !COV.total) return null\n  const reported = COV.files.filter((f) => !f.missing)\n  const rTotal = reported.reduce((s, f) => s + f.total, 0)\n  const rCovered = reported.reduce((s, f) => s + f.covered, 0)\n  const missing = COV.files.filter((f) => f.missing)\n  return { ratio: COV.covered / COV.total, covered: COV.covered, total: COV.total, missing, missingLines: missing.reduce((s, f) => s + f.total, 0), reportedRatio: rTotal ? rCovered / rTotal : 1 }\n}\nconst inRanges = (line, ranges) => ranges.some((r) => line >= r.start && line <= r.end)\nconst rangeText = (r) => (r.start === r.end ? `${r.start}` : `${r.start}\u2013${r.end}`)\n\n/* GitHub: a changed file in the pull request, and one line of it (where a comment can be left). */\nconst ghFile = (path) => D.links.files[path] ?? null\nconst ghLine = (path, side, n) => (D.links.files[path] ? `${D.links.files[path]}${side}${n}` : null)\n\n/** Findings on a file's lines, to annotate its diff. */\nfunction notesOf(path) {\n  const notes = []\n  for (const s of D.security) if (s.path === path) notes.push({ line: s.line, tone: 'bad', label: t(T.diff.security, { severity: s.severity }), text: s.message })\n  for (const l of D.lint) if (l.path === path && !D.security.some((s) => s.path === path && s.line === l.line)) notes.push({ line: l.line, tone: '', label: t(T.diff.lint, { rule: l.rule }), text: l.message })\n  for (const s of D.suppressions) if (s.path === path) notes.push({ line: s.line, tone: '', label: t(T.diff.suppression, { kind: s.kind }), text: s.text })\n  return notes\n}\nfunction addedLines(path) {\n  const out = new Map()\n  for (const h of D.diffs[path] ?? []) {\n    let n = h.newStart\n    for (const line of h.lines) { if (line[0] === '+') out.set(n++, line.slice(1)); else if (line[0] !== '-') n++ }\n  }\n  return out\n}\n/** One sentence on a file's diff coverage, with links that jump to each stretch that never ran. */\nfunction coverageNote(path) {\n  const cf = covOf(path)\n  if (!cf) return COV ? '' : `<div class=\"covhead\">${T.diff.noReport}</div>`\n  if (cf.missing) return `<div class=\"covhead bad\">${t(T.diff.missing, { n: cf.total })}</div>`\n  if (cf.total === 0) return `<div class=\"covhead\">${T.diff.declarations}</div>`\n  const added = addedLines(path)\n  const blocks = cf.uncovered.filter((r) => [...added.keys()].some((k) => k >= r.start && k <= r.end))\n  if (!blocks.length) return `<div class=\"covhead\">${t(T.diff.allRan, { n: cf.total })}</div>`\n  const links = blocks.map((b) => `<a href=\"#\" data-jump=\"${b.start}\">${rangeText(b)}</a>`)\n  return `<div class=\"covhead bad\">${t(T.diff.someRan, { covered: cf.covered, total: cf.total, missing: pl(cf.total - cf.covered, T.lines), ranges: listText(links) })}</div>`\n}\nconst lnk = (path, side, n) => { const url = ghLine(path, side, n); return url ? `<a class=\"d-gh\" href=\"${esc(url)}\" target=\"_blank\" rel=\"noopener\" title=\"${esc(T.diff.commentLine)}\">${n}</a>` : n }\n/** Unified diff of a file; lines the tests never ran are marked and each stretch of them is labeled. */\nfunction renderDiff(path, maxLines = 1500) {\n  const hunks = D.diffs[path]\n  if (!hunks) return `<p class=\"muted small\">${T.diff.none}${ghFile(path) ? ` <a href=\"${esc(ghFile(path))}\" target=\"_blank\" rel=\"noopener\">${T.diff.seeInPr}</a>` : ''}</p>`\n  const cf = covOf(path)\n  const marks = cf && !cf.missing && cf.total > 0\n  const notes = notesOf(path)\n  const added = addedLines(path)\n  let rows = ''\n  let count = 0\n  let inBlock = false\n  for (const h of hunks) {\n    rows += `<tr class=\"d-hunk\"><td colspan=\"3\">${esc(h.header)}</td></tr>`\n    let o = h.oldStart\n    let n = h.newStart\n    for (const line of h.lines) {\n      if (count++ > maxLines) break\n      const kind = line[0]\n      const text = esc(line.slice(1)) || ' '\n      if (kind === '+') {\n        const unc = marks && inRanges(n, cf.uncovered)\n        if (unc && !inBlock) {\n          const r = cf.uncovered.find((x) => n >= x.start && n <= x.end)\n          const shown = [...added.keys()].filter((k) => k >= r.start && k <= r.end)\n          rows += `<tr class=\"d-unclabel\" data-ln=\"${n}\"><td colspan=\"2\"></td><td>${t(T.diff.notRun, { lines: rangeText({ start: shown[0] ?? r.start, end: shown[shown.length - 1] ?? r.end }) })}</td></tr>`\n        }\n        inBlock = unc\n        rows += `<tr class=\"d-add${unc ? ' d-unc' : ''}\" data-new=\"${n}\"><td class=\"d-n\"></td><td class=\"d-n\">${lnk(path, 'R', n)}</td><td class=\"d-c\">${text}</td></tr>`\n        for (const nt of notes.filter((x) => x.line === n)) rows += `<tr class=\"d-note\"><td colspan=\"2\"></td><td><div class=\"note ${nt.tone}\"><b>${esc(nt.label)}</b> ${esc(nt.text)}</div></td></tr>`\n        n++\n      } else if (kind === '-') {\n        rows += `<tr class=\"d-del\"><td class=\"d-n\">${lnk(path, 'L', o)}</td><td class=\"d-n\"></td><td class=\"d-c\">${text}</td></tr>`\n        o++\n      } else {\n        inBlock = false\n        rows += `<tr data-new=\"${n}\"><td class=\"d-n\">${o}</td><td class=\"d-n\">${lnk(path, 'R', n)}</td><td class=\"d-c\">${text}</td></tr>`\n        o++\n        n++\n      }\n    }\n  }\n  return `<div class=\"diffbox\">${ghFile(path) ? `<div class=\"ghhint\">${T.diff.hint}</div>` : ''}${coverageNote(path)}<div class=\"diff\"><table>${rows}</table></div></div>`\n}\n/** Scrolls a diff to a line and flashes it. */\nfunction flashRow(row) {\n  if (!row) return\n  row.scrollIntoView({ behavior: 'smooth', block: 'center' })\n  row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash')\n}\ndocument.addEventListener('click', (e) => {\n  const a = e.target.closest?.('[data-jump]')\n  if (!a) return\n  e.preventDefault()\n  flashRow(document.querySelector(`tr[data-ln=\"${a.dataset.jump}\"]`) ?? document.querySelector(`tr[data-new=\"${a.dataset.jump}\"]`))\n})\n\n/* Theme: follows the system, with a manual override. */\nfunction initTheme(button) {\n  const root = document.documentElement\n  try { const saved = localStorage.getItem('farol-theme'); if (saved) root.dataset.theme = saved } catch { /* no storage */ }\n  button?.addEventListener('click', () => {\n    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches\n    root.dataset.theme = dark ? 'light' : 'dark'\n    try { localStorage.setItem('farol-theme', root.dataset.theme) } catch { /* no storage */ }\n    window.dispatchEvent(new Event('farol-theme'))\n  })\n}\n",
   "report/wb-pages.js": "/* farol report, in the browser (3/3): what the change can affect, the API contract, the details of the analysis,\n * the results for the pull request, routing and events. Uses wb-core.js and wb-views.js. */\nconst compact = (n) => (n < 1000 ? String(n) : n < 1e6 ? `${(n / 1000).toFixed(n < 1e4 ? 1 : 0)}k` : `${(n / 1e6).toFixed(n < 1e7 ? 1 : 0)}M`)\n\n/** Pages/operations the change can affect: try them by hand, or mark the ones that ship behind a feature flag. */\nfunction renderOps(limit) {\n  if (!OPS.length) return `<p class=\"muted\">${t(T.plan.none, { many: TERM.many })}</p>`\n  const tried = OPS.filter((o) => state.tested.includes(o.key)).length\n  const flagged = OPS.filter((o) => isFlagged(o.key)).length\n  const out = GROUPS.filter((g) => g.file && flagCovered(g.file) && !isReviewed(g.file))\n  const row = (o) => {\n    const done = state.tested.includes(o.key)\n    const fl = isFlagged(o.key)\n    const files = o.files.map((f) => `<span class=\"${flagCovered(f) ? 'gone' : ''}\">${esc(base(f))}</span>`)\n    const traffic = o.hits || o.errors ? `<span class=\"op-traffic\">${[o.hits ? t(TERM.one === 'page' ? T.plan.views : T.plan.requests, { n: compact(o.hits) }) : '', o.errors ? (o.errorsUrl ? `<a href=\"${esc(o.errorsUrl)}\" target=\"_blank\" rel=\"noopener\">${pl(o.errors, T.plan.errors)}</a>` : pl(o.errors, T.plan.errors)) : ''].filter(Boolean).join(' \xB7 ')}</span>` : ''\n    return `<div class=\"op${done ? ' done' : ''}${fl ? ' flagged' : ''}\"><label class=\"op-main\"><input type=\"checkbox\" data-test=\"${esc(o.key)}\" ${done ? 'checked' : ''} aria-label=\"${esc(T.plan.triedBox)}\">\n      <span class=\"op-txt\"><span class=\"op-path\">${esc(o.path)}</span>${o.kind === 'new' ? `<span class=\"op-new\">${T.plan.newTag}</span>` : ''}${traffic}\n      <span class=\"op-via\">${o.kind === 'new' ? T.plan.servedBy : T.plan.runs} ${files.slice(0, 2).join(', ')}${files.length > 2 ? ' ' + t(T.andMore, { n: files.length - 2 }) : ''}</span></span></label>\n      <button type=\"button\" class=\"op-flag\" data-flag=\"${esc(o.key)}\" aria-pressed=\"${fl}\" title=\"${esc(t(T.plan.flagTitle, { one: TERM.one }))}\">${fl ? T.plan.flagOn : T.plan.flagOff}</button></div>`\n  }\n  const first = OPS.slice(0, limit)\n  const rest = OPS.slice(limit)\n  return `<div class=\"ops-status\"><span>${t(T.plan.tried, { done: tried, total: OPS.length })}</span><span>${t(T.plan.flagged, { n: flagged })}</span>${out.length ? `<span class=\"ops-out\">${out.map((g) => t(T.plan.left, { file: esc(base(g.file)), points: POINTS0.get(g.id) ?? 0 })).join(' \xB7 ')}</span>` : ''}</div>\n  <div class=\"ops-head\"><span>${t(T.plan.head, { one: TERM.one })}</span><span>${T.plan.flagHead}</span></div>\n  <div class=\"ops\">${first.map(row).join('')}</div>\n  ${rest.length ? `<details class=\"ops-more\"><summary>${t(T.plan.more, { what: pl(rest.length, T.entriesPair) })}</summary><div class=\"ops\">${rest.map(row).join('')}</div></details>` : ''}`\n}\n\nfunction planView() {\n  const nNew = OPS.filter((o) => o.kind === 'new').length\n  return `<h1>${T.plan.title}</h1><p class=\"lead\">${t(T.plan.lead, { n: OPS.length - nNew, many: TERM.many, added: nNew ? t(T.plan.leadNew, { what: pl(nNew, T.newEntries) }) : '', one: TERM.one })}</p>\n  <div class=\"opsbox\">${renderOps(10)}</div>`\n}\n\nfunction contractView() {\n  const list = D.contracts ?? []\n  const ids = contractGroups.map((g) => g.id).join('|')\n  const acked = contractGroups.length > 0 && contractGroups.every((g) => isAcked(g.id))\n  const callers = (key) => { const c = D.callers[key]; return c?.length ? `<div class=\"small muted\">${t(T.contract.callers, { services: c.map((x) => esc(x.service)).join(', ') })}</div>` : '' }\n  const row = (e) => `<div class=\"contract\"><span class=\"k\">${esc(e.key)}</span>${e.level !== 'safe' ? `<span class=\"pill\">${esc(T.contract.levels[e.level])}</span>` : ''}${callers(e.key)}<ul>${e.changes.map((c) => `<li class=\"${c.level}\"><span class=\"w\">${esc(c.where)}</span><span class=\"d\">${esc(c.detail)}</span></li>`).join('')}</ul>${e.omitted ? `<div class=\"small muted\">${t(T.andMore, { n: e.omitted })}</div>` : ''}</div>`\n  const bad = list.filter((e) => e.level !== 'safe')\n  return `<h1>${T.contract.title}</h1><p class=\"lead\">${T.contract.lead}</p>\n  ${contractGroups.length ? `<label class=\"ack big\"><input type=\"checkbox\" data-ack=\"${esc(ids)}\" ${acked ? 'checked' : ''}> ${T.contract.ack}</label>` : ''}\n  <h2>${T.contract.breaking}</h2>${bad.map(row).join('') || `<p class=\"muted\">${T.none}</p>`}<h2>${T.contract.safe}</h2>${list.filter((e) => e.level === 'safe').map(row).join('') || `<p class=\"muted\">${T.none}</p>`}`\n}\n\n/** The full analysis (routes, reach, signals, dependencies, reasons, diagnostics), in a frame of its own. */\nfunction detailsView() {\n  return `<h1>${T.details.title}</h1><p class=\"lead\">${T.details.lead}</p><iframe class=\"details-frame\" id=\"details-frame\" title=\"${esc(T.details.title)}\"></iframe>`\n}\nfunction fillDetails() {\n  const frame = document.getElementById('details-frame')\n  const src = document.getElementById('farol-details')\n  if (!frame || !src) return\n  const html = JSON.parse(src.textContent)\n  const theme = document.documentElement.dataset.theme\n  frame.srcdoc = theme ? html.replace('<html ', `<html data-theme=\"${theme}\" `) : html\n}\nwindow.addEventListener('farol-theme', () => { if (ui.view === 'details') fillDetails() })\n\n/** Just for curiosity: how much of the pull request needed a careful read, and the time that saves. */\nfunction savedTime() {\n  const lines = new Map(D.allFiles.map((f) => [f.path, f.added + f.removed]))\n  const total = [...lines.values()].reduce((a, b) => a + b, 0)\n  if (!total) return ''\n  const needed = new Set([...FILES.filter((f) => tierOf(f) === 'high' || tierOf(f) === 'medium').map((f) => f.path), ...MUST.filter((g) => g.owner).map((g) => g.owner)])\n  const read = [...needed].reduce((a, p) => a + (lines.get(p) ?? 0), 0)\n  const PACE = 400 // lines an hour: the usual upper bound of a careful code review\n  const time = (n) => { const m = Math.max(1, Math.round((n / PACE) * 60)); return m < 60 ? t(T.results.minutes, { m }) : t(T.results.hours, { h: Math.floor(m / 60), m: String(m % 60).padStart(2, '0') }) }\n  return `<div class=\"saved\"><div class=\"big\">${pct(read / total)}</div><p>${t(T.results.saved, { read, total, files: needed.size, all: D.allFiles.length, pace: PACE, time: time(read), full: time(total) })}</p>\n    <div class=\"bar track\"><span style=\"width:${(read / total) * 100}%\"></span></div><small>${T.results.curiosity}</small></div>`\n}\n\n/** Everything the reviewer did, as GitHub Markdown for a pull request comment. */\nfunction resultsMd() {\n  const s = liveScore()\n  const code = (x) => '`' + x + '`'\n  const L = [T.md.title, '', t(T.md.score, { from: SCORE0, to: s, level: T.levels[levelOf(s)].toLowerCase() }), '']\n  const must = mustList()\n  if (must.length) {\n    L.push(T.md.must)\n    for (const m of must) {\n      const g = m.groups[0]\n      const what = m.contract ? t(T.md.contract, { keys: breakingKeys().map(code).join(', ') }) : g.owner ? t(g.items[0].kind === 'security' ? T.md.security : T.md.lint, { where: code(`${short(g.owner)}:${findingLine(g)}`) }) : g.items[0].title\n      L.push(`- [${mustDone(m) ? 'x' : ' '}] ${what}`)\n    }\n    L.push('')\n  }\n  L.push(t(T.md.files, { done: FILES.filter(fileDone).length, total: FILES.length }))\n  for (const x of filesByTier()) L.push(`- ${x.label}: ${x.files.filter(fileDone).length}/${x.files.length}`)\n  const left = FILES.filter((f) => !fileDone(f) && (tierOf(f) === 'high' || tierOf(f) === 'medium'))\n  if (left.length) L.push('', t(T.md.left, { files: left.slice(0, 10).map((f) => code(base(f.path))).join(', ') + (left.length > 10 ? ' ' + t(T.andMore, { n: left.length - 10 }) : '') }))\n  const flaggedFiles = FILES.filter((f) => flagCovered(f.path) && !isReviewed(f.path))\n  if (flaggedFiles.length) L.push(t(T.md.flaggedFiles, { files: flaggedFiles.map((f) => code(base(f.path))).join(', ') }))\n  if (OPS.length) {\n    const tried = OPS.filter((o) => state.tested.includes(o.key))\n    L.push('', t(T.md.tried, { done: tried.length, total: OPS.length, many: TERM.many }))\n    for (const o of tried.slice(0, 15)) L.push(`- [x] ${code(o.path)}${isFlagged(o.key) ? ' ' + T.md.behindFlag : ''}`)\n    for (const o of OPS.filter((x) => isFlagged(x.key) && !state.tested.includes(x.key)).slice(0, 15)) L.push(`- ${T.md.flagged} ${code(o.path)}`)\n  }\n  if (S) L.push('', t(T.md.coverage, { ratio: pct(S.ratio), covered: S.covered, total: S.total }) + (S.missing.length ? t(T.md.coverageWithout, { ratio: pct(S.reportedRatio), files: pl(S.missing.length, T.files) }) : '') + '.')\n  const notes = Object.entries(state.notes).filter(([, v]) => v.trim())\n  if (notes.length) { L.push('', T.md.notes); for (const [p, v] of notes) L.push(`- ${code(short(p))}: ${v.trim().replace(/\\s*\\n\\s*/g, ' ')}`) }\n  L.push('', `<sub>${t(T.md.footer, { version: D.version, base: D.base, head: D.head })}</sub>`)\n  return L.join('\\n')\n}\nfunction resultsView() {\n  return `<div class=\"results\"><h1>${T.results.title}</h1><p class=\"lead\">${T.results.lead}</p>${savedTime()}\n  <div class=\"btns\"><button class=\"primary\" data-copyresults>${T.results.copy}</button>${D.links.pr ? `<a class=\"secondary\" href=\"${esc(D.links.pr)}\" target=\"_blank\" rel=\"noopener\">${T.results.openPr}</a>` : ''}</div>\n  <pre>${esc(resultsMd())}</pre></div>`\n}\nasync function copyResults() {\n  const text = resultsMd()\n  try { await navigator.clipboard.writeText(text) } catch {\n    const area = document.createElement('textarea'); area.value = text; document.body.append(area); area.select(); document.execCommand('copy'); area.remove()\n  }\n  document.querySelectorAll('[data-copyresults]').forEach((b) => { const was = b.textContent; b.textContent = T.results.copied; setTimeout(() => { b.textContent = was }, 1600) })\n}\n\nfunction render() {\n  ui.view = decodeURIComponent(location.hash.slice(1)) || 'summary'\n  const railEl = document.getElementById('rail')\n  const y = railEl.scrollTop\n  rail()\n  railEl.scrollTop = y\n  const v = ui.view\n  document.getElementById('main').innerHTML = v.startsWith('file:') ? fileView(v.slice(5)) : v.startsWith('finding:') ? findingView(v.slice(8)) : v === 'contract' ? contractView() : v === 'plan' ? planView() : v === 'details' ? detailsView() : v === 'results' ? resultsView() : summary()\n  if (v === 'details') fillDetails()\n}\naddEventListener('hashchange', () => { render(); scrollTo(0, 0) })\ndocument.addEventListener('click', (e) => {\n  if (e.target.closest('[data-copyresults]')) { copyResults(); return }\n  const flag = e.target.closest('[data-flag]'); if (flag) { toggle('flagged', flag.dataset.flag); return }\n  const r = e.target.closest('[data-review]'); if (r) { toggle('reviewed', r.dataset.review); return }\n  const g = e.target.closest('[data-go]'); if (g) location.hash = 'file:' + g.dataset.go\n})\ndocument.addEventListener('toggle', (e) => {\n  if (e.target.id === 'cov-d') { ui.covOpen = e.target.open; const h = e.target.querySelector('.clickhint'); if (h) h.textContent = ui.covOpen ? T.cov.hide : T.cov.show }\n  const id = e.target.dataset?.tier; if (id) { if (e.target.open) ui.tierOpen.add(id); else ui.tierOpen.delete(id) }\n}, true)\ndocument.addEventListener('change', (e) => {\n  const el = e.target\n  if (el.dataset.reviewCb) { toggle('reviewed', el.dataset.reviewCb, el.checked); return }\n  if (el.dataset.ack) { el.dataset.ack.split('|').forEach((id) => setIn('acked', id, el.checked)); emit(); return }\n  if (el.dataset.test) toggle('tested', el.dataset.test, el.checked)\n})\ndocument.addEventListener('input', (e) => {\n  const p = e.target.dataset?.note\n  if (p === undefined) return\n  state.notes = Object.fromEntries(Object.entries({ ...state.notes, [p]: e.target.value }).filter(([, v]) => v.trim()))\n  save()\n})\ndocument.addEventListener('keydown', (e) => {\n  if (e.target.closest?.('input, textarea') || e.metaKey || e.ctrlKey || e.altKey) return\n  const order = ['summary', ...mustList().map((m) => (m.contract ? 'contract' : 'finding:' + m.groups[0].id)), ...FILES.map((f) => 'file:' + f.path)]\n  const i = order.indexOf(ui.view)\n  if (e.key === 'j' && i < order.length - 1) location.hash = order[i + 1]\n  if (e.key === 'k' && i > 0) location.hash = order[i - 1]\n  if (e.key === 'r' && ui.view.startsWith('file:')) toggle('reviewed', ui.view.slice(5))\n})\ninitTheme(document.getElementById('theme'))\nonChange(render)\nrender()\n",
-  "report/wb-views.js": '/* farol report, in the browser (2/3): the side rail, the summary and the views of one file, one finding and one\n * dependency manifest. Uses wb-core.js. */\nconst midCut = (s, n) => (s.length <= n ? s : `${s.slice(0, Math.ceil(n * 0.45))}\u2026${s.slice(s.length - Math.floor(n * 0.55))}`)\nconst SHADES = [\'var(--ink)\', \'color-mix(in srgb, var(--ink) 72%, var(--bg))\', \'color-mix(in srgb, var(--ink) 52%, var(--bg))\', \'color-mix(in srgb, var(--ink) 36%, var(--bg))\', \'color-mix(in srgb, var(--ink) 24%, var(--bg))\']\nconst S = coverageSummary()\nconst ui = { view: \'summary\', tierOpen: new Set(), covOpen: false }\nconst contractGroups = MUST.filter((g) => g.items[0].kind === \'contract\')\nconst breakingKeys = () => (D.contracts ?? []).filter((e) => e.level !== \'safe\').map((e) => e.key)\n/** Must check as the rail lists it: all contract changes as one item, then each finding and vulnerable dependency. */\nconst mustList = () => [...(contractGroups.length ? [{ contract: true, groups: contractGroups }] : []), ...MUST.filter((g) => !contractGroups.includes(g)).map((g) => ({ contract: false, groups: [g] }))]\nconst mustDone = (m) => m.groups.every((g) => !groupActive(g))\n\nfunction rail() {\n  const R = readiness()\n  const s = R.s\n  const done = FILES.filter(fileDone).length\n  const share = shareOf()\n  const cov = S\n    ? `<div class="metric"><div class="label"><span>${T.rail.tested}</span></div><div class="value${S.ratio < 0.5 ? \' bad\' : \'\'}">${pct(S.ratio)}</div>\n    <div class="track"><span style="width:${(S.covered / S.total) * 100}%"></span><span class="bad" style="width:${((S.total - S.covered - S.missingLines) / S.total) * 100}%"></span><span class="hatch" style="width:${(S.missingLines / S.total) * 100}%"></span></div>\n    <div class="sub">${t(T.rail.testedSub, { covered: S.covered, total: S.total })}${S.missing.length ? t(T.rail.testedWithout, { ratio: pct(S.reportedRatio), files: pl(S.missing.length, T.files) }) : \'\'}</div></div>`\n    : `<div class="metric"><div class="label"><span>${T.rail.tested}</span></div><div class="value">\u2014</div><div class="sub">${D.coverage.status === \'ok\' ? T.rail.noExecutable : T.rail.noReport}</div></div>`\n  const item = (f) => {\n    const flagged = flagCovered(f.path) && !isReviewed(f.path)\n    const on = fileDone(f)\n    return `<div class="fi${ui.view === \'file:\' + f.path ? \' on\' : \'\'}${on ? \' done\' : \'\'}"><input type="checkbox" data-review-cb="${esc(f.path)}" ${on ? \'checked\' : \'\'} ${flagged ? `disabled title="${esc(T.rail.flagged)}"` : \'\'} aria-label="${esc(T.rail.reviewedBox)}"><a href="#file:${esc(f.path)}" class="nm" title="${esc(short(f.path))}"><span class="n">${esc(midCut(base(f.path), 25))}</span><span class="dirl">${esc(dir(f.path).replace(/\\/$/, \'\')) || \'&nbsp;\'}</span></a><span class="r">${on ? \'\' : share.get(f.path) ?? 0}</span></div>`\n  }\n  const tiers = filesByTier().map((x) => {\n    const count = `${x.files.filter(fileDone).length}/${x.files.length}`\n    return x.collapsed\n      ? `<details class="tier" ${ui.tierOpen.has(x.id) ? \'open\' : \'\'} data-tier="${x.id}"><summary><span>${x.label}</span><span>${count}</span></summary>${x.files.map(item).join(\'\')}</details>`\n      : `<h4><span>${x.label}</span><span>${count}</span></h4>${x.files.map(item).join(\'\')}`\n  }).join(\'\')\n  const mustItem = (m) => {\n    const g = m.groups[0]\n    const target = m.contract ? \'contract\' : \'finding:\' + g.id\n    const title = m.contract ? T.must.contract : g.owner ? (g.items[0].kind === \'security\' ? T.must.security : T.must.lint) : T.must.vulnerability\n    const sub = m.contract ? breakingKeys().join(\', \') : g.owner ? `${base(g.owner)}:${findingLine(g)}` : g.items[0].title\n    const on = mustDone(m)\n    const points = m.groups.reduce((n, x) => n + (POINTS0.get(x.id) ?? 0), 0)\n    return `<div class="fi must${ui.view === target ? \' on\' : \'\'}${on ? \' done\' : \'\'}"><input type="checkbox" data-ack="${esc(m.groups.map((x) => x.id).join(\'|\'))}" ${on ? \'checked\' : \'\'} aria-label="${esc(T.rail.checkedBox)}"><a href="#${esc(target)}" class="nm"><span class="n">${esc(title)}</span><span class="dirl">${esc(sub)}</span></a><span class="r">${on ? \'\' : points}</span></div>`\n  }\n  const must = mustList()\n  const sub = R.ready ? `<span class="ok">${T.rail.ready}</span>` : levelOf(s) === \'low\' && R.mustLeft ? t(T.rail.lowButMust, { items: pl(R.mustLeft, T.items) }) : T.verdict[D.verdict]\n  document.getElementById(\'rail\').innerHTML = `\n  <div class="metric${R.ready ? \' ready\' : \'\'}"><div class="label"><span>${T.rail.risk}</span><span>${T.levels[levelOf(s)]}</span></div><div class="value">${s}<small>/100</small></div>\n    <div class="track"><span class="${levelOf(s) === \'high\' ? \'bad\' : \'\'}" style="width:${Math.max(s, 1)}%"></span></div>\n    <div class="sub">${sub}${s !== SCORE0 ? t(T.rail.was, { score: SCORE0 }) : \'\'}</div></div>\n  ${cov}\n  <div class="metric"><div class="label"><span>${T.rail.reviewed}</span><span>${done} / ${FILES.length}</span></div><div class="track"><span style="width:${(done / Math.max(1, FILES.length)) * 100}%"></span></div></div>\n  <nav class="nav">\n    <a href="#summary" class="${ui.view === \'summary\' ? \'on\' : \'\'}"><span class="n">${T.nav.summary}</span></a>\n    ${must.length ? `<h4 class="mustcheck"><span>${T.nav.must}</span><span>${must.filter(mustDone).length}/${must.length}</span></h4>${must.map(mustItem).join(\'\')}` : \'\'}\n    ${tiers}\n    <h4><span>${T.nav.before}</span></h4>\n    ${D.contracts && !contractGroups.length ? `<a href="#contract" class="${ui.view === \'contract\' ? \'on\' : \'\'}"><span class="n">${T.nav.contract}</span><span class="r">${T.nav.contractSafe}</span></a>` : \'\'}\n    <a href="#plan" class="${ui.view === \'plan\' ? \'on\' : \'\'}"><span class="n">${T.nav.plan}</span><span class="r">${pl(OPS.length, T.entriesPair)}</span></a>\n    <a href="#details" class="${ui.view === \'details\' ? \'on\' : \'\'}"><span class="n">${T.nav.details}</span></a>\n    <h4><span>${T.nav.finish}</span></h4>\n    <a href="#results" class="${ui.view === \'results\' ? \'on\' : \'\'}"><span class="n">${T.nav.results}</span><span class="r">${T.nav.resultsHint}</span></a>\n  </nav>`\n}\n\nfunction summary() {\n  const att = attribution()\n  const s = liveScore()\n  const R = readiness()\n  const rows = [...(COV?.files ?? [])].filter((f) => !f.missing).sort((a, b) => (b.total - b.covered) - (a.total - a.covered))\n  const missing = (COV?.files ?? []).filter((f) => f.missing).sort((a, b) => b.total - a.total)\n  const table = S ? `<table class="t"><thead><tr><th>${T.cov.file}</th><th class="num">${T.cov.tested}</th><th class="mini"></th><th>${T.cov.notRun}</th></tr></thead><tbody>${rows.map((f) => `<tr><td class="p">${esc(short(f.path))}</td><td class="num">${f.covered}/${f.total} \xB7 ${pct(f.total ? f.covered / f.total : 1)}</td>\n    <td class="mini"><div class="track"><span style="width:${f.total ? (f.covered / f.total) * 100 : 100}%"></span><span class="bad" style="width:${f.total ? ((f.total - f.covered) / f.total) * 100 : 0}%"></span></div></td>\n    <td class="small muted">${f.uncovered.map(rangeText).join(\', \') || \'\u2014\'}</td></tr>`).join(\'\')}</tbody></table>\n    ${missing.length ? `<h3 class="misshead">${t(T.cov.missingTitle, { files: pl(missing.length, T.files) })}</h3><p class="small muted">${T.cov.missingWhy}</p><table class="t"><tbody>${missing.map((f) => `<tr><td class="p">${esc(short(f.path))}</td><td class="num small muted">${pl(f.total, T.changedLines)}</td></tr>`).join(\'\')}</tbody></table>` : \'\'}`\n    : `<p class="muted">${D.coverage.status === \'ok\' ? T.rail.noExecutable : T.cov.none}</p>`\n  const parts = (() => {\n    if (!att.length) return `<p class="muted">${T.summary.allReviewed}</p>`\n    const { top, rest } = topParts(att, 11)\n    const restPts = rest.reduce((n, a) => n + a.points, 0)\n    const segs = [...top.map((a, i) => ({ pts: a.points, color: SHADES[Math.min(i, SHADES.length - 1)], label: groupLabel(a.group), why: groupWhy(a.group), file: a.group.file })), ...(rest.length ? [{ pts: restPts, color: \'color-mix(in srgb, var(--ink) 14%, var(--bg))\', label: pl(rest.length, T.otherParts), why: rest.map((a) => groupLabel(a.group)).join(\', \'), file: null }] : [])]\n    return `<div class="stack">${segs.map((x) => `<div style="flex:${x.pts};background:${x.color}" title="${esc(x.label)}: ${x.pts}">${x.pts >= 8 ? x.pts : \'\'}</div>`).join(\'\')}</div>\n    <div class="keys">${segs.map((x) => `<div><i style="background:${x.color}"></i><span title="${esc(x.why)}">${x.file ? `<a href="#file:${esc(x.file)}"><code>${esc(base(x.file))}</code></a>` : esc(x.label)}</span><b>${x.pts}</b></div>`).join(\'\')}</div>`\n  })()\n  const covLine = S ? t(T.cov.summary, { ratio: pct(S.ratio), covered: S.covered, total: S.total }) + (S.missing.length ? t(T.cov.summaryWithout, { ratio: pct(S.reportedRatio), files: pl(S.missing.length, T.files) }) : \'\') : T.cov.none\n  return `${D.incremental ? `<p class="incremental">${t(T.summary.incremental, { since: esc(D.incremental) })}</p>` : \'\'}\n  <h1>${R.ready ? T.summary.ready : T.verdict[D.verdict]}</h1><p class="lead">${riskLede()}</p>\n  ${R.ready ? \'\' : `<p class="small muted">${MUST.length ? T.summary.startMust : T.summary.start}</p>`}\n  ${R.ready ? `<div class="ready-banner"><b>${t(T.summary.readyTitle, { score: s })}</b> ${s !== SCORE0 ? t(T.summary.readyDown, { score: SCORE0 }) : T.summary.readyNothing} <a href="#results">${T.summary.copyResults}</a></div>` : \'\'}\n  ${D.usage ? `<p class="small muted">${esc(D.usage)}</p>` : \'\'}\n  <h2>${t(T.summary.makesUp, { score: s })}</h2>${parts}\n  <details class="cov" ${ui.covOpen ? \'open\' : \'\'} id="cov-d"><summary><h2>${T.cov.title}</h2><span class="sumtxt">${covLine}</span><span class="clickhint">${ui.covOpen ? T.cov.hide : T.cov.show}</span></summary>${table}</details>\n  <footer>${t(T.footer, { version: esc(D.version) })}</footer>`\n}\n\nconst factsScore = (path) => `<div><b>${shareOf().get(path) ?? 0}<span class="of"> ${t(T.file.of, { score: liveScore() })}</span></b>${T.file.part}</div>`\nconst actions = (f, i) => `<button class="primary${isReviewed(f.path) ? \' done\' : \'\'}" data-review="${esc(f.path)}">${isReviewed(f.path) ? T.file.reviewedBtn : T.file.markBtn}</button>${FILES[i + 1] ? `<button class="secondary" data-go="${esc(FILES[i + 1].path)}">${T.file.next}</button>` : \'\'}${ghFile(f.path) ? `<a class="secondary" href="${esc(ghFile(f.path))}" target="_blank" rel="noopener" title="${esc(T.file.commentTitle)}">${T.file.comment}</a>` : \'\'}`\nconst noteBox = (path) => `<h3>${T.file.note}</h3><textarea class="note-in" data-note="${esc(path)}" placeholder="${esc(T.file.notePlaceholder)}">${esc(state.notes[path] ?? \'\')}</textarea>`\n\nfunction fileView(path) {\n  const f = FILES.find((x) => x.path === path)\n  if (!f) return summary()\n  if (f.extra === \'dependency\') return depView(f)\n  const i = FILES.indexOf(f)\n  const cf = covOf(path)\n  const entries = f.entries ?? []\n  const owners = D.reviewers.filter((r) => r.files.includes(path))\n  const errors = D.fileErrors[path]\n  const covFact = cf ? (cf.missing ? `<div><b class="bad">\u2014</b>${T.file.notInReport}</div>` : cf.total === 0 ? `<div><b>\u2014</b>${T.file.declarations}</div>` : `<div><b class="${cf.covered / cf.total < 0.5 ? \'bad\' : \'\'}">${pct(cf.covered / cf.total)}</b>${t(T.file.linesTested, { covered: cf.covered, total: cf.total })}</div>`) : `<div><b>\u2014</b>${esc(f.coverage ?? T.file.noCoverage)}</div>`\n  return `<div class="fhead"><div class="grow"><div class="muted small">${t(T.file.position, { i: i + 1, n: FILES.length, change: esc(f.change ?? \'\') })}</div><div class="fpath"><span class="d">${esc(dir(path))}</span>${esc(base(path))}</div><div class="muted small">${esc(f.why ?? \'\')}</div></div>${actions(f, i)}</div>\n  ${MUST.filter((g) => g.owner === path).map(findingBox).join(\'\')}\n  ${f.extra === \'tests\' ? `<div class="mustbox done"><h3>${T.file.testTitle}</h3><p>${t(T.file.testWhy, { why: esc(f.why) })}</p></div>` : \'\'}\n  <div class="facts">${factsScore(path)}${f.extra ? \'\' : `<div><b>${f.reached}<span class="of"> / ${D.totalEntries}</span></b>${t(T.file.reach, { many: TERM.many })}</div>${covFact}`}${errors ? `<div><b class="bad">${errors.errors}</b>${errors.url ? `<a href="${esc(errors.url)}" target="_blank" rel="noopener">${T.file.errors}</a>` : T.file.errors}</div>` : \'\'}</div>\n  <div class="cols"><div>${renderDiff(path)}</div>\n  <div class="aside">${noteBox(path)}<h3>${t(T.file.entries, { Many: TERM.Many })}</h3><ul>${entries.slice(0, 12).map((e) => `<li>${esc(e)}</li>`).join(\'\') || `<li class="pp muted">${T.none}</li>`}${entries.length > 12 ? `<li class="pp muted">${t(T.andMore, { n: entries.length - 12 })}</li>` : \'\'}</ul>\n  <h3>${T.file.knows}</h3><ul>${owners.map((r) => `<li class="pp">${esc(r.name)} <span class="muted">\xB7 ${esc(r.note)}</span></li>`).join(\'\') || `<li class="pp muted">${T.file.noHistory}</li>`}</ul></div></div>`\n}\n\nfunction findingBox(g) {\n  const it = g.items[0]\n  const line = findingLine(g)\n  const sec = it.kind === \'security\' ? D.security.find((x) => x.path === g.owner && x.line === line) : null\n  const lint = D.lint.find((x) => x.path === g.owner && x.line === line)\n  const on = !groupActive(g)\n  const url = ghLine(g.owner, \'R\', line)\n  return `<div class="mustbox${on ? \' done\' : \'\'}"><h3>${it.kind === \'security\' ? t(T.finding.security, { severity: esc(sec?.severity ?? \'\') }) : t(T.finding.lint, { rule: esc(lint?.rule ?? \'\') })} <a href="#" data-jump="${line}">${t(T.finding.atLine, { line })}</a></h3>\n    <p>${esc(sec?.message ?? lint?.message ?? it.title)}</p>${sec?.text ? `<code class="snip">${esc(sec.text)}</code>` : \'\'}\n    <label class="ack"><input type="checkbox" data-ack="${esc(g.id)}" ${on ? \'checked\' : \'\'}> ${it.kind === \'security\' ? T.finding.ackSecurity : T.finding.ackLint}</label>${url ? ` <a class="small" href="${esc(url)}" target="_blank" rel="noopener">${t(T.finding.comment, { line })}</a>` : \'\'}</div>`\n}\n\nfunction findingView(id) {\n  const g = MUST.find((x) => x.id === id)\n  if (!g) return summary()\n  if (!g.owner) {\n    const on = !groupActive(g)\n    return `<div class="muted small">${T.nav.must}</div><h1>${T.must.vulnerability}</h1><div class="mustbox${on ? \' done\' : \'\'}"><p>${esc(g.items[0].title)}</p><label class="ack"><input type="checkbox" data-ack="${esc(g.id)}" ${on ? \'checked\' : \'\'}> ${T.finding.ackVulnerability}</label></div>`\n  }\n  return `<div class="muted small">${T.nav.must}</div><h1>${esc(groupLabel(g))}</h1><p class="lead">${t(T.finding.lead, { points: POINTS0.get(id) ?? 0 })}</p>\n  ${findingBox(g)}<p class="small"><a href="#file:${esc(g.owner)}">${t(T.finding.open, { file: esc(base(g.owner)) })}</a></p>${renderDiff(g.owner)}`\n}\n\nfunction depView(f) {\n  const i = FILES.indexOf(f)\n  const list = D.dependencies.filter((c) => c.manifest === f.path)\n  const card = (c) => {\n    const key = c.change === \'removed\' ? \'removed\' : c.change === \'added\' ? \'added\' : c.change === \'moved\' ? \'moved\' : /^(minor bump of a 0\\.x|patch bump of a 0\\.0)/.test(c.note ?? \'\') ? \'zeroMinor\' : c.bump ?? \'unknown\'\n    const npm = f.path.endsWith(\'package.json\') ? `https://www.npmjs.com/package/${c.name}?activeTab=versions` : null\n    const tag = key === \'zeroMinor\' ? T.dep.zeroMinorTag : c.bump ?? c.change\n    return `<div class="dep"><span class="nm">${esc(c.name)}</span><span class="sec">${esc(c.section)}</span>\n      <div class="ver">${c.from ? esc(c.from) : `<span class="muted">${T.dep.none}</span>`}<span class="arrow">\u2192</span>${c.to ? esc(c.to) : `<span class="muted">${T.dep.removed}</span>`}<span class="bump${c.critical ? \' bad\' : \'\'}">${esc(tag)}</span></div>\n      <p class="mean">${T.dep.means[key] ?? T.dep.means.unknown}</p>\n      <div class="diff"><table><tr class="d-hunk"><td colspan="2">${esc(t(T.dep.where, { section: c.section, file: base(f.path) }))}</td></tr>${c.from ? `<tr class="d-del"><td class="d-n">\u2212</td><td class="d-c">"${esc(c.name)}": "${esc(c.from)}"</td></tr>` : \'\'}${c.to ? `<tr class="d-add"><td class="d-n">+</td><td class="d-c">"${esc(c.name)}": "${esc(c.to)}"</td></tr>` : \'\'}</table></div>\n      ${c.critical ? `<h4>${T.dep.howTitle}</h4><ol><li>${t(T.dep.how1, { from: esc(c.from ?? \'\'), to: esc(c.to ?? \'\') })}${npm ? ` (<a href="${esc(npm)}" target="_blank" rel="noopener">${T.dep.npm}</a>)` : \'\'}</li><li>${t(T.dep.how2, { name: `<code>${esc(c.name)}</code>` })}</li><li>${t(T.dep.how3, { one: TERM.one })}</li></ol>` : \'\'}</div>`\n  }\n  return `<div class="fhead"><div class="grow"><div class="muted small">${t(T.file.position, { i: i + 1, n: FILES.length, change: T.dep.change })}</div><div class="fpath"><span class="d">${esc(dir(f.path))}</span>${esc(base(f.path))}</div><div class="muted small">${pl(list.length, T.packages)}</div></div>${actions(f, i)}</div>\n  <div class="facts">${factsScore(f.path)}</div>\n  <div class="cols"><div>${list.map(card).join(\'\') || `<p class="muted">${esc(f.why)}</p>`}</div><div class="aside">${noteBox(f.path)}</div></div>`\n}\n',
+  "report/wb-views.js": '/* farol report, in the browser (2/3): the side rail, the summary and the views of one file, one finding and one\n * dependency manifest. Uses wb-core.js. */\nconst midCut = (s, n) => (s.length <= n ? s : `${s.slice(0, Math.ceil(n * 0.45))}\u2026${s.slice(s.length - Math.floor(n * 0.55))}`)\nconst SHADES = [\'var(--ink)\', \'color-mix(in srgb, var(--ink) 72%, var(--bg))\', \'color-mix(in srgb, var(--ink) 52%, var(--bg))\', \'color-mix(in srgb, var(--ink) 36%, var(--bg))\', \'color-mix(in srgb, var(--ink) 24%, var(--bg))\']\nconst S = coverageSummary()\nconst ui = { view: \'summary\', tierOpen: new Set(), covOpen: false }\nconst contractGroups = MUST.filter((g) => g.items[0].kind === \'contract\')\nconst breakingKeys = () => (D.contracts ?? []).filter((e) => e.level !== \'safe\').map((e) => e.key)\n/** Must check as the rail lists it: all contract changes as one item, then each finding and vulnerable dependency. */\nconst mustList = () => [...(contractGroups.length ? [{ contract: true, groups: contractGroups }] : []), ...MUST.filter((g) => !contractGroups.includes(g)).map((g) => ({ contract: false, groups: [g] }))]\nconst mustDone = (m) => m.groups.every((g) => !groupActive(g))\n\nfunction rail() {\n  const R = readiness()\n  const s = R.s\n  const done = FILES.filter(fileDone).length\n  const share = shareOf()\n  const cov = S\n    ? `<div class="metric"><div class="label"><span>${T.rail.tested}</span></div><div class="value${S.ratio < 0.5 ? \' bad\' : \'\'}">${pct(S.ratio)}</div>\n    <div class="track"><span style="width:${(S.covered / S.total) * 100}%"></span><span class="bad" style="width:${((S.total - S.covered - S.missingLines) / S.total) * 100}%"></span><span class="hatch" style="width:${(S.missingLines / S.total) * 100}%"></span></div>\n    <div class="sub">${t(T.rail.testedSub, { covered: S.covered, total: S.total })}${S.missing.length ? t(T.rail.testedWithout, { ratio: pct(S.reportedRatio), files: pl(S.missing.length, T.files) }) : \'\'}</div></div>`\n    : `<div class="metric"><div class="label"><span>${T.rail.tested}</span></div><div class="value">\u2014</div><div class="sub">${D.coverage.status === \'ok\' ? T.rail.noExecutable : T.rail.noReport}</div></div>`\n  const item = (f) => {\n    const flagged = flagCovered(f.path) && !isReviewed(f.path)\n    const on = fileDone(f)\n    return `<div class="fi${ui.view === \'file:\' + f.path ? \' on\' : \'\'}${on ? \' done\' : \'\'}"><input type="checkbox" data-review-cb="${esc(f.path)}" ${on ? \'checked\' : \'\'} ${flagged ? `disabled title="${esc(T.rail.flagged)}"` : \'\'} aria-label="${esc(T.rail.reviewedBox)}"><a href="#file:${esc(f.path)}" class="nm" title="${esc(short(f.path))}"><span class="n">${esc(midCut(base(f.path), 25))}</span><span class="dirl">${esc(dir(f.path).replace(/\\/$/, \'\')) || \'&nbsp;\'}</span></a><span class="r">${on ? \'\' : share.get(f.path) ?? 0}</span></div>`\n  }\n  const tiers = filesByTier().map((x) => {\n    const count = `${x.files.filter(fileDone).length}/${x.files.length}`\n    return x.collapsed\n      ? `<details class="tier" ${ui.tierOpen.has(x.id) ? \'open\' : \'\'} data-tier="${x.id}"><summary><span>${x.label}</span><span>${count}</span></summary>${x.files.map(item).join(\'\')}</details>`\n      : `<h4><span>${x.label}</span><span>${count}</span></h4>${x.files.map(item).join(\'\')}`\n  }).join(\'\')\n  const mustItem = (m) => {\n    const g = m.groups[0]\n    const target = m.contract ? \'contract\' : \'finding:\' + g.id\n    const title = m.contract ? T.must.contract : g.owner ? (g.items[0].kind === \'security\' ? T.must.security : T.must.lint) : T.must.vulnerability\n    const sub = m.contract ? breakingKeys().join(\', \') : g.owner ? `${base(g.owner)}:${findingLine(g)}` : g.items[0].title\n    const on = mustDone(m)\n    const points = m.groups.reduce((n, x) => n + (POINTS0.get(x.id) ?? 0), 0)\n    return `<div class="fi must${ui.view === target ? \' on\' : \'\'}${on ? \' done\' : \'\'}"><input type="checkbox" data-ack="${esc(m.groups.map((x) => x.id).join(\'|\'))}" ${on ? \'checked\' : \'\'} aria-label="${esc(T.rail.checkedBox)}"><a href="#${esc(target)}" class="nm"><span class="n">${esc(title)}</span><span class="dirl">${esc(sub)}</span></a><span class="r">${on ? \'\' : points}</span></div>`\n  }\n  const must = mustList()\n  const sub = R.ready ? `<span class="ok">${T.rail.ready}</span>` : levelOf(s) === \'low\' && R.mustLeft ? t(T.rail.lowButMust, { items: pl(R.mustLeft, T.items) }) : T.verdict[D.verdict]\n  document.getElementById(\'rail\').innerHTML = `\n  <div class="metric${R.ready ? \' ready\' : \'\'}"><div class="label"><span>${T.rail.risk}</span><span>${T.levels[levelOf(s)]}</span></div><div class="value">${s}<small>/100</small></div>\n    <div class="track"><span class="${levelOf(s) === \'high\' ? \'bad\' : \'\'}" style="width:${Math.max(s, 1)}%"></span></div>\n    <div class="sub">${sub}${s !== SCORE0 ? t(T.rail.was, { score: SCORE0 }) : \'\'}</div></div>\n  ${cov}\n  <div class="metric"><div class="label"><span>${T.rail.reviewed}</span><span>${done} / ${FILES.length}</span></div><div class="track"><span style="width:${(done / Math.max(1, FILES.length)) * 100}%"></span></div></div>\n  <nav class="nav">\n    <a href="#summary" class="${ui.view === \'summary\' ? \'on\' : \'\'}"><span class="n">${T.nav.summary}</span></a>\n    ${must.length ? `<h4 class="mustcheck"><span>${T.nav.must}</span><span>${must.filter(mustDone).length}/${must.length}</span></h4>${must.map(mustItem).join(\'\')}` : \'\'}\n    ${tiers}\n    <h4><span>${T.nav.before}</span></h4>\n    ${D.contracts && !contractGroups.length ? `<a href="#contract" class="${ui.view === \'contract\' ? \'on\' : \'\'}"><span class="n">${T.nav.contract}</span><span class="r">${T.nav.contractSafe}</span></a>` : \'\'}\n    <a href="#plan" class="${ui.view === \'plan\' ? \'on\' : \'\'}"><span class="n">${T.nav.plan}</span><span class="r">${pl(OPS.length, T.entriesPair)}</span></a>\n    <a href="#details" class="${ui.view === \'details\' ? \'on\' : \'\'}"><span class="n">${T.nav.details}</span></a>\n    <h4><span>${T.nav.finish}</span></h4>\n    <a href="#results" class="${ui.view === \'results\' ? \'on\' : \'\'}"><span class="n">${T.nav.results}</span><span class="r">${T.nav.resultsHint}</span></a>\n  </nav>`\n}\n\nfunction summary() {\n  const att = attribution()\n  const s = liveScore()\n  const R = readiness()\n  const rows = [...(COV?.files ?? [])].filter((f) => !f.missing).sort((a, b) => (b.total - b.covered) - (a.total - a.covered))\n  const missing = (COV?.files ?? []).filter((f) => f.missing).sort((a, b) => b.total - a.total)\n  const leftOut = COV?.leftOut ?? []\n  const table = S ? `<table class="t"><thead><tr><th>${T.cov.file}</th><th class="num">${T.cov.tested}</th><th class="mini"></th><th>${T.cov.notRun}</th></tr></thead><tbody>${rows.map((f) => `<tr><td class="p">${esc(short(f.path))}</td><td class="num">${f.covered}/${f.total} \xB7 ${pct(f.total ? f.covered / f.total : 1)}</td>\n    <td class="mini"><div class="track"><span style="width:${f.total ? (f.covered / f.total) * 100 : 100}%"></span><span class="bad" style="width:${f.total ? ((f.total - f.covered) / f.total) * 100 : 0}%"></span></div></td>\n    <td class="small muted">${f.uncovered.map(rangeText).join(\', \') || \'\u2014\'}</td></tr>`).join(\'\')}</tbody></table>\n    ${missing.length ? `<h3 class="misshead">${t(T.cov.missingTitle, { files: pl(missing.length, T.files) })}</h3><p class="small muted">${T.cov.missingWhy}</p><table class="t"><tbody>${missing.map((f) => `<tr><td class="p">${esc(short(f.path))}</td><td class="num small muted">${pl(f.total, T.changedLines)}</td></tr>`).join(\'\')}</tbody></table>` : \'\'}\n    ${leftOut.length ? `<h3>${t(T.cov.leftOutTitle, { files: pl(leftOut.length, T.files) })}</h3><p class="small muted">${T.cov.leftOutWhy}</p><table class="t"><tbody>${leftOut.map((f) => `<tr><td class="p">${esc(short(f.path))}</td><td class="small muted">${T.cov.leftOutBy[f.by]}</td></tr>`).join(\'\')}</tbody></table>` : \'\'}`\n    : `<p class="muted">${D.coverage.status === \'ok\' ? T.rail.noExecutable : T.cov.none}</p>`\n  const parts = (() => {\n    if (!att.length) return `<p class="muted">${T.summary.allReviewed}</p>`\n    const { top, rest } = topParts(att, 11)\n    const restPts = rest.reduce((n, a) => n + a.points, 0)\n    const segs = [...top.map((a, i) => ({ pts: a.points, color: SHADES[Math.min(i, SHADES.length - 1)], label: groupLabel(a.group), why: groupWhy(a.group), file: a.group.file })), ...(rest.length ? [{ pts: restPts, color: \'color-mix(in srgb, var(--ink) 14%, var(--bg))\', label: pl(rest.length, T.otherParts), why: rest.map((a) => groupLabel(a.group)).join(\', \'), file: null }] : [])]\n    return `<div class="stack">${segs.map((x) => `<div style="flex:${x.pts};background:${x.color}" title="${esc(x.label)}: ${x.pts}">${x.pts >= 8 ? x.pts : \'\'}</div>`).join(\'\')}</div>\n    <div class="keys">${segs.map((x) => `<div><i style="background:${x.color}"></i><span title="${esc(x.why)}">${x.file ? `<a href="#file:${esc(x.file)}"><code>${esc(base(x.file))}</code></a>` : esc(x.label)}</span><b>${x.pts}</b></div>`).join(\'\')}</div>`\n  })()\n  const covLine = S ? t(T.cov.summary, { ratio: pct(S.ratio), covered: S.covered, total: S.total }) + (S.missing.length ? t(T.cov.summaryWithout, { ratio: pct(S.reportedRatio), files: pl(S.missing.length, T.files) }) : \'\') : T.cov.none\n  return `${D.incremental ? `<p class="incremental">${t(T.summary.incremental, { since: esc(D.incremental) })}</p>` : \'\'}\n  <h1>${R.ready ? T.summary.ready : T.verdict[D.verdict]}</h1><p class="lead">${riskLede()}</p>\n  ${R.ready ? \'\' : `<p class="small muted">${MUST.length ? T.summary.startMust : T.summary.start}</p>`}\n  ${R.ready ? `<div class="ready-banner"><b>${t(T.summary.readyTitle, { score: s })}</b> ${s !== SCORE0 ? t(T.summary.readyDown, { score: SCORE0 }) : T.summary.readyNothing} <a href="#results">${T.summary.copyResults}</a></div>` : \'\'}\n  ${D.usage ? `<p class="small muted">${esc(D.usage)}</p>` : \'\'}\n  <h2>${t(T.summary.makesUp, { score: s })}</h2>${parts}\n  <details class="cov" ${ui.covOpen ? \'open\' : \'\'} id="cov-d"><summary><h2>${T.cov.title}</h2><span class="sumtxt">${covLine}</span><span class="clickhint">${ui.covOpen ? T.cov.hide : T.cov.show}</span></summary>${table}</details>\n  <footer>${t(T.footer, { version: esc(D.version) })}</footer>`\n}\n\nconst factsScore = (path) => `<div><b>${shareOf().get(path) ?? 0}<span class="of"> ${t(T.file.of, { score: liveScore() })}</span></b>${T.file.part}</div>`\nconst actions = (f, i) => `<button class="primary${isReviewed(f.path) ? \' done\' : \'\'}" data-review="${esc(f.path)}">${isReviewed(f.path) ? T.file.reviewedBtn : T.file.markBtn}</button>${FILES[i + 1] ? `<button class="secondary" data-go="${esc(FILES[i + 1].path)}">${T.file.next}</button>` : \'\'}${ghFile(f.path) ? `<a class="secondary" href="${esc(ghFile(f.path))}" target="_blank" rel="noopener" title="${esc(T.file.commentTitle)}">${T.file.comment}</a>` : \'\'}`\nconst noteBox = (path) => `<h3>${T.file.note}</h3><textarea class="note-in" data-note="${esc(path)}" placeholder="${esc(T.file.notePlaceholder)}">${esc(state.notes[path] ?? \'\')}</textarea>`\n\nfunction fileView(path) {\n  const f = FILES.find((x) => x.path === path)\n  if (!f) return summary()\n  if (f.extra === \'dependency\') return depView(f)\n  const i = FILES.indexOf(f)\n  const cf = covOf(path)\n  const entries = f.entries ?? []\n  const owners = D.reviewers.filter((r) => r.files.includes(path))\n  const errors = D.fileErrors[path]\n  const covFact = cf ? (cf.missing ? `<div><b class="bad">\u2014</b>${T.file.notInReport}</div>` : cf.total === 0 ? `<div><b>\u2014</b>${T.file.declarations}</div>` : `<div><b class="${cf.covered / cf.total < 0.5 ? \'bad\' : \'\'}">${pct(cf.covered / cf.total)}</b>${t(T.file.linesTested, { covered: cf.covered, total: cf.total })}</div>`) : `<div><b>\u2014</b>${esc(f.coverage ?? T.file.noCoverage)}</div>`\n  return `<div class="fhead"><div class="grow"><div class="muted small">${t(T.file.position, { i: i + 1, n: FILES.length, change: esc(f.change ?? \'\') })}</div><div class="fpath"><span class="d">${esc(dir(path))}</span>${esc(base(path))}</div><div class="muted small">${esc(f.why ?? \'\')}</div></div>${actions(f, i)}</div>\n  ${MUST.filter((g) => g.owner === path).map(findingBox).join(\'\')}\n  ${f.extra === \'tests\' ? `<div class="mustbox done"><h3>${T.file.testTitle}</h3><p>${t(T.file.testWhy, { why: esc(f.why) })}</p></div>` : \'\'}\n  <div class="facts">${factsScore(path)}${f.extra ? \'\' : `<div><b>${f.reached}<span class="of"> / ${D.totalEntries}</span></b>${t(T.file.reach, { many: TERM.many })}</div>${covFact}`}${errors ? `<div><b class="bad">${errors.errors}</b>${errors.url ? `<a href="${esc(errors.url)}" target="_blank" rel="noopener">${T.file.errors}</a>` : T.file.errors}</div>` : \'\'}</div>\n  <div class="cols"><div>${renderDiff(path)}</div>\n  <div class="aside">${noteBox(path)}<h3>${t(T.file.entries, { Many: TERM.Many })}</h3><ul>${entries.slice(0, 12).map((e) => `<li>${esc(e)}</li>`).join(\'\') || `<li class="pp muted">${T.none}</li>`}${entries.length > 12 ? `<li class="pp muted">${t(T.andMore, { n: entries.length - 12 })}</li>` : \'\'}</ul>\n  <h3>${T.file.knows}</h3><ul>${owners.map((r) => `<li class="pp">${esc(r.name)} <span class="muted">\xB7 ${esc(r.note)}</span></li>`).join(\'\') || `<li class="pp muted">${T.file.noHistory}</li>`}</ul></div></div>`\n}\n\nfunction findingBox(g) {\n  const it = g.items[0]\n  const line = findingLine(g)\n  const sec = it.kind === \'security\' ? D.security.find((x) => x.path === g.owner && x.line === line) : null\n  const lint = D.lint.find((x) => x.path === g.owner && x.line === line)\n  const on = !groupActive(g)\n  const url = ghLine(g.owner, \'R\', line)\n  return `<div class="mustbox${on ? \' done\' : \'\'}"><h3>${it.kind === \'security\' ? t(T.finding.security, { severity: esc(sec?.severity ?? \'\') }) : t(T.finding.lint, { rule: esc(lint?.rule ?? \'\') })} <a href="#" data-jump="${line}">${t(T.finding.atLine, { line })}</a></h3>\n    <p>${esc(sec?.message ?? lint?.message ?? it.title)}</p>${sec?.text ? `<code class="snip">${esc(sec.text)}</code>` : \'\'}\n    <label class="ack"><input type="checkbox" data-ack="${esc(g.id)}" ${on ? \'checked\' : \'\'}> ${it.kind === \'security\' ? T.finding.ackSecurity : T.finding.ackLint}</label>${url ? ` <a class="small" href="${esc(url)}" target="_blank" rel="noopener">${t(T.finding.comment, { line })}</a>` : \'\'}</div>`\n}\n\nfunction findingView(id) {\n  const g = MUST.find((x) => x.id === id)\n  if (!g) return summary()\n  if (!g.owner) {\n    const on = !groupActive(g)\n    return `<div class="muted small">${T.nav.must}</div><h1>${T.must.vulnerability}</h1><div class="mustbox${on ? \' done\' : \'\'}"><p>${esc(g.items[0].title)}</p><label class="ack"><input type="checkbox" data-ack="${esc(g.id)}" ${on ? \'checked\' : \'\'}> ${T.finding.ackVulnerability}</label></div>`\n  }\n  return `<div class="muted small">${T.nav.must}</div><h1>${esc(groupLabel(g))}</h1><p class="lead">${t(T.finding.lead, { points: POINTS0.get(id) ?? 0 })}</p>\n  ${findingBox(g)}<p class="small"><a href="#file:${esc(g.owner)}">${t(T.finding.open, { file: esc(base(g.owner)) })}</a></p>${renderDiff(g.owner)}`\n}\n\nfunction depView(f) {\n  const i = FILES.indexOf(f)\n  const list = D.dependencies.filter((c) => c.manifest === f.path)\n  const card = (c) => {\n    const key = c.change === \'removed\' ? \'removed\' : c.change === \'added\' ? \'added\' : c.change === \'moved\' ? \'moved\' : /^(minor bump of a 0\\.x|patch bump of a 0\\.0)/.test(c.note ?? \'\') ? \'zeroMinor\' : c.bump ?? \'unknown\'\n    const npm = f.path.endsWith(\'package.json\') ? `https://www.npmjs.com/package/${c.name}?activeTab=versions` : null\n    const tag = key === \'zeroMinor\' ? T.dep.zeroMinorTag : c.bump ?? c.change\n    return `<div class="dep"><span class="nm">${esc(c.name)}</span><span class="sec">${esc(c.section)}</span>\n      <div class="ver">${c.from ? esc(c.from) : `<span class="muted">${T.dep.none}</span>`}<span class="arrow">\u2192</span>${c.to ? esc(c.to) : `<span class="muted">${T.dep.removed}</span>`}<span class="bump${c.critical ? \' bad\' : \'\'}">${esc(tag)}</span></div>\n      <p class="mean">${T.dep.means[key] ?? T.dep.means.unknown}</p>\n      <div class="diff"><table><tr class="d-hunk"><td colspan="2">${esc(t(T.dep.where, { section: c.section, file: base(f.path) }))}</td></tr>${c.from ? `<tr class="d-del"><td class="d-n">\u2212</td><td class="d-c">"${esc(c.name)}": "${esc(c.from)}"</td></tr>` : \'\'}${c.to ? `<tr class="d-add"><td class="d-n">+</td><td class="d-c">"${esc(c.name)}": "${esc(c.to)}"</td></tr>` : \'\'}</table></div>\n      ${c.critical ? `<h4>${T.dep.howTitle}</h4><ol><li>${t(T.dep.how1, { from: esc(c.from ?? \'\'), to: esc(c.to ?? \'\') })}${npm ? ` (<a href="${esc(npm)}" target="_blank" rel="noopener">${T.dep.npm}</a>)` : \'\'}</li><li>${t(T.dep.how2, { name: `<code>${esc(c.name)}</code>` })}</li><li>${t(T.dep.how3, { one: TERM.one })}</li></ol>` : \'\'}</div>`\n  }\n  return `<div class="fhead"><div class="grow"><div class="muted small">${t(T.file.position, { i: i + 1, n: FILES.length, change: T.dep.change })}</div><div class="fpath"><span class="d">${esc(dir(f.path))}</span>${esc(base(f.path))}</div><div class="muted small">${pl(list.length, T.packages)}</div></div>${actions(f, i)}</div>\n  <div class="facts">${factsScore(f.path)}</div>\n  <div class="cols"><div>${list.map(card).join(\'\') || `<p class="muted">${esc(f.why)}</p>`}</div><div class="aside">${noteBox(f.path)}</div></div>`\n}\n',
   "report/workbench.css": '/* farol report: a review workbench. Sober neutrals, one accent, red only for what needs attention. */\n:root {\n  --bg: #ffffff; --rail: #f7f7f6; --surface: #ffffff; --text: #1c1c1e; --text-2: #55555c; --muted: #8e8e95; --line: #e8e6e3; --line-2: #d4d2ce;\n  --ink: #2b2b2f; --sel: #ecebe8; --accent: #3056c9; --bad: #b42318; --good: #2e7d4f; --track: #eceae7;\n  --add: #f1f8f2; --del: #fcf1f0;\n  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\n}\n@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {\n  --bg: #121214; --rail: #18181b; --surface: #121214; --text: #ececee; --text-2: #b2b2b9; --muted: #7d7d86; --line: #2a2a2f; --line-2: #3b3b41;\n  --ink: #e6e6e9; --sel: #26262b; --accent: #91a9ff; --bad: #f4796b; --good: #6cc495; --track: #27272c; --add: #15231a; --del: #2a1616; } }\n:root[data-theme="dark"] {\n  --bg: #121214; --rail: #18181b; --surface: #121214; --text: #ececee; --text-2: #b2b2b9; --muted: #7d7d86; --line: #2a2a2f; --line-2: #3b3b41;\n  --ink: #e6e6e9; --sel: #26262b; --accent: #91a9ff; --bad: #f4796b; --good: #6cc495; --track: #27272c; --add: #15231a; --del: #2a1616; }\n* { box-sizing: border-box; }\nhtml, body { margin: 0; }\nbody { background: var(--bg); color: var(--text); font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }\na { color: var(--accent); text-decoration: none; } a:hover { text-decoration: underline; }\ncode { font-family: var(--mono); font-size: .9em; }\n.muted { color: var(--muted); } .small { font-size: .85rem; }\nbutton { font: inherit; color: inherit; }\ninput[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--ink); margin: 0; cursor: pointer; }\n\n.top { height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 18px; border-bottom: 1px solid var(--line); font-size: .85rem; color: var(--muted); position: sticky; top: 0; background: var(--bg); z-index: 5; }\n.top .brand { display: inline-flex; align-items: center; line-height: 0; }\n.top .brand svg { height: 28px; width: auto; }\n.top .logo-dark { display: none; }\n@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .top .logo-light { display: none; } :root:not([data-theme="light"]) .top .logo-dark { display: inline-flex; } }\n:root[data-theme="dark"] .top .logo-light { display: none; } :root[data-theme="dark"] .top .logo-dark { display: inline-flex; }\n.top .repo { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }\n.top .grow { flex: 1; }\n.kbd { font-family: var(--mono); font-size: .72rem; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; color: var(--text-2); }\n.top .act { background: none; border: 1px solid var(--line-2); border-radius: 7px; padding: 3px 10px; cursor: pointer; color: var(--text); font-size: .8rem; white-space: nowrap; }\n.top .act.dark { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 600; }\n.top .act:hover { text-decoration: none; }\n@media (max-width: 860px) { .top .keys-hint, .top .repo { display: none; } }\n\n.layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); min-height: calc(100vh - 48px); }\n.rail { background: var(--rail); border-right: 1px solid var(--line); position: sticky; top: 48px; height: calc(100vh - 48px); overflow: auto; padding: 18px 14px 24px; }\n@media (max-width: 860px) { .layout { grid-template-columns: 1fr; } .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); } }\n.metric { padding: 4px 6px 14px; }\n.metric + .metric { border-top: 1px solid var(--line); padding-top: 14px; }\n.metric .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; display: flex; justify-content: space-between; }\n.metric .value { font-size: 2rem; font-weight: 650; letter-spacing: -.03em; line-height: 1.1; margin: 4px 0 6px; font-variant-numeric: tabular-nums; }\n.metric .value small { font-size: .85rem; font-weight: 500; color: var(--muted); margin-left: 2px; letter-spacing: 0; }\n.metric .value.bad { color: var(--bad); }\n.metric .sub { font-size: .8rem; color: var(--text-2); margin-top: 6px; }\n.metric.ready { background: color-mix(in srgb, var(--good) 10%, transparent); border-radius: 10px; padding: 10px 10px 14px; margin-bottom: 6px; }\n.metric.ready .value, .metric.ready .label span:last-child, .metric .ok { color: var(--good); }\n.metric .ok { font-weight: 600; }\n.metric.ready .track span { background: var(--good); }\n.track { height: 4px; border-radius: 2px; background: var(--track); overflow: hidden; display: flex; }\n.track span { height: 100%; background: var(--ink); }\n.track span.bad { background: var(--bad); }\n.track span.hatch { background: repeating-linear-gradient(135deg, var(--bad) 0 2px, transparent 2px 4px); opacity: .6; }\n\n.nav { margin-top: 10px; }\n.nav h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 16px 6px 6px; font-weight: 600; display: flex; justify-content: space-between; }\n.nav h4.mustcheck { color: var(--bad); }\n.nav > a { display: flex; justify-content: space-between; gap: 8px; padding: 6px 8px 6px 32px; border-radius: 7px; color: var(--text); font-size: .86rem; }\n.nav > a:hover { background: var(--sel); text-decoration: none; }\n.nav > a.on { background: var(--sel); font-weight: 600; }\n.nav > a .r { font-size: .78rem; color: var(--muted); font-weight: 400; }\n.fi { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 5px 8px; border-radius: 7px; font-size: .86rem; }\n.fi:hover, .fi.on { background: var(--sel); }\n.fi.on .n { font-weight: 600; }\n.fi a.nm { display: flex; flex-direction: column; min-width: 0; color: var(--text); }\n.fi a.nm:hover { text-decoration: none; }\n.fi .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); font-size: .8rem; }\n.fi .dirl { font-size: .7rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left; }\n.fi .r { font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; }\n.fi.done .n { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line-2); }\n.fi.must .n { font-family: inherit; font-size: .84rem; }\n.fi.must .dirl { direction: ltr; }\n.fi.must .r { color: var(--bad); }\n.fi.must.done .r { color: var(--muted); }\ndetails.tier > summary { list-style: none; cursor: pointer; font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 16px 6px 6px; font-weight: 600; display: flex; justify-content: space-between; }\ndetails.tier > summary::-webkit-details-marker { display: none; }\ndetails.tier > summary span:first-child::before { content: "\u25B8 "; } details.tier[open] > summary span:first-child::before { content: "\u25BE "; }\n\n.main { padding: 26px 34px 80px; max-width: 1100px; }\n@media (max-width: 860px) { .main { padding: 20px 16px 60px; } }\nh1 { font-size: 1.6rem; letter-spacing: -.02em; margin: 0 0 6px; font-weight: 650; }\nh2 { font-size: 1rem; margin: 34px 0 10px; font-weight: 650; }\n.lead { color: var(--text-2); max-width: 72ch; margin: 0 0 6px; }\n.incremental { display: inline-block; font-size: .8rem; color: var(--text-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 10px; margin: 0 0 12px; }\n.ready-banner { border: 1px solid color-mix(in srgb, var(--good) 40%, var(--line)); background: color-mix(in srgb, var(--good) 8%, transparent); border-radius: 10px; padding: 12px 14px; margin: 14px 0 0; }\n.ready-banner b { color: var(--good); }\n.stack { display: flex; height: 28px; border-radius: 6px; overflow: hidden; gap: 2px; margin: 8px 0 10px; }\n.stack div { height: 100%; display: flex; align-items: center; padding: 0 8px; font-size: .75rem; color: var(--bg); font-weight: 600; white-space: nowrap; overflow: hidden; min-width: 6px; }\n.keys { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px 18px; font-size: .82rem; }\n.keys div { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 8px; align-items: center; }\n.keys i { width: 10px; height: 10px; border-radius: 2px; }\n.keys span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.keys a { color: var(--text); }\n.keys b { font-variant-numeric: tabular-nums; }\ndetails.cov > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 34px 0 10px; }\ndetails.cov > summary::-webkit-details-marker { display: none; }\ndetails.cov > summary h2 { margin: 0; }\ndetails.cov > summary h2::before { content: "\u25B8 "; color: var(--muted); font-weight: 400; } details.cov[open] > summary h2::before { content: "\u25BE "; }\ndetails.cov > summary .sumtxt { color: var(--text-2); font-size: .88rem; }\ndetails.cov > summary .clickhint { color: var(--accent); font-size: .82rem; }\ndetails.cov > summary:hover .clickhint { text-decoration: underline; }\n.misshead { font-size: .9rem; margin: 22px 0 4px; font-weight: 650; }\ntable.t { width: 100%; border-collapse: collapse; font-size: .85rem; }\ntable.t th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); }\ntable.t td { padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }\ntable.t .num { text-align: right; font-variant-numeric: tabular-nums; }\ntable.t .p { font-family: var(--mono); font-size: .8rem; overflow-wrap: anywhere; }\n.mini { width: 120px; }\n\n.fhead { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; }\n.fhead .grow { flex: 1; min-width: 260px; }\n.fpath { font-family: var(--mono); font-size: 1.05rem; font-weight: 600; overflow-wrap: anywhere; }\n.fpath .d { color: var(--muted); font-weight: 400; }\n.facts { display: flex; gap: 22px; margin: 16px 0 18px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); flex-wrap: wrap; }\n.facts div { font-size: .8rem; color: var(--muted); }\n.facts b { display: block; font-size: 1.15rem; color: var(--text); font-weight: 650; font-variant-numeric: tabular-nums; }\n.facts b.bad { color: var(--bad); }\n.facts .of { color: var(--muted); font-size: .8rem; font-weight: 500; }\n.primary { background: var(--ink); color: var(--bg); border: 0; border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer; }\n.primary.done { background: none; color: var(--text-2); border: 1px solid var(--line-2); }\n.secondary { background: none; border: 1px solid var(--line-2); border-radius: 8px; padding: 7px 12px; cursor: pointer; color: var(--text); font-size: .9rem; }\na.secondary:hover { text-decoration: none; background: var(--sel); }\n.cols { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 26px; }\n@media (max-width: 1100px) { .cols { grid-template-columns: 1fr; } }\n.aside h3 { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 0 0 6px; font-weight: 600; }\n.aside ul { list-style: none; margin: 0 0 20px; padding: 0; }\n.aside li { padding: 4px 0; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: .76rem; overflow-wrap: anywhere; }\n.aside li.pp { font-family: inherit; font-size: .82rem; }\n.note-in { width: 100%; min-height: 64px; border: 1px solid var(--line-2); border-radius: 8px; padding: 8px 10px; font: inherit; font-size: .85rem; background: var(--surface); color: var(--text); resize: vertical; margin-bottom: 18px; }\n\n.ghhint { font-size: .75rem; color: var(--muted); margin: 0 0 6px; }\n.covhead { font-size: .84rem; color: var(--text-2); padding: 9px 12px; border: 1px solid var(--line); border-bottom: 0; border-radius: 8px 8px 0 0; }\n.covhead.bad { box-shadow: inset 3px 0 0 var(--bad); }\n.covhead b { color: var(--text); font-weight: 600; }\n.covhead + .diff { border-radius: 0 0 8px 8px; }\n.diff { border: 1px solid var(--line); border-radius: 8px; overflow: auto; background: var(--surface); }\n.diff table { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; }\n.diff td { padding: 0 8px; white-space: pre; vertical-align: top; }\n.diff .d-n { width: 1%; color: var(--muted); text-align: right; user-select: none; font-size: 11.5px; }\n.diff a.d-gh { color: inherit; } .diff a.d-gh:hover { color: var(--accent); text-decoration: underline; }\n.diff .d-hunk td { color: var(--muted); background: var(--track); padding: 3px 8px; font-size: 11.5px; }\n.diff .d-add td { background: var(--add); } .diff .d-del td { background: var(--del); }\n.diff .d-unc td.d-n { color: var(--bad); font-weight: 600; box-shadow: inset 3px 0 0 var(--bad); }\n.diff .d-unclabel td { color: var(--bad); font-family: ui-sans-serif, system-ui, sans-serif; font-size: 11.5px; font-weight: 600; padding: 6px 8px 2px; white-space: normal; }\n.diff .d-note td { padding: 6px 8px 8px; white-space: normal; }\n.diff tr.flash td { animation: flash 1.4s ease-out; }\n@keyframes flash { 0% { background: color-mix(in srgb, var(--bad) 30%, transparent); } }\n.note { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 12.5px; border: 1px solid var(--line); border-left: 3px solid var(--line-2); border-radius: 6px; padding: 6px 10px; color: var(--text-2); max-width: 680px; }\n.note.bad { border-left-color: var(--bad); } .note b { color: var(--text); font-weight: 600; margin-right: 6px; }\n\n.mustbox { border: 1px solid var(--line); border-left: 3px solid var(--bad); border-radius: 8px; padding: 12px 14px; margin: 14px 0; }\n.mustbox.done { border-left-color: var(--line-2); }\n.mustbox h3 { margin: 0 0 4px; font-size: .9rem; }\n.mustbox p { margin: 0 0 8px; color: var(--text-2); font-size: .85rem; }\n.mustbox code.snip { display: block; white-space: pre-wrap; background: var(--track); border-radius: 6px; padding: 6px 8px; margin: 6px 0 8px; font-size: .78rem; }\n.ack { display: inline-flex; gap: 8px; align-items: center; font-size: .85rem; cursor: pointer; }\n.ack.big { margin: 10px 0 0; padding: 10px 12px; border: 1px solid var(--line-2); border-radius: 8px; }\n.dep { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin: 0 0 14px; }\n.dep .nm { font-family: var(--mono); font-weight: 650; font-size: 1rem; }\n.dep .sec { font-size: .75rem; color: var(--muted); margin-left: 8px; }\n.dep .ver { font-family: var(--mono); font-size: 1.3rem; margin: 10px 0 4px; }\n.dep .ver .arrow { color: var(--muted); margin: 0 10px; }\n.dep .bump { display: inline-block; font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 650; border: 1px solid var(--line-2); border-radius: 999px; padding: 1px 8px; margin-left: 10px; vertical-align: 3px; color: var(--text-2); font-family: ui-sans-serif, system-ui, sans-serif; }\n.dep .bump.bad { border-color: var(--bad); color: var(--bad); }\n.dep .mean { color: var(--text-2); margin: 6px 0 12px; max-width: 70ch; }\n.dep h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 12px 0 6px; font-weight: 600; }\n.dep ol { margin: 0; padding-left: 18px; font-size: .86rem; color: var(--text-2); }\n\n.contract { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }\n.contract .k { font-family: var(--mono); font-weight: 600; }\n.contract ul { margin: 8px 0 0; padding: 0; list-style: none; font-size: .85rem; }\n.contract li { display: grid; grid-template-columns: minmax(120px, 220px) 1fr; gap: 10px; padding: 3px 0; }\n.contract li .w { font-family: var(--mono); font-size: .8rem; overflow-wrap: anywhere; }\n.contract li.breaking .d { color: var(--bad); font-weight: 600; }\n.contract li.safe { color: var(--muted); }\n.pill { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; font-weight: 650; color: var(--bad); margin-left: 8px; }\n\n.opsbox { margin-top: 18px; }\n.ops-status { display: flex; gap: 18px; flex-wrap: wrap; font-size: .84rem; color: var(--text-2); margin: 0 0 10px; }\n.ops-head { display: flex; justify-content: space-between; font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; padding: 0 0 6px; }\n.ops { border-top: 1px solid var(--line); }\n.op { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }\n.op-main { display: flex; gap: 10px; align-items: flex-start; flex: 1; min-width: 0; cursor: pointer; }\n.op-main input { margin-top: 3px; }\n.op-txt { min-width: 0; }\n.op-path { font-family: var(--mono); font-size: .84rem; overflow-wrap: anywhere; }\n.op-new { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); font-weight: 650; margin-left: 8px; }\n.op-traffic { font-size: .75rem; color: var(--text-2); margin-left: 8px; }\n.op-via { display: block; font-size: .78rem; color: var(--muted); }\n.op-via .gone { text-decoration: line-through; }\n.op.done .op-path { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line-2); }\n.op-flag { flex: none; background: none; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; font-size: .76rem; color: var(--muted); cursor: pointer; white-space: nowrap; }\n.op-flag[aria-pressed="true"] { border-color: var(--ink); color: var(--text); font-weight: 600; }\n.ops-more > summary { list-style: none; cursor: pointer; font-size: .82rem; color: var(--accent); padding: 10px 0; width: fit-content; }\n.ops-more > summary::-webkit-details-marker { display: none; }\n.ops-more .ops { border-top: 0; }\n\n.details-frame { width: 100%; height: calc(100vh - 190px); min-height: 480px; border: 1px solid var(--line); border-radius: 10px; margin-top: 14px; background: var(--bg); }\n.results pre { white-space: pre-wrap; background: var(--rail); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; font-size: .8rem; line-height: 1.55; max-height: 60vh; overflow: auto; }\n.results .btns { display: flex; gap: 8px; margin: 14px 0; flex-wrap: wrap; align-items: center; }\n.saved { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 6px 0 18px; display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; align-items: center; }\n.saved .big { font-size: 2rem; font-weight: 650; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }\n.saved p { margin: 0; color: var(--text-2); font-size: .86rem; }\n.saved .bar, .saved small { grid-column: 1 / -1; }\n.saved small { color: var(--muted); font-size: .75rem; }\nfooter { color: var(--muted); font-size: .75rem; margin-top: 40px; }\n'
 };
 
@@ -253447,231 +253853,6 @@ function reviewers(o) {
   return `<div class="reviewers small"><span class="muted">${PLAN_TEXT.reviewersTitle}:</span> ${list2.length > 0 ? list2.join(" ") : `<span class="muted">${PLAN_TEXT.noReviewers}</span>`}</div>`;
 }
 
-// src/report/strings-workbench.ts
-function workbenchText(surface) {
-  const t = terms(surface);
-  const pair = (one, many) => [`{n} ${one}`, `{n} ${many}`];
-  return {
-    lang: "en",
-    title: "farol \xB7 {repo}",
-    themeToggle: "Theme",
-    footer: "farol {version} \xB7 shadow mode: it informs, it never blocks",
-    noscript: "This report needs JavaScript.",
-    keysHint: "next / previous",
-    keysReviewed: "reviewed",
-    copyResults: "Copy results",
-    commentOnGithub: "Comment on GitHub \u2197",
-    listAnd: "{items} and {last}",
-    andMore: "and {n} more",
-    none: "None.",
-    files: pair("file", "files"),
-    codeFiles: pair("code file", "code files"),
-    lines: pair("line", "lines"),
-    changedLines: pair("changed line", "changed lines"),
-    items: pair("item", "items"),
-    packages: pair("package changed", "packages changed"),
-    otherParts: pair("other part", "other parts"),
-    entriesPair: pair(t.one, t.many),
-    newEntries: pair(`new ${t.one}`, `new ${t.many}`),
-    levels: { high: "High", medium: "Medium", low: "Low" },
-    verdict: { careful: "Careful review", quick: "Quick review", pass: "Fast track" },
-    tiers: { high: "High risk", medium: "Medium risk", skim: "Skim", tests: "Test files" },
-    kinds: { contract: "Breaking API change", vulnerability: "Vulnerable dependency", global: "Global change", unknown: "Unknown impact", dependency: "Dependency", infra: "Infrastructure", tests: "Tests" },
-    rail: {
-      risk: "Merge risk",
-      was: " \xB7 was {score}",
-      ready: "\u2713 Low risk: likely safe to approve",
-      lowButMust: "Low score, but {items} left in Must check",
-      tested: "New code tested",
-      testedSub: "{covered} of {total} changed lines",
-      testedWithout: " \xB7 {ratio} without {files} not in the report",
-      noReport: "no coverage report",
-      noExecutable: "no executable line changed",
-      reviewed: "Reviewed",
-      reviewedBox: "Reviewed",
-      checkedBox: "Checked",
-      flagged: "Behind a feature flag"
-    },
-    nav: { summary: "Summary", must: "Must check", before: "Before approving", contract: "API contract", contractSafe: "safe", plan: "Can affect", details: "Details", finish: "Finish", results: "Results", resultsHint: "copy to GitHub" },
-    must: { contract: "Breaking API change", security: "Security finding", lint: "Lint error", vulnerability: "Vulnerable dependency", securityAt: "Security \xB7 {file}:{line}", lintAt: "Lint error \xB7 {file}:{line}" },
-    lede: {
-      top: "Most of the risk comes from {parts}.",
-      contract: "a breaking change to {key}",
-      security: "a security finding in {file}",
-      lint: "a lint error in {file}",
-      global: "{file}, a change that can affect the whole app",
-      bump: "the {name} bump ({from} \u2192 {to})",
-      bumpMayBreak: "the {name} bump ({from} \u2192 {to}, may break)",
-      dependency: "{name} ({change})",
-      tests: "tests trimmed in {file}",
-      file: "{file}, {why}",
-      reach: `{files} changed; {n} of {total} existing {many} run changed code`,
-      added: ", plus {what}"
-    },
-    summary: {
-      incremental: "Incremental: only the changes since {since} (your last review).",
-      ready: "Ready to approve",
-      readyTitle: "\u2713 Low risk ({score}/100).",
-      readyDown: "Down from {score}: what needed a careful read is reviewed and nothing is left in Must check.",
-      readyNothing: "Nothing here needs a careful read.",
-      copyResults: "Copy the results for the pull request.",
-      startMust: "Start with Must check, then the files on the left: the score drops as you review.",
-      start: "Start with the first file on the left: the score drops as you review.",
-      makesUp: "What makes up the {score}",
-      allReviewed: "Everything is reviewed."
-    },
-    cov: {
-      title: "How much of the new code is tested",
-      summary: "{ratio} \xB7 {covered} of {total} changed lines",
-      summaryWithout: " ({ratio} without {files} not in the report)",
-      show: "Click to see it file by file",
-      hide: "Click to hide",
-      file: "Changed file",
-      tested: "Lines tested",
-      notRun: "Never ran",
-      none: "No coverage report: farol cannot tell which changed lines ran in the tests.",
-      missingTitle: "{files} not in the coverage report",
-      missingWhy: "No test loaded them, so their changed lines count as untested. Types, constants and translations are often excluded from coverage on purpose: if that is the case here, these files are not a gap."
-    },
-    file: {
-      position: "File {i} of {n} \xB7 {change}",
-      markBtn: "Mark as reviewed",
-      reviewedBtn: "\u2713 Reviewed",
-      next: "Next file",
-      comment: "Comment on GitHub \u2197",
-      commentTitle: "Opens this file's diff in the pull request, where you can comment on any line",
-      of: "of {score}",
-      part: "part of the score",
-      reach: "{many} run it",
-      linesTested: "{covered} of {total} lines tested",
-      notInReport: "not in the coverage report",
-      declarations: "only declarations changed",
-      noCoverage: "no coverage data",
-      errors: "errors thrown here",
-      testTitle: "Test file changed",
-      testWhy: "{why}. Check that the removed lines did not drop an assertion that still matters.",
-      note: "Your note",
-      notePlaceholder: "Anything you found. It goes into the results.",
-      entries: `{Many} that run it`,
-      knows: "Who knows this file",
-      noHistory: "No history"
-    },
-    finding: {
-      security: "Security finding \xB7 {severity}",
-      lint: "Lint error \xB7 {rule}",
-      atLine: "at line {line}",
-      ackSecurity: "Checked: fixed, or safe in this context",
-      ackLint: "Checked: fixed, or fine to merge as is",
-      ackVulnerability: "Checked: fixed, or the vulnerable code is not reachable",
-      comment: "Comment on line {line} in GitHub \u2197",
-      lead: "Reviewing the file does not clear this: tick it once you checked it. It is {points} points of the score.",
-      open: "Open {file}"
-    },
-    dep: {
-      change: "dependency change",
-      none: "none",
-      removed: "removed",
-      zeroMinorTag: "0.x minor \xB7 may break",
-      where: "{section} in {file}",
-      howTitle: "How to check it",
-      how1: "Read the release notes between {from} and {to}",
-      how2: "Search the code for imports of {name} and compare with what changed.",
-      how3: "Open a {one} that uses it.",
-      npm: "versions on npm \u2197",
-      means: {
-        major: "Major version: breaking changes are expected. Code that uses this package may stop compiling or behave differently.",
-        zeroMinor: "Before 1.0, semver lets a minor version break the API: anything this project uses from the package may have changed.",
-        minor: "Minor version: new features, compatible by semver.",
-        patch: "Patch version: fixes only, compatible by semver.",
-        removed: "Removed: any code that still imports it fails.",
-        added: "New package: nothing used it before this pull request.",
-        moved: "Moved to another section of the manifest: check it is still installed where the code runs.",
-        unknown: "The versions cannot be compared (a tag, URL or range): read what changed by hand.",
-        range: "Only the range changed: the installed version may stay the same."
-      }
-    },
-    diff: {
-      none: "farol keeps diffs of code files only.",
-      seeInPr: "See this file in the pull request \u2197",
-      hint: "Click a line number to comment on that line in GitHub.",
-      commentLine: "Comment on this line in GitHub",
-      noReport: "No coverage report: farol cannot tell which lines ran in the tests.",
-      missing: "<b>Not in the coverage report.</b> No test loaded this file, so none of its {n} changed executable lines ran.",
-      declarations: "Only declarations changed: nothing executable to cover.",
-      allRan: "<b>All {n} changed executable lines ran in the tests.</b>",
-      someRan: "<b>{covered} of {total} changed lines ran in the tests.</b> {missing} never ran: {ranges}.",
-      notRun: "Not run by tests \xB7 lines {lines}",
-      security: "Security \xB7 {severity}",
-      lint: "Lint \xB7 {rule}",
-      suppression: "Suppression \xB7 {kind}"
-    },
-    plan: {
-      title: "What this change can affect",
-      lead: `{n} existing {many} run code this pull request changed{added}. Try them by hand before approving, riskiest first. Mark the ones that ship behind a feature flag: once every {one} that runs a file is flagged, that file leaves the score.`,
-      leadNew: ", plus {what}",
-      none: "No existing {many} run changed code.",
-      tried: "{done} of {total} tried",
-      flagged: "{n} behind a flag",
-      left: "{file} left the score (\u2212{points})",
-      head: `Tried by hand \xB7 {one} \xB7 changed files it runs`,
-      flagHead: "Feature flag",
-      triedBox: "Tried by hand",
-      newTag: "new",
-      servedBy: "new, served by",
-      runs: "runs changed",
-      flagTitle: "This {one} ships behind a feature flag",
-      flagOn: "\u2691 Behind a flag",
-      flagOff: "\u2690 Behind a flag?",
-      more: "Show {what} more, lower risk",
-      views: "{n} views",
-      requests: "{n} requests",
-      errors: pair("error", "errors")
-    },
-    contract: {
-      title: "API contract",
-      lead: "What clients of the API see change. Breaking changes need the clients updated in this pull request, or a new version.",
-      ack: "Clients are updated in this pull request, or the change is versioned",
-      breaking: "Can break clients",
-      safe: "Compatible",
-      callers: "Called by {services}",
-      levels: { breaking: "breaking", dangerous: "may break", safe: "safe" }
-    },
-    details: {
-      title: "Details",
-      lead: "The full analysis: every changed file and its reach, routes, signals, dependencies, reasons and diagnostics."
-    },
-    results: {
-      title: "Results",
-      lead: "What you checked, as a comment for the pull request. Copy it and paste it in GitHub.",
-      copy: "Copy results",
-      copied: "Copied \u2713",
-      openPr: "Open the pull request \u2197",
-      saved: "of the changed lines needed a careful read: {read} of {total}, in {files} of {all} files. The rest was a skim, tests or outside the project. At a review pace of about {pace} lines an hour, that is <b>{time}</b> instead of {full}.",
-      curiosity: "Just for curiosity: an estimate, not part of the comment.",
-      minutes: "{m} min",
-      hours: "{h} h {m}"
-    },
-    md: {
-      title: "### farol review",
-      score: "Merge risk **{from} \u2192 {to}** after review ({level}).",
-      must: "**Must check**",
-      contract: "Breaking API change ({keys}): clients updated or versioned",
-      security: "Security finding at {where}",
-      lint: "Lint error at {where}",
-      files: "**Files reviewed: {done} of {total}**",
-      left: "Not reviewed yet: {files}",
-      flaggedFiles: "Behind a feature flag: {files}",
-      tried: "**Tried by hand: {done} of {total} {many}**",
-      behindFlag: "(behind a flag)",
-      flagged: "behind a flag:",
-      coverage: "**New code tested:** {ratio} ({covered} of {total} changed lines)",
-      coverageWithout: ", {ratio} without {files} not in the coverage report",
-      notes: "**Notes**",
-      footer: "farol {version} \xB7 {base} \u2192 {head}"
-    }
-  };
-}
-
 // src/report/workbench-model.ts
 function workbenchModel(o, links, prefix) {
   const { items } = mergeScore(o);
@@ -253715,7 +253896,7 @@ function workbenchModel(o, links, prefix) {
     totalEntries: o.risk.totalPages,
     routes: { added: o.routes.added.filter((r) => !r.hasChildren).length, affected: o.routes.affected.filter((r) => !r.hasChildren).length },
     ops,
-    coverage: c.status === "ok" && c.total ? { status: "ok", covered: c.total.coveredLines, total: c.total.changedExecutableLines, files: c.files.map((f) => ({ path: f.path, total: f.changedExecutableLines, covered: f.coveredLines, uncovered: f.uncovered, missing: f.missingFromReport })) } : { status: c.status, covered: 0, total: 0, files: [] },
+    coverage: c.status === "ok" && c.total ? { status: "ok", covered: c.total.coveredLines, total: c.total.changedExecutableLines, files: c.files.map((f) => ({ path: f.path, total: f.changedExecutableLines, covered: f.coveredLines, uncovered: f.uncovered, missing: f.missingFromReport })), leftOut: [...c.ignoredFiles.map((path3) => ({ path: path3, by: "ignore" })), ...(c.excludedByProject ?? []).map((path3) => ({ path: path3, by: "project" }))] } : { status: c.status, covered: 0, total: 0, files: [], leftOut: [] },
     contracts: o.contracts ? o.contracts.entries : null,
     callers: Object.fromEntries((o.usage?.status === "ok" ? o.usage.callers : []).map((x) => [x.key, x.services])),
     security: o.signals.security.findings.map((s) => ({ path: s.path, line: s.line, severity: s.severity, rule: s.rule, message: s.message, text: s.text })),
@@ -253877,6 +254058,8 @@ function coverageSection(o, h) {
     body += h.table(HTML_TEXT.coverageCols, rows, (f) => `<tr><td>${h.path(f.path)}${f.missingFromReport ? ` <span class="tag no">${HTML_TEXT.missing}</span>` : ""}</td><td class="num">${f.changedExecutableLines}</td><td class="num">${f.coveredLines}</td><td class="ranges">${h.ranges(f.path, f.uncovered)}</td></tr>`, [1, 2]);
   }
   if (c.ignoredFiles.length > 0) body += `<details><summary class="small">${HTML_TEXT.coverageIgnoredTitle(c.ignoredFiles.length)}</summary><div class="finding-files">${c.ignoredFiles.map((p) => h.path(p)).join("")}</div></details>`;
+  const excluded = c.excludedByProject ?? [];
+  if (excluded.length > 0) body += `<details><summary class="small">${HTML_TEXT.coverageExcludedTitle(excluded.length)}</summary><div class="finding-files">${excluded.map((p) => h.path(p)).join("")}</div></details>`;
   return `<div id="coverage"><h3>${HTML_TEXT.coverageTitle}</h3>${body}</div>`;
 }
 function lintSection(o, h) {
@@ -254553,7 +254736,7 @@ async function usageCommand(ctx, options, env = process.env, now = /* @__PURE__ 
 }
 
 // src/cli/reviewers-run.ts
-import { posix as posix17, resolve as resolve9 } from "path";
+import { posix as posix18, resolve as resolve9 } from "path";
 
 // src/git/authors.ts
 function parseBlameAuthors(output2) {
@@ -254648,7 +254831,7 @@ function canonicalNames(identities, weight = () => 1) {
 
 // src/cli/reviewers-run.ts
 var CODEOWNERS2 = [".github/CODEOWNERS", "CODEOWNERS", "docs/CODEOWNERS"];
-var MAX_FILES2 = 40;
+var MAX_FILES3 = 40;
 var BLAME_CONCURRENCY = 8;
 var CODE_ROLES3 = /* @__PURE__ */ new Set(["source", "resolvers", "schema", "routes", "barrel", "i18n", "global"]);
 async function runReviewers(ctx, options) {
@@ -254657,11 +254840,11 @@ async function runReviewers(ctx, options) {
   const head = o.head.sha;
   if (base === null || head === null) throw new UsageError(`${resolve9(options.in)} has no merge-base or head commit (the analysis failed): run "farol analyze" again`);
   const points = scoreByFile(o);
-  const code2 = o.files.filter((f) => CODE_ROLES3.has(f.role) && isCode(f.path)).sort((a, b) => (points.get(b.path) ?? 0) - (points.get(a.path) ?? 0) || compareStrings(a.path, b.path)).slice(0, MAX_FILES2);
+  const code2 = o.files.filter((f) => CODE_ROLES3.has(f.role) && isCode(f.path)).sort((a, b) => (points.get(b.path) ?? 0) - (points.get(a.path) ?? 0) || compareStrings(a.path, b.path)).slice(0, MAX_FILES3);
   const files = await mapLimit(code2, BLAME_CONCURRENCY, async (f) => {
     const weight = Math.max(1, points.get(f.path) ?? 0);
     if (f.status === "added") {
-      const dir = posix17.dirname(f.path);
+      const dir = posix18.dirname(f.path);
       return { path: f.path, weight, whole: dir === "." ? /* @__PURE__ */ new Map() : await addedLinesByAuthor(ctx.repoRoot, base, dir, "12 months ago"), touched: null };
     }
     const basePath = f.oldPath ?? f.path;

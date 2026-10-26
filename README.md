@@ -330,8 +330,10 @@ git blame and CODEOWNERS; reports as a GitHub comment, Markdown or a single-file
 
 ## Reading the review
 
-farol produces two things: a **PR comment** with the verdict, the riskiest files and a test checklist, and a
-**single-file HTML report** (linked from the comment) where the review happens. The report is a workbench: the left
+farol produces two things: a **PR comment** and a **single-file HTML report** (linked from the comment) where the
+review happens. The comment is the report's summary in Markdown and counts the same way: merge risk and verdict,
+where the risk comes from, **Must check** as a task list, the **High** and **Medium** files with their share of the
+score, and how much new code is tested; every other signal sits in a collapsed *All signals* block. The report is a workbench: the left
 rail holds the risk that is left and what to read next, the main area shows what you picked.
 
 <p align="center"><img alt="A file in the farol report: a security finding to check, the file's share of the score, its coverage and the diff with the untested lines marked" src="docs/images/report-file.png" width="900"></p>
@@ -380,9 +382,16 @@ a compatible minor or patch little.
 ### How much of the new code is tested
 
 On the summary, collapsed: the share of changed executable lines that ran in your tests, file by file, with the lines
-that never ran. Files the coverage report never saw are listed apart: no test loaded them, which often means they are
-excluded on purpose (types, constants, translations), so check before reading them as gaps. Without a coverage
-report the line says so; it never counts as tested.
+that never ran. A changed file missing from the coverage report counts as untested, except:
+
+- a file that only declares things (types, static constants): nothing for a test to run;
+- a file your coverage settings leave out: when the report also lists files no test loaded (Vitest/Jest
+  `coverage.include`, coverage.py `source`), a file missing from it was excluded on purpose (migrations, generated
+  code, config). Go profiles leave out packages without tests, so there a missing file stays untested;
+- a file in `signals.coverageIgnore`.
+
+The last two are listed as *left out of coverage on purpose*: neither tested nor untested, they keep half of their
+risk. Without a coverage report the line says so; it never counts as tested.
 
 ### Can affect
 

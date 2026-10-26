@@ -35,7 +35,7 @@ describe('report markdown', () => {
 
   it('keeps the class out of the title and the signals, inside the collapsed block only', () => {
     const md = renderReport(golden('05-shared-component'))
-    const [before, after] = md.split('<details>')
+    const [before = '', after = ''] = md.split('<summary>Classification')
     expect(before).not.toContain('touches-existing')
     expect(after).toContain('`touches-existing`')
     expect(md).toContain('**Diff coverage:** not verified')
@@ -68,7 +68,7 @@ describe('report markdown', () => {
 describe('report link', () => {
   it('puts the HTML report link at the top and only accepts https URLs', () => {
     const o = golden('05-shared-component')
-    expect(renderReport(o, undefined, undefined, 'https://github.com/acme/shop/actions/runs/1/artifacts/2')).toContain('📄 [Full report (HTML)](https://github.com/acme/shop/actions/runs/1/artifacts/2)')
+    expect(renderReport(o, undefined, undefined, 'https://github.com/acme/shop/actions/runs/1/artifacts/2')).toContain('📄 **[Open the review workbench](https://github.com/acme/shop/actions/runs/1/artifacts/2)**')
     expect(() => renderReport(o, undefined, undefined, 'javascript:alert(1)')).toThrow(/https/)
   })
 })

@@ -128,7 +128,8 @@ Milestones from `docs/SPEC.md`. Each one is done only when its acceptance criter
 
 ### HTML report as a review workbench — done (0.2.0, 2026-10-26)
 - Live merge risk, Must check, files by risk tier with diff and untested lines, Can affect with feature flags, Results for the PR comment; the former sections in Details. Score weights revised (dependency bumps, duplicate lint, findings outside the project). See DECISIONS 2026-10-26.
-- Open: files excluded from coverage on purpose (types, constants, translations) still count as untested; the score saturates on large PRs (31 files → 84), where the reviewed count says more than the number.
+- Open: the score saturates on large PRs (31 files → 84), where the reviewed count says more than the number.
+- PR comment follows the report (same parts and points, `src/report/review-parts.ts`); files left out of coverage on purpose (by the project's coverage settings, declarations only, coverageIgnore) are no longer untested. See DECISIONS 2026-10-26 (2).
 
 ### Traffic from Datadog — done (first version, information only)
 - `farol usage` (RUM page views by `@view.url_path_group`, APM `trace.<op>.hits` by `resource_name`) writes `usage.json`; `analyze --usage` adds an optional `usage` section; comment line, HTML fact, per-route chips (busiest first) and per-file pills. Name formats checked against real Datadog data (RUM path groups, normalized metric tags). GraphQL operations are not matched.
