@@ -238584,11 +238584,13 @@ var Position = external_exports.object({ line: external_exports.number().int() }
 var IstanbulFile = external_exports.object({
   path: external_exports.string().optional(),
   statementMap: external_exports.record(external_exports.string(), external_exports.object({ start: Position, end: Position }).loose()),
-  s: external_exports.record(external_exports.string(), external_exports.number())
+  s: external_exports.record(external_exports.string(), external_exports.number()),
+  fnMap: external_exports.record(external_exports.string(), external_exports.object({ name: external_exports.string().optional(), loc: external_exports.object({ start: Position, end: Position }).loose() }).loose()).optional()
 }).loose();
 var IstanbulReport = external_exports.record(external_exports.string(), IstanbulFile);
 var ReportError = class extends Error {
 };
+var EMPTY_REPORT = "(empty-report)";
 function parseCoverageReport(text, repoRoot2, projectPrefix, canonical2) {
   let raw;
   try {
@@ -238603,13 +238605,17 @@ function parseCoverageReport(text, repoRoot2, projectPrefix, canonical2) {
     const path3 = reportPathToRepo(entry.path ?? key, repoRoot2, projectPrefix, canonical2);
     if (path3 === void 0) continue;
     const statements = [];
-    for (const [id, loc] of Object.entries(entry.statementMap)) statements.push({ start: loc.start.line, end: loc.end.line, count: entry.s[id] ?? 0 });
+    const functions = Object.values(entry.fnMap ?? {}).filter((f) => f.name !== EMPTY_REPORT).map((f) => f.loc);
+    for (const [id, loc] of Object.entries(entry.statementMap)) {
+      const inFunction = functions.some((f) => f.start.line <= loc.start.line && loc.end.line <= f.end.line);
+      statements.push({ start: loc.start.line, end: loc.end.line, count: entry.s[id] ?? 0, ...inFunction ? {} : { onLoad: true } });
+    }
     result.set(path3, statements);
   }
   return result;
 }
 function listsUnloadedFiles(report) {
-  return [...report.values()].some((statements) => statements.length > 0 && statements.every((s) => s.count === 0));
+  return [...report.values()].some((statements) => statements.some((s) => s.onLoad === true) && statements.every((s) => s.count === 0));
 }
 function coverageSignal(report, files, roleOf, ignored = () => false, options = {}) {
   const out = [];
@@ -238676,7 +238682,7 @@ function parseCoveragePyReport(text, repoRoot2, projectPrefix, canonical2) {
   for (const [file2, entry] of Object.entries(parsed.data.files)) {
     const path3 = reportPathToRepo(file2, repoRoot2, projectPrefix, canonical2);
     if (path3 === void 0) continue;
-    result.set(path3, [...entry.executed_lines.map((l) => ({ start: l, end: l, count: 1 })), ...entry.missing_lines.map((l) => ({ start: l, end: l, count: 0 }))]);
+    result.set(path3, [...entry.executed_lines.map((l) => ({ start: l, end: l, count: 1, onLoad: true })), ...entry.missing_lines.map((l) => ({ start: l, end: l, count: 0, onLoad: true }))]);
   }
   return result;
 }
@@ -248556,16 +248562,20 @@ function restNodes(sf) {
         const target = node2.expression.expression;
         const chained = import_typescript8.default.isCallExpression(target) && import_typescript8.default.isPropertyAccessExpression(target.expression) && target.expression.name.text === "route";
         if (path3 === void 0 && chained) {
-          const routePath = literal3(target.arguments[0]);
+          const spec = target.arguments[0];
+          const routePath = literal3(spec);
           if (routePath !== void 0) out.push({ key: `${method.toUpperCase()} ${routePath}`, node: node2, value: last });
+          else if (spec !== void 0 && SERVERS.has(receiverName(node2) ?? "")) out.push({ key: `${method.toUpperCase()} {${spec.getText(sf)}}`, node: node2, value: last, computed: true });
         }
         const first = args[0];
         if (path3 === void 0 && !chained && first !== void 0 && !import_typescript8.default.isStringLiteralLike(first) && SERVERS.has(receiverName(node2) ?? "")) out.push({ key: `${verb} {${first.getText(sf)}}`, node: node2, value: last, computed: true });
       } else if (METHODS2.has(method) && args.length === 1 && isHandler(args[0], node2)) {
         const target = node2.expression.expression;
         if (import_typescript8.default.isCallExpression(target) && import_typescript8.default.isPropertyAccessExpression(target.expression) && target.expression.name.text === "route") {
-          const routePath = literal3(target.arguments[0]);
+          const spec = target.arguments[0];
+          const routePath = literal3(spec);
           if (routePath !== void 0) out.push({ key: `${method.toUpperCase()} ${routePath}`, node: node2, value: args[0] });
+          else if (spec !== void 0 && SERVERS.has(receiverName(node2) ?? "")) out.push({ key: `${method.toUpperCase()} {${spec.getText(sf)}}`, node: node2, value: args[0], computed: true });
         }
       } else if (method === "route" && args.length === 1 && args[0] && import_typescript8.default.isObjectLiteralExpression(args[0])) {
         const methods = objectProp(args[0], "method");
@@ -254363,7 +254373,9 @@ function linkerFor(output2, options, env = process.env) {
 }
 async function reportCommand(options) {
   const output2 = withReviewers(readOutputFile(options.in), options.reviewers);
-  await writeStdout(renderReport(output2, void 0, linkerFor(output2, options), options.reportUrl));
+  if (options.sinceReportUrl !== void 0 && !options.sinceReportUrl.startsWith("https://")) throw new UsageError(`--since-report-url must be an https URL, got "${options.sinceReportUrl}"`);
+  const since = options.sinceIn === void 0 ? void 0 : { output: readOutputFile(options.sinceIn), ...options.sinceReportUrl === void 0 ? {} : { reportUrl: options.sinceReportUrl } };
+  await writeStdout(renderReport(output2, void 0, linkerFor(output2, options), options.reportUrl, since));
   return 0;
 }
 async function htmlCommand(options) {
@@ -255014,7 +255026,7 @@ function buildProgram() {
       return analyzeCommand(await loadContext(globals()), options);
     })
   );
-  program3.command("report").description("print the PR comment markdown from an analyze JSON").option("--in <file>", "analyze JSON").option("--repo <owner/name>", "repository for file links (default: the one in the JSON)").option("--pr <number>", "pull request number for file links (default: the one in the JSON)", positiveInt).option("--report-url <url>", "link to the HTML report (e.g. the workflow artifact) shown at the top").option("--reviewers <file>", 'reviewers file written by "farol reviewers"').action(
+  program3.command("report").description("print the PR comment markdown from an analyze JSON").option("--in <file>", "analyze JSON").option("--repo <owner/name>", "repository for file links (default: the one in the JSON)").option("--pr <number>", "pull request number for file links (default: the one in the JSON)", positiveInt).option("--report-url <url>", "link to the HTML report (e.g. the workflow artifact) shown at the top").option("--reviewers <file>", 'reviewers file written by "farol reviewers"').option("--since-in <file>", 'incremental analyze JSON (analyze --since) shown on top, as "farol comment" does').option("--since-report-url <url>", "link to the HTML report of the incremental analysis").action(
     (raw, cmd) => runAction(() => {
       const opts = withFarolFile("report", cmd, raw);
       return reportCommand({ ...opts, in: required2(opts.in, "--in", "report") });

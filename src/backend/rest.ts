@@ -51,16 +51,20 @@ export function restNodes(sf: ts.SourceFile): { key: string; node: ts.Node; valu
         const target = node.expression.expression
         const chained = ts.isCallExpression(target) && ts.isPropertyAccessExpression(target.expression) && target.expression.name.text === 'route'
         if (path === undefined && chained) {
-          const routePath = literal(target.arguments[0])
+          const spec = target.arguments[0]
+          const routePath = literal(spec)
           if (routePath !== undefined) out.push({ key: `${method.toUpperCase()} ${routePath}`, node, value: last })
+          else if (spec !== undefined && SERVERS.has(receiverName(node) ?? '')) out.push({ key: `${method.toUpperCase()} {${spec.getText(sf)}}`, node, value: last, computed: true })
         }
         const first = args[0]
         if (path === undefined && !chained && first !== undefined && !ts.isStringLiteralLike(first) && SERVERS.has(receiverName(node) ?? '')) out.push({ key: `${verb} {${first.getText(sf)}}`, node, value: last, computed: true })
       } else if (METHODS.has(method) && args.length === 1 && isHandler(args[0], node)) {
         const target = node.expression.expression
         if (ts.isCallExpression(target) && ts.isPropertyAccessExpression(target.expression) && target.expression.name.text === 'route') {
-          const routePath = literal(target.arguments[0])
+          const spec = target.arguments[0]
+          const routePath = literal(spec)
           if (routePath !== undefined) out.push({ key: `${method.toUpperCase()} ${routePath}`, node, value: args[0] })
+          else if (spec !== undefined && SERVERS.has(receiverName(node) ?? '')) out.push({ key: `${method.toUpperCase()} {${spec.getText(sf)}}`, node, value: args[0], computed: true })
         }
       } else if (method === 'route' && args.length === 1 && args[0] && ts.isObjectLiteralExpression(args[0])) {
         const methods = objectProp(args[0], 'method')

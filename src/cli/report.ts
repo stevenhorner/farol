@@ -55,9 +55,12 @@ export function linkerFor(output: Output, options: { repo?: string | undefined; 
   return createLinker(output, { repo: options.repo ?? output.repo, pr: options.pr ?? output.pr, ...(serverUrl ? { serverUrl } : {}) })
 }
 
-export async function reportCommand(options: RenderOptions): Promise<number> {
+export async function reportCommand(options: RenderOptions & { sinceIn?: string; sinceReportUrl?: string }): Promise<number> {
   const output = withReviewers(readOutputFile(options.in), options.reviewers)
-  await writeStdout(renderReport(output, undefined, linkerFor(output, options), options.reportUrl))
+  if (options.sinceReportUrl !== undefined && !options.sinceReportUrl.startsWith('https://')) throw new UsageError(`--since-report-url must be an https URL, got "${options.sinceReportUrl}"`)
+  // The same comment as "farol comment" prints, for a workflow that posts it from a job of its own.
+  const since = options.sinceIn === undefined ? undefined : { output: readOutputFile(options.sinceIn), ...(options.sinceReportUrl === undefined ? {} : { reportUrl: options.sinceReportUrl }) }
+  await writeStdout(renderReport(output, undefined, linkerFor(output, options), options.reportUrl, since))
   return 0
 }
 

@@ -19,6 +19,10 @@ APP_TYPES = {
 }
 
 
+# Tags a path read as an expression (see RouteFinder.path): a NUL character, which no route path holds.
+COMPUTED_MARK = "\x00"
+
+
 @dataclass
 class RouterObj:
     key: str  # "module.NAME"
@@ -42,8 +46,6 @@ class RouteFinder:
         self.g = graph
         self.objects: dict[str, RouterObj] = {}
         self.problems: list[dict] = []
-        # Paths read as an expression in braces (see path): an entry whose key holds one is computed.
-        self.computed: set[str] = set()
         self.contracts = Contracts(graph, self)
 
     def qualified(self, module: Module, expr: ast.expr) -> str | None:
@@ -104,16 +106,14 @@ class RouteFinder:
 
     def path(self, module: Module, expr: ast.expr | None) -> str:
         """A route path or prefix: a constant, a settings default, or else the expression in braces (`{API_PREFIX}`):
-        the routes are still read, since their handlers are known; only their URL is not, and they are marked as
-        computed."""
+        the routes are still read, since their handlers are known; only their URL is not. The braces hold
+        COMPUTED_MARK, which marks the entry as computed and never reaches its key."""
         value = self.string(module, expr)
         if value is None and expr is not None:
             value = self.setting(module, expr)
         if value is not None:
             return value
-        braced = "{" + ast.unparse(expr) + "}"  # type: ignore[arg-type]
-        self.computed.add(braced)
-        return braced
+        return "{" + COMPUTED_MARK + ast.unparse(expr) + "}"  # type: ignore[arg-type]
 
     def problem(self, module: Module, node: ast.AST, detail: str) -> None:
         self.problems.append({"file": module.file, "line": getattr(node, "lineno", 1), "kind": "dynamic-route", "detail": detail})
@@ -167,7 +167,7 @@ class RouteFinder:
             listed = self.kwarg(dec, "methods")
             methods = [e.value.upper() for e in listed.elts if isinstance(e, ast.Constant) and isinstance(e.value, str)] if isinstance(listed, (ast.List, ast.Tuple)) else ["GET"]
         node = self.g.decls[handler].node
-        contract = self.contracts.endpoint(module, node, dec, path) if obj.framework == "fastapi" and attr != "websocket" else None
+        contract = self.contracts.endpoint(module, node, dec, path.replace(COMPUTED_MARK, "")) if obj.framework == "fastapi" and attr != "websocket" else None
         for m in methods:
             obj.routes.append((m, path, [handler], dump_hash(dec), dec.lineno, contract))
 
@@ -193,7 +193,7 @@ class RouteFinder:
             listed = self.kwarg(call, "methods")
             methods = [e.value.upper() for e in listed.elts if isinstance(e, ast.Constant)] if isinstance(listed, (ast.List, ast.Tuple)) else ["GET"]
             target = next((self.g.decls[a] for a in anchors if isinstance(self.g.decls[a].node, (ast.FunctionDef, ast.AsyncFunctionDef))), None)
-            contract = self.contracts.endpoint(target.module, target.node, call, path) if obj.framework == "fastapi" and target is not None else None
+            contract = self.contracts.endpoint(target.module, target.node, call, path.replace(COMPUTED_MARK, "")) if obj.framework == "fastapi" and target is not None else None
             for m in methods:
                 obj.routes.append((m, path, anchors, dump_hash(call), call.lineno, contract))
 
@@ -224,10 +224,12 @@ def find_entries(graph: Graph) -> tuple[list[dict], list[dict]]:
         module_code = graph.lookup(f"{app.module.name}.{MODULE_CODE}")
         for method, path, anchors, inline, module, line, contract in finder.expand(app, "", module_code, ()):
             label = f"{labels[app.key]} " if len(apps) > 1 else ""
+            computed = COMPUTED_MARK in path
+            path = path.replace(COMPUTED_MARK, "")
             entry = {"key": f"{label}{method} {path or '/'}", "file": module.file, "line": line, "kind": "ws" if method == "WS" else "http", "anchors": sorted(set(anchors)), "inline": inline}
             if contract is not None:
                 entry["contract"] = contract
-            if any(c in path for c in finder.computed):
+            if computed:
                 entry["computed"] = True
             entries.append(entry)
     more, more_problems = find_more_entries(graph, finder)

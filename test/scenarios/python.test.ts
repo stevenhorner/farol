@@ -32,12 +32,13 @@ const SCENARIOS: Record<string, { classification: Output['classification']; affe
     },
   },
   // A new route whose path is computed (issue #6): FastAPI serves it before GET /brands/{brand_id}, which it shadows;
-  // farol cannot tell which URL it takes, so the PR is unknown instead of isolated.
+  // farol cannot tell which URL it takes, so the PR is unknown instead of isolated. Its expression reads `{brand_id}`,
+  // like the literal path of the existing route: only the computed one is marked.
   'p12-computed-path': {
     classification: 'unknown',
     affected: [],
     check: (o) => {
-      expect(o.reasons.filter((r) => r.code === 'dynamic-route').map((r) => [r.file, r.detail])).toEqual([['src/shop/routers/brands.py', 'line 14: GET /brands{path(\'{brand_id}\')}: path computed at run time']])
+      expect(o.reasons.filter((r) => r.code === 'dynamic-route').map((r) => [r.file, r.detail])).toEqual([['src/shop/routers/brands.py', 'line 17: GET /brands{brand_id}: path computed at run time']])
       expect(o.diagnostics.dynamicRoutes).toHaveLength(1)
     },
   },

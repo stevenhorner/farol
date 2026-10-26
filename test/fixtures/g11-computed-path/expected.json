@@ -22,12 +22,12 @@
     {
       "code": "dynamic-route",
       "file": "cmd/api/main.go",
-      "detail": "line 18: {route(\"GET\", \"brands\")}: path computed at run time"
+      "detail": "line 20: ANY {id}: path computed at run time"
     },
     {
       "code": "declarations-additive",
       "file": "cmd/api/main.go",
-      "detail": "only additions: new entry points {route(\"GET\", \"brands\")}; new declarations cmd/api.route"
+      "detail": "only additions: new entry points ANY {id}; new declarations cmd/api.id, cmd/api.route"
     },
     {
       "code": "declarations-additive",
@@ -36,7 +36,7 @@
     },
     {
       "code": "route-added",
-      "detail": "new entry point {route(\"GET\", \"brands\")} (registered in cmd/api/main.go)"
+      "detail": "new entry point ANY {id} (registered in cmd/api/main.go)"
     }
   ],
   "files": [
@@ -44,7 +44,7 @@
       "path": "cmd/api/main.go",
       "status": "modified",
       "role": "source",
-      "linesAdded": 5,
+      "linesAdded": 7,
       "linesRemoved": 0,
       "additive": true
     },
@@ -106,8 +106,8 @@
   "routes": {
     "added": [
       {
-        "key": "{route(\"GET\", \"brands\")}",
-        "path": "{route(\"GET\", \"brands\")}",
+        "key": "ANY {id}",
+        "path": "ANY {id}",
         "entry": "cmd/api/main.go",
         "hasChildren": false
       }
@@ -161,8 +161,8 @@
     "dynamicRoutes": [
       {
         "file": "cmd/api/main.go",
-        "line": 18,
-        "detail": "{route(\"GET\", \"brands\")}: path computed at run time"
+        "line": 20,
+        "detail": "ANY {id}: path computed at run time"
       }
     ],
     "parseErrors": [],

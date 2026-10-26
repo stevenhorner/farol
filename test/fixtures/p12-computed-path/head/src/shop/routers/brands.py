@@ -11,7 +11,10 @@ def path(name: str) -> str:
     return "/" + name
 
 
-@router.get(path("{brand_id}"))
+brand_id = path("{brand_id}")
+
+
+@router.get(brand_id)
 def get_brand_v2(brand_id: str) -> Brand:
     return Brand(id=brand_id, name="")
 

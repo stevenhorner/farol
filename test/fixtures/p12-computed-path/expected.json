@@ -22,16 +22,16 @@
     {
       "code": "dynamic-route",
       "file": "src/shop/routers/brands.py",
-      "detail": "line 14: GET /brands{path('{brand_id}')}: path computed at run time"
+      "detail": "line 17: GET /brands{brand_id}: path computed at run time"
     },
     {
       "code": "declarations-additive",
       "file": "src/shop/routers/brands.py",
-      "detail": "only additions: new entry points GET /brands{path('{brand_id}')}; new declarations shop.routers.brands.get_brand_v2, shop.routers.brands.path"
+      "detail": "only additions: new entry points GET /brands{brand_id}; new declarations shop.routers.brands.brand_id, shop.routers.brands.get_brand_v2, shop.routers.brands.path"
     },
     {
       "code": "route-added",
-      "detail": "new entry point GET /brands{path('{brand_id}')} (registered in src/shop/routers/brands.py)"
+      "detail": "new entry point GET /brands{brand_id} (registered in src/shop/routers/brands.py)"
     }
   ],
   "files": [
@@ -39,7 +39,7 @@
       "path": "src/shop/routers/brands.py",
       "status": "modified",
       "role": "source",
-      "linesAdded": 9,
+      "linesAdded": 12,
       "linesRemoved": 0,
       "additive": true
     }
@@ -82,8 +82,8 @@
   "routes": {
     "added": [
       {
-        "key": "GET /brands{path('{brand_id}')}",
-        "path": "GET /brands{path('{brand_id}')}",
+        "key": "GET /brands{brand_id}",
+        "path": "GET /brands{brand_id}",
         "entry": "src/shop/routers/brands.py",
         "hasChildren": false
       }
@@ -137,8 +137,8 @@
     "dynamicRoutes": [
       {
         "file": "src/shop/routers/brands.py",
-        "line": 14,
-        "detail": "GET /brands{path('{brand_id}')}: path computed at run time"
+        "line": 17,
+        "detail": "GET /brands{brand_id}: path computed at run time"
       }
     ],
     "parseErrors": [],

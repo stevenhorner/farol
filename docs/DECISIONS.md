@@ -852,3 +852,11 @@ Every decision not covered by `docs/SPEC.md`. One entry per decision: problem, o
 - **Choice:** `GOTOOLCHAIN=local` in every go command (helper `goEnv` and `lang-workspace`): a module that needs a newer Go fails closed (`unknown`, with Go's message). CI installs Go 1.23. `--coverage.reportOnFailure` in the example workflows, the README recipes and farol's own workflow (and `reportOnFailure: true` in vitest.config.ts).
 - **Reason:** `analyze` never touches the network; and a failing test must not turn into "nothing is tested".
 
+## 2026-10-26 (6) — Review of PR #7 (Copilot)
+
+- **Computed paths:** the helpers no longer match every computed expression against every route key (a computed `{id}` marked the literal `GET /{id}` as computed). The braces of a computed path carry a NUL mark (no route path holds one), turned into the entry's `computed` flag and stripped from the key. Scenarios p12 and g11 now use a computed expression whose text is a literal path parameter of the same file.
+- **TypeScript REST:** `router.route(path('x')).get(handler)` keeps the computed path too (the chained form dropped it).
+- **Coverage, files left out by the project:** an all-zero file is no proof on its own (a module that loaded but whose functions never ran is one). The proof is a file where nothing ran, not even a statement that runs on load: an Istanbul statement outside every function, Vitest's `(empty-report)` function (its mark for a file of `coverage.include` it never loaded), or any coverage.py line (a module that loads runs its import and def lines).
+- **Self-review workflow:** the job that runs the pull request's own `./action` has a read-only token; it writes the comment with `farol report` (now with `--since-in` / `--since-report-url`, like `comment`), and a separate `comment` job, which runs no code of the pull request, posts the file with `gh pr comment`.
+- **Not changed:** `needs: [tests]` with `if: !cancelled() && …` does run after failed tests (`cancelled()` is a status function, so the default `success()` does not apply); the first run of this pull request shows it: tests failed, the farol job ran.
+

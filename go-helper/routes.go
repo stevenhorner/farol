@@ -59,8 +59,6 @@ type routeFinder struct {
 	vars map[types.Object]*scope
 	// Parameters each project function decodes or encodes (see ioParams), cached.
 	ioCache map[*types.Func]map[int]string
-	// Paths read as an expression in braces (see pattern): a key that holds one is computed.
-	computed map[string]bool
 }
 
 func isRouter(t types.Type) bool {
@@ -122,12 +120,8 @@ func (f *routeFinder) anchorsOf(p *pkg, e ast.Expr, _ int) []int {
 func (f *routeFinder) add(p *pkg, call *ast.CallExpr, sc *scope, key, kind string, anchors []int) {
 	pos := f.g.fset.Position(call.Pos())
 	inline := append(append([]string{}, sc.inline...), f.inline...)
-	entry := Entry{Key: key, File: f.g.rel(pos.Filename), Line: pos.Line, Kind: kind, Anchors: uniqueInts(anchors), Inline: strings.Join(inline, ",")}
-	for c := range f.computed {
-		if strings.Contains(key, c) {
-			entry.Computed = true
-		}
-	}
+	computed := strings.Contains(key, computedMark)
+	entry := Entry{Key: strings.ReplaceAll(key, computedMark, ""), File: f.g.rel(pos.Filename), Line: pos.Line, Kind: kind, Anchors: uniqueInts(anchors), Inline: strings.Join(inline, ","), Computed: computed}
 	if kind == "http" {
 		mws := map[int]bool{}
 		for _, m := range sc.mws {
@@ -338,7 +332,7 @@ func takesRouter(p *pkg, fd *ast.FuncDecl) bool {
 
 // findEntries: routes registered anywhere in the project, then binaries that register none.
 func findEntries(g *graph, pkgs []*pkg) ([]Entry, []Problem) {
-	f := &routeFinder{g: g, pkgs: pkgs, walked: map[string]bool{}, byFunc: map[*types.Func]*pkg{}, vars: map[types.Object]*scope{}, computed: map[string]bool{}}
+	f := &routeFinder{g: g, pkgs: pkgs, walked: map[string]bool{}, byFunc: map[*types.Func]*pkg{}, vars: map[types.Object]*scope{}}
 	for _, p := range pkgs {
 		if !p.project {
 			continue

@@ -64,9 +64,27 @@ describe('coverage', () => {
 
   it('tells a report that lists files no test loaded from one that only lists loaded files', () => {
     expect(listsUnloadedFiles(report)).toBe(false)
-    expect(listsUnloadedFiles(new Map([...report, ['src/never.ts', [{ start: 1, end: 1, count: 0 }]]]))).toBe(true)
-    // An empty module (an __init__.py) proves nothing.
+    // Nothing ran, not even code that runs on load: the module never loaded, so the report lists unloaded files.
+    expect(listsUnloadedFiles(new Map([...report, ['src/never.ts', [{ start: 1, end: 1, count: 0, onLoad: true }]]]))).toBe(true)
+    // A module that loaded but whose functions never ran, and an empty module (an __init__.py), prove nothing.
+    expect(listsUnloadedFiles(new Map([...report, ['src/idle.ts', [{ start: 2, end: 2, count: 0 }]]]))).toBe(false)
     expect(listsUnloadedFiles(new Map([...report, ['src/empty.ts', []]]))).toBe(false)
+  })
+
+  it('marks Istanbul statements outside every function as running on load', () => {
+    const parsed = parseCoverageReport(
+      JSON.stringify({ '/repo/src/b.ts': { path: '/repo/src/b.ts', statementMap: { '0': { start: { line: 1 }, end: { line: 1 } }, '1': { start: { line: 3 }, end: { line: 3 } } }, s: { '0': 0, '1': 0 }, fnMap: { '0': { loc: { start: { line: 2 }, end: { line: 4 } } } } } }),
+      '/repo',
+      '',
+    )
+    expect(parsed.get('src/b.ts')?.map((x) => x.onLoad ?? false)).toEqual([true, false])
+    // Vitest's v8 provider: a file it never loaded is one "(empty-report)" function over the whole file.
+    const vitest = parseCoverageReport(
+      JSON.stringify({ '/repo/src/c.ts': { path: '/repo/src/c.ts', statementMap: { '0': { start: { line: 2 }, end: { line: 2 } } }, s: { '0': 0 }, fnMap: { '0': { name: '(empty-report)', loc: { start: { line: 1 }, end: { line: 9 } } } } } }),
+      '/repo',
+      '',
+    )
+    expect(listsUnloadedFiles(vitest)).toBe(true)
   })
 
   it('rejects files that are not Istanbul JSON', () => {

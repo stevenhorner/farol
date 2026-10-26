@@ -11,13 +11,18 @@ const IstanbulFile = z
     path: z.string().optional(),
     statementMap: z.record(z.string(), z.object({ start: Position, end: Position }).loose()),
     s: z.record(z.string(), z.number()),
+    fnMap: z.record(z.string(), z.object({ name: z.string().optional(), loc: z.object({ start: Position, end: Position }).loose() }).loose()).optional(),
   })
   .loose()
 const IstanbulReport = z.record(z.string(), IstanbulFile)
 
-type Statements = { start: number; end: number; count: number }[]
+/** `onLoad`: the statement runs when the module loads (it is outside every function), so it never ran only if the module never loaded. */
+type Statements = { start: number; end: number; count: number; onLoad?: true }[]
 
 export class ReportError extends Error {}
+
+/** The function Vitest's v8 provider gives a file of coverage.include that no test loaded. */
+const EMPTY_REPORT = '(empty-report)'
 
 /** Parses an Istanbul `coverage-final.json` into statements per repo-relative path. */
 export function parseCoverageReport(text: string, repoRoot: string, projectPrefix: string, canonical?: (path: string) => string): Map<string, Statements> {
@@ -34,19 +39,25 @@ export function parseCoverageReport(text: string, repoRoot: string, projectPrefi
     const path = reportPathToRepo(entry.path ?? key, repoRoot, projectPrefix, canonical)
     if (path === undefined) continue
     const statements: Statements = []
-    for (const [id, loc] of Object.entries(entry.statementMap)) statements.push({ start: loc.start.line, end: loc.end.line, count: entry.s[id] ?? 0 })
+    // Vitest (v8) reports a file it never loaded as one "(empty-report)" function over the whole file: the module itself.
+    const functions = Object.values(entry.fnMap ?? {}).filter((f) => f.name !== EMPTY_REPORT).map((f) => f.loc)
+    for (const [id, loc] of Object.entries(entry.statementMap)) {
+      const inFunction = functions.some((f) => f.start.line <= loc.start.line && loc.end.line <= f.end.line)
+      statements.push({ start: loc.start.line, end: loc.end.line, count: entry.s[id] ?? 0, ...(inFunction ? {} : { onLoad: true as const }) })
+    }
     result.set(path, statements)
   }
   return result
 }
 
 /**
- * Whether a report lists files no test loaded (every statement at 0): then the coverage tool was told which files to
- * measure, and a changed file missing from it was left out by the project's settings rather than never loaded.
- * Not for Go profiles: a package without tests is missing from them, untested.
+ * Whether a report lists files no test loaded: a file where nothing ran, not even a statement that runs when the module
+ * loads. Then the coverage tool was told which files to measure (Vitest/Jest coverage.include, coverage.py source), and
+ * a changed file missing from it was left out by the project's settings rather than never loaded. A module that loaded
+ * but whose functions never ran is no proof. Not for Go profiles: a package without tests is missing from them, untested.
  */
 export function listsUnloadedFiles(report: Map<string, Statements>): boolean {
-  return [...report.values()].some((statements) => statements.length > 0 && statements.every((s) => s.count === 0))
+  return [...report.values()].some((statements) => statements.some((s) => s.onLoad === true) && statements.every((s) => s.count === 0))
 }
 
 export interface CoverageOptions {

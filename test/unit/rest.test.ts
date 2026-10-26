@@ -12,6 +12,10 @@ describe('REST endpoints', () => {
       ['GET {`/v1/${name}`}', true],
     ])
     expect(keys("fastify.route({ method: 'PUT', url: base + '/x', handler: h })")).toEqual([["PUT {base + '/x'}", true]])
+    expect(keys("router.route(path('x')).get(h)\napp.route(`/v1/${name}`).post(async () => 1)")).toEqual([
+      ["GET {path('x')}", true],
+      ['POST {`/v1/${name}`}', true],
+    ])
   })
 
   it('does not read calls on other receivers as routes', () => {

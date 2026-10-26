@@ -1,7 +1,8 @@
 # farol reviews its own pull requests: the same workflow as examples/workflow.yml, with the action of the pull
 # request itself (./action runs the committed dist/ of the PR, which CI keeps in sync with the sources), so every PR
 # is read by the version it proposes. Its command-line commands are the entry points (farol.config.json).
-# Shadow mode: it comments, it never blocks.
+# That code runs without a write token: it writes the comment as a file, and the comment job, which runs no code of
+# the pull request, posts it. Shadow mode: it comments, it never blocks.
 name: farol
 
 on:
@@ -79,9 +80,9 @@ jobs:
     runs-on: ubuntu-latest
     # Shadow mode: nothing here can fail CI or block the pull request.
     continue-on-error: true
+    # Runs the pull request's own farol (./action): read-only, no write token. The comment job posts what it writes.
     permissions:
       contents: read
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -175,18 +176,40 @@ jobs:
           path: farol-since.html
           archive: false
 
-      # Pull requests from forks get a read-only token: no comment there (the reports stay in the run's artifacts).
-      - name: farol comment
-        if: github.event.pull_request.head.repo.full_name == github.repository
-        uses: ./action
-        with:
-          command: comment
-          in: farol.json
-          pr: ${{ github.event.pull_request.number }}
-          new-comment: 'true'
-          report-url: ${{ steps.upload.outputs.artifact-url }}
-          since-in: ${{ steps.since.outputs.sha != '' && 'farol-since.json' || '' }}
-          since-report-url: ${{ steps.upload-since.outputs.artifact-url }}
-          reviewers-file: ${{ hashFiles('reviewers.json') != '' && 'reviewers.json' || '' }}
+      - name: farol report (the comment, as text)
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          REPORT_URL: ${{ steps.upload.outputs.artifact-url }}
+          SINCE_SHA: ${{ steps.since.outputs.sha }}
+          SINCE_REPORT_URL: ${{ steps.upload-since.outputs.artifact-url }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          args=(report --in farol.json --pr "$PR" --report-url "$REPORT_URL")
+          if [ -f reviewers.json ]; then args+=(--reviewers reviewers.json); fi
+          if [ -n "$SINCE_SHA" ]; then args+=(--since-in farol-since.json); fi
+          if [ -n "$SINCE_SHA" ] && [ -n "$SINCE_REPORT_URL" ]; then args+=(--since-report-url "$SINCE_REPORT_URL"); fi
+          node dist/cli.js "${args[@]}" > farol-comment.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: farol-comment-${{ github.run_id }}
+          path: farol-comment.md
+
+  # Posts the comment written by the farol job. Runs no code of the pull request: only GitHub's own CLI, on a text
+  # file. Pull requests from forks get a read-only token: no comment there (the reports stay in the run's artifacts).
+  comment:
+    needs: [farol]
+    if: ${{ !cancelled() && needs.farol.result == 'success' && github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: farol-comment-${{ github.run_id }}
+      - name: Comment on the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: gh pr comment "$PR" --body-file farol-comment.md
