@@ -1,6 +1,7 @@
 # Adding C#/.NET support — design proposal
 
-Status: **proposal**, nothing implemented. This document explains how farol could analyze C#/.NET backends
+Status: **proposal**, nothing implemented; the open questions of the first draft are decided (see
+[Decisions taken](#decisions-taken) and DECISIONS.md, 2026-10-26 (9)). This document explains how farol could analyze C#/.NET backends
 (ASP.NET Core MVC, Web API, minimal APIs, Razor Pages, SignalR, gRPC, worker services) with the same pipeline,
 JSON contract and reports it already uses for Go and Python. Each choice below that is adopted needs its own dated
 entry in [DECISIONS.md](DECISIONS.md) before the code lands, as the project rules require (new top-level module
@@ -25,7 +26,7 @@ entry in [DECISIONS.md](DECISIONS.md) before the code lands, as the project rule
 - [Guarantees and how they hold for .NET](#guarantees-and-how-they-hold-for-net)
 - [Known limits and fail-closed behavior](#known-limits-and-fail-closed-behavior)
 - [Phased plan](#phased-plan)
-- [Open questions](#open-questions)
+- [Decisions taken](#decisions-taken)
 
 ## Summary
 
@@ -164,7 +165,7 @@ Python helpers' standard-library rule. Two options for the DECISIONS entry:
 | **A. Reference the Roslyn assemblies the SDK ships** (`<sdk>/Roslyn/bincore/Microsoft.CodeAnalysis*.dll`) via `<Reference HintPath>` resolved at build time from `dotnet --list-sdks` | no download, no NuGet restore, works offline like Go's `GOPROXY=off`; Roslyn version matches the SDK the project builds with | relies on the SDK's internal layout (stable since .NET Core 2, but not a public contract); helper code must compile against several Roslyn versions |
 | **B. `PackageReference` to a pinned `Microsoft.CodeAnalysis.CSharp`** | public, versioned API; one known Roslyn version | first build needs network (or a pre-filled NuGet cache in CI); a pinned Roslyn may not know the newest C# version the project uses |
 
-**Recommendation: A**, with a clear error message when the folder is not found (same style as
+**Decided: A**, with a clear error message when the folder is not found (same style as
 `missingTool(...)`: "the .NET SDK (dotnet) is required to analyze a C# project"). Same for the Razor compiler
 (`<sdk>/Sdks/Microsoft.NET.Sdk.Razor/source-generators/`) in phase 2.
 
@@ -191,13 +192,42 @@ Mapping to `decls` (one entry per declaration, `id` = `<file>#<Namespace.Type.Me
   whitespace and `///` XML docs are trivia, so they do not count.
 - **Conditional compilation:** inactive `#if` branches are `DisabledTextTrivia`. Unlike comments, **they are
   included in the hash** (with the directive trivia), so a change inside `#if SOME_EDITION` still counts as a change
-  to that declaration even when the analyzed configuration does not compile it. Edges come only from active code;
-  see `csharp.configurations` in [Configuration](#configuration) to union several configurations.
+  to that declaration even when the analyzed configuration does not compile it. Edges come only from active code,
+  so the helper compiles **every build configuration** and unions the edges: see
+  [Build configurations](#build-configurations).
 - **`core` hash:** the same as `hash` minus route attributes (`[Route]`, `[HttpGet("…")]`, `[ActionName]`,
   `[Area]`) and minus minimal-API `Map*` registration calls, so a route template change is compared route by route
   (added/removed entry), not as a changed method. Same idea as Go's core hash.
 - **Partial classes:** each part is its own `type` declaration in its own file; edges to "the class" go to every
   part. Generated parts (`*.g.cs`, `*.Designer.cs`) are excluded by default.
+
+## Build configurations
+
+**Decided: every configuration by default.** Analyzing only `Debug` is not enough:
+
+- `Debug` compiles the `#if DEBUG` branches and the symbols only `Debug` defines. It never compiles `#if !DEBUG` or
+  `#else` code (production-only behavior such as error pages, caching or HTTPS settings), nor code behind symbols that
+  only other configurations define (product editions, platform builds).
+- Changes in that code are **still detected**, because disabled text is part of each declaration's hash.
+- What is lost are **edges**. If only `Release` code calls `ServiceX`, a `Debug`-only analysis cannot see any entry
+  point reaching `ServiceX`: its risk is underestimated. Worse, a *new* file used only from such code would look
+  disconnected and the PR could be `isolated`, which breaks the fail-closed rule.
+
+How the helper does it:
+
+1. **Symbol sets.** For each project, take the `Debug` and `Release` configurations the SDK always has
+   (`DEBUG;TRACE` and `TRACE`), plus every configuration named in `<Configurations>` or in a
+   `'$(Configuration)|$(Platform)'=='X|…'` condition, with the `DefineConstants` each one sets (the SDK's
+   `$(DefineConstants)` inheritance and `;`/`,` separators respected), plus the target framework symbols (`NET`,
+   `NET10_0`, `NET10_0_OR_GREATER`, …) and `csharp.defines`.
+2. **Deduplicate.** Configurations with the same symbol set are compiled once; most solutions have two to four
+   distinct sets.
+3. **Union.** Declarations and hashes are the same in every set (disabled text is hashed), so they are read once.
+   Edges and entry points are the union over all sets; an entry point that exists only in some configurations is
+   still an entry point.
+4. **Cost.** Parsing is per set (cheap), binding is per set (the main cost, parallel per syntax tree). The tree-hash
+   cache keeps base trees free on later runs. `csharp.configurations` narrows the list when a solution has many
+   identical-looking editions and analysis time matters.
 
 ## References (edges)
 
@@ -323,7 +353,7 @@ Views are where a .NET MVC app differs most from the languages farol already sup
   to any `_Layout*.cshtml`, `_ViewStart` or `_ViewImports` reaches every action that renders a view in scope.
 - **Partials and view components inside views** cannot be read without parsing Razor; in phase 1 every partial
   (`_*.cshtml` and `Views/Shared/**`) is treated as used by every view in scope. That is conservative and noisy;
-  phase 2 removes the noise.
+  phase 2 removes the noise. **Decided:** this over-approximation is accepted for phase 1.
 - C# code inside views (`@model`, `@inject`, `@{ … }`) creates no edges in phase 1, so a changed service used only
   from a view would look unreachable (`existing-file-unreachable`, still `touches-existing`, never `isolated`).
 
@@ -349,7 +379,8 @@ Proposed `CSHARP_DEFAULT_ROLES` in `src/config/schema.ts`, overridable key by ke
 | `test` | `**/*.Tests/**`, `**/*.Test/**`, `**/*.UnitTests/**`, `**/*.IntegrationTests/**`, `**/test/**`, `**/tests/**`, `**/*Tests.cs`, `**/*Test.cs` | test projects and files; also any project whose `.csproj` references `Microsoft.NET.Test.Sdk` (the helper reports those directories in its output so the role can be assigned without a glob) |
 | `global` | `**/Directory.Build.props`, `**/Directory.Build.targets`, `**/global.json`, `**/NuGet.config`, `**/nuget.config`, `**/.editorconfig`* | they change how every project builds (MSBuild code, SDK version, package sources, analyzer severities) |
 | `i18n` | `**/*.resx` (not `*.Designer.cs`) | resource strings: additive when only keys are added, via `cshelper resx` + the existing deep comparison |
-| `infra` | the existing `DEFAULT_INFRA` plus `**/appsettings*.json`, `**/web.config`, `**/launchSettings.json`, `**/*.pubxml` | configuration and deployment |
+| `infra` | the existing `DEFAULT_INFRA` plus `**/appsettings*.json`, `**/web.config`, `**/launchSettings.json`, `**/*.pubxml`, **`**/*.sql`** | configuration, deployment and database scripts |
+| `client` (new role) | **`**/wwwroot/**`** minus vendored and built files (see below) | browser code and styles served by the app |
 | `barrel` | none | C# has no barrels |
 | `story` | none | |
 
@@ -360,10 +391,44 @@ Default `exclude`: `**/bin/**`, `**/obj/**`, `**/*.g.cs`, `**/*.g.i.cs`, `**/*.D
 `**/*.AssemblyInfo.cs`, `**/Migrations/*.Designer.cs`, `**/*ModelSnapshot.cs` (generated EF Core files; the
 migration itself stays source), `**/wwwroot/lib/**` (vendored client libraries).
 
-**Not C#:** `wwwroot/**/*.js|css`, SQL scripts and other assets are files the helper does not read. With default
-roles they are "other files" (weight 0). Projects with a database migration folder should add it to `roles.infra`
-(documented in the example config) so a schema change is at least `infra-file-changed`. A TypeScript frontend in
-the same repo is analyzed with its own farol config, as monorepos already do.
+### SQL scripts (decided: included)
+
+`**/*.sql` is in the C# default `roles.infra`, so any added, modified or deleted SQL script makes the PR
+`touches-existing` (`infra-file-changed`) and appears in the infra section of the reports. Database scripts ship with
+the app but no entry point calls them, which is what the `infra` role means.
+
+Phase 2 adds a **destructive statement check** on the added lines of SQL files, read with a small SQL tokenizer in the
+helper (so comments and string literals are skipped, not regex): `DROP TABLE/COLUMN/INDEX/PROCEDURE/VIEW`,
+`TRUNCATE`, `ALTER … DROP`, `DELETE`/`UPDATE` without `WHERE`, `ALTER COLUMN` type changes, `sp_rename`. Each is a
+security-style finding (medium; `DROP TABLE`/`TRUNCATE` high), which adds weight to the score and makes the verdict
+careful. EF Core migration classes (`Migrations/*.cs`) are C# source, read by the helper like any other file.
+
+### Client files under `wwwroot` (decided: included)
+
+The C# helper does not read JavaScript or CSS, but changing an existing script that every page loads is a change to
+existing code. A new role, **`client`** (DECISIONS entry, new value in the output schema's role enum and the report
+strings), handles them:
+
+- **Default globs:** `**/wwwroot/**`, minus `**/wwwroot/lib/**` (vendored libraries; their changes come through
+  `libman.json`/`package.json`, which keep their own roles), `**/*.min.js`, `**/*.min.css`, `**/*.map` and other
+  build outputs the configuration lists in `exclude` (bundles generated by an npm or Tailwind build should be
+  excluded and their *sources* added to `roles.client`, e.g. `Scripts/**`, `Styles/**`).
+- **Classification:** an existing client file modified, deleted or renamed → `touches-existing`, new reason
+  `client-file-changed` (file = the client file). A new client file → `client-file-added` (info). Images, fonts and
+  other binary assets are `client` too but never weigh in the score.
+- **Score:** a modified or deleted script or stylesheet weighs `0.05` (deleted `0.1`), all client files together at
+  most `0.25`, times the usual coverage factor when a JavaScript coverage report covers them (otherwise 1).
+- **Reach (phase 2):** with the Razor compiler, constant `<script src="~/js/x.js">`, `<link href="~/css/y.css">`
+  and `asp-src-include` paths in views create edges from the view to the client file. A changed client file then
+  reaches the actions that render it (through layouts, every page), gets a normal risk level and replaces the flat
+  weight above. Files no view references keep the flat weight.
+- **Lint and security:** ESLint JSON is already a supported lint format; for client files of a C# project farol reads
+  it alongside the SARIF report (both can be given). The TypeScript built-in security rules (`innerHTML`, `eval`,
+  `document.write`, `postMessage(…, "*")`, token formats) run on added lines of client `.js`/`.ts` files with the
+  TypeScript scanner, as they do for TypeScript projects.
+
+A TypeScript or React frontend that lives in the same repository outside `wwwroot` (its own `package.json` and
+`tsconfig.json`) is still better served by its own farol config, as monorepos already do.
 
 ## Dependencies (NuGet)
 
@@ -429,7 +494,9 @@ Small, mostly mechanical. Estimated by reading the current Go/Python branches:
 | `src/signals/` | `dotnet.ts`: coverlet JSON, SARIF, `dotnet list package` JSON, C# suppressions |
 | `src/report/` + `scripts/embed-assets.mjs` | `cs` (and `cshtml` as `cs`) entry in the syntax highlighting table; strings in `strings*.ts` |
 | `src/decls/types.ts` | `kind: "view"` is a plain string already; optional `suppressions`/`findings` arrays if adopted |
-| `src/classify/reasons.ts`, `docs/reasons.md` | likely no new reason: `declarations-additive`, `dynamic-route`, `route-added` already cover C#; maybe `view-unattributed` (info) for phase 1 views |
+| `src/classify/roles.ts`, `classify.ts`, `src/output/schema.ts` | new `client` role (precedence after `infra`, before `barrel`); classification of client files |
+| `src/report/merge-score.ts`, `verdict.ts`, `html.ts` | `client` score items and section; SQL destructive findings in the security section |
+| `src/classify/reasons.ts`, `docs/reasons.md` | new reasons `client-file-changed` (touches-existing) and `client-file-added` (info); maybe `view-unattributed` (info) for phase 1 views. `declarations-additive`, `dynamic-route`, `route-added` already cover C# code. |
 | `action.yml`, `examples/` | `examples/workflow-csharp.yml` with `actions/setup-dotnet`, `dotnet restore`, `dotnet test --collect "XPlat Code Coverage;Format=json"`, SARIF error log, `dotnet list package --vulnerable` |
 
 ## Configuration
@@ -444,8 +511,9 @@ Proposed keys (all optional):
     // .csproj or .sln/.slnx globs relative to the project directory; default: every non-test .csproj below it
     "projects": ["src/**/*.csproj"],
     // Build configurations whose DefineConstants are read from the .csproj; edges are the union over all of them.
-    // Default: ["Debug"]. List every product edition that compiles different #if branches.
-    "configurations": ["Debug", "Release"],
+    // Default: every configuration of every project (Debug, Release and each one the .csproj declares).
+    // Set it only to narrow the list.
+    "configurations": [],
     // Extra preprocessor symbols, added to every configuration.
     "defines": [],
     // Methods whose delegate arguments are background entry points (TASK <name>), fully qualified.
@@ -456,9 +524,8 @@ Proposed keys (all optional):
 }
 ```
 
-`configurations` deserves care: running the compilation once per configuration multiplies helper time; the helper can
-parse once per distinct symbol set (most configurations share them) and union the edges. Hashes do not depend on it
-(disabled text is hashed).
+See [Build configurations](#build-configurations) for how several configurations are compiled and merged. Hashes do
+not depend on the configuration (disabled text is hashed).
 
 ## Tests
 
@@ -468,7 +535,8 @@ Following `test/scenarios/go.test.ts` and `python.test.ts`:
   framework), so it compiles offline: one web project with a conventional route and one attribute-routed API
   controller, a service interface with two implementations registered in `Program.cs`, a base controller, an action
   filter attribute, two views with a layout and a partial, a hosted service, a class library project, a test project,
-  a `.resx` file and a `Directory.Packages.props`.
+  a `.resx` file, a `Directory.Packages.props`, a second configuration with its own `DefineConstants`, a SQL
+scripts folder and a `wwwroot/` with a site script, a stylesheet and a vendored `lib/` folder.
 - Scenarios (`c1`…), each with golden `expected.json`:
   - `c1-new-action`: new action in a new controller → `isolated`, `route-added`;
   - `c2-new-action-existing-controller`: new method in an existing controller → `isolated`, `declarations-additive`;
@@ -480,11 +548,16 @@ Following `test/scenarios/go.test.ts` and `python.test.ts`:
   - `c8-conventional-route-changed`: startup pattern changed → `routes-not-additive`;
   - `c9-computed-route`: non-constant attribute template → `unknown` (`dynamic-route`);
   - `c10-ifdef-branch`: change only inside an inactive `#if` → still `touches-existing`;
+  - `c10b-release-only-caller`: a new service called only from `#if !DEBUG` code of an existing action → reached by
+    that action (`touches-existing`), proving the configuration union;
   - `c11-partial-class`: change in one part of a partial class;
   - `c12-comments-only` / `c13-xmldoc-only`: `isolated`;
   - `c14-resx-key-added` (additive) / `c15-resx-value-changed`;
   - `c16-package-major` (global), `c17-tfm-change` (global), `c18-directory-build-props` (global);
   - `c19-hosted-service`, `c20-minimal-api`, `c21-signalr-hub`;
+  - `c22-sql-script` (new and modified SQL → `infra-file-changed`), `c23-sql-destructive` (phase 2 finding);
+  - `c24-client-modified` (`client-file-changed`), `c25-client-added` (info, `isolated`), `c26-vendored-lib`
+    (excluded), `c27-client-from-layout` (phase 2: reaches every view-rendering action);
   - signal fixtures: coverlet JSON, SARIF, `dotnet list package` JSON, suppressions.
 - Unit tests for the TS pieces (`src/dotnet/` version comparison, SARIF and coverlet parsers) need no SDK.
 - The scenario tests need the .NET SDK in CI (`actions/setup-dotnet`), as the Go tests need `go` and the Python
@@ -554,26 +627,35 @@ Each phase ends with typecheck, lint and tests green, PROGRESS/DECISIONS updated
 2. **Phase 1 — core analysis.** `cs-helper analyze`: projects from `.csproj` XML, compilation with SDK reference
    packs, declarations and hashes (incl. disabled text), edges (interfaces, overrides, attributes, name fallback),
    entry points for attribute-routed and conventionally routed controllers, minimal APIs, hosted services, `RUN`;
-   views by convention. Roles and excludes. NuGet manifests and lockfile via `cshelper manifest`. Scenarios c1–c13,
+   views by convention; every build configuration unioned. Roles and excludes, with SQL as `infra` and the new
+   `client` role for `wwwroot`. NuGet manifests and lockfile via `cshelper manifest`. Scenarios c1–c13,
    c16–c18. At the end, `farol analyze`, `routes` and `impact` work on a C# repo.
 3. **Phase 2 — views and signals.** Razor compiler integration; Razor Pages; SignalR; `.resx` additive rule;
-   coverlet JSON + Cobertura; SARIF lint and security; `dotnet list package`; suppressions; syntax highlighting.
+   coverlet JSON + Cobertura; SARIF lint and security; `dotnet list package`; suppressions; syntax highlighting;
+   view → client file edges; destructive SQL findings.
 4. **Phase 3 — contracts and frameworks.** API contracts; gRPC from `.proto`; MediatR/Hangfire/Quartz rules;
-   `history` and `calibrate` checked on real C# history; `csharp.configurations` union.
+   `history` and `calibrate` checked on real C# history.
 
 A useful first milestone to validate the idea before all of phase 1: a helper that only prints declarations, hashes
 and controller entries, run on a real C# repository's recent merged PRs with `farol history`/`calibrate`, to see
 whether the classification matches what reviewers would expect.
 
-## Open questions
+## Decisions taken
 
-1. **Roslyn source:** SDK-shipped assemblies (recommended) or a pinned NuGet package? (DECISIONS entry.)
-2. **Is `.editorconfig` `global`?** It can raise analyzer severities to errors, but most changes are formatting.
-3. **Views in phase 1:** is the "every partial is used by every view" over-approximation acceptable, or should views
-   wait for phase 2?
-4. **Default configurations:** read only `Debug`, or every configuration declared in the `.csproj`? The latter is
-   safer for products built in several editions, at the cost of helper time.
-5. **SQL and client assets:** should farol give `**/*.sql` a default role (`infra`) for .NET projects, where database
-   scripts usually ship with the app?
-6. **SARIF as a general format:** worth adding for all languages at once, since it would also accept CodeQL and
-   Semgrep results?
+Decided on 2026-10-26 (recorded in DECISIONS.md, 2026-10-26 (9)):
+
+1. **Roslyn source:** the assemblies the installed .NET SDK ships, referenced by path when the helper is built
+   (option A). No NuGet package, no network.
+2. **Views in phase 1:** the convention mapping with the "every partial is used by every view in scope"
+   over-approximation is accepted; phase 2 makes it precise with the SDK's Razor compiler.
+3. **Build configurations:** every configuration by default, deduplicated by symbol set, edges unioned
+   ([Build configurations](#build-configurations)). `Debug` alone could miss the only caller of new code.
+4. **SQL and `wwwroot`:** both included. SQL scripts are `infra` by default (plus destructive statement findings in
+   phase 2); `wwwroot` files get the new `client` role.
+
+Still open, to settle when the code is written:
+
+- **`.editorconfig`:** `global` by default as proposed, or `infra`? It can raise analyzer severities to errors, but
+  most changes are formatting.
+- **SARIF for every language:** worth accepting it for TypeScript, Go and Python at the same time, since it would
+  also take CodeQL and Semgrep results?

@@ -873,3 +873,18 @@ Every decision not covered by `docs/SPEC.md`. One entry per decision: problem, o
 - **`.farol.json`:** `report.sinceIn` and `report.sinceReportUrl`, `sinceIn` relative to the file.
 - **Not changed:** an all-zero file with a top-level conditional is no false proof: the proof needs every statement at 0, and the `if` itself runs on load. File-less score items are one group each in `scoreGroups` (a contract change and a vulnerable dependency are two parts, both in Must check); a test covers it.
 
+
+## 2026-10-26 (9) — C#/.NET support: design decisions (planned, not implemented)
+
+- **Problem:** the user wants farol on C#/.NET backends (ASP.NET Core MVC with Razor views, conventional and attribute routes, build configurations that compile different `#if` branches, SQL scripts and `wwwroot` assets in the same repository). The design is in [csharp-support.md](csharp-support.md); four of its open questions needed a choice before any code.
+- **Choice:**
+  - **Roslyn from the .NET SDK.** The future `cs-helper/` (new top-level module) references the `Microsoft.CodeAnalysis*` assemblies the installed SDK ships (`<sdk>/Roslyn/bincore/`), located with `dotnet --list-sdks` at build time, instead of a pinned NuGet package. No restore with network, and the Roslyn version matches the SDK the project builds with. The Razor compiler comes from the SDK the same way (phase 2). The analyzed project is never evaluated by MSBuild: `.csproj` files are read as XML data.
+  - **Views, phase 1:** views are mapped to actions by ASP.NET's naming convention, and every partial is treated as used by every view in its scope. This over-approximation is accepted until the Razor compiler gives real view edges.
+  - **Every build configuration by default.** `Debug`, `Release` and every configuration a `.csproj` declares, deduplicated by preprocessor symbol set; edges and entry points are the union. Hashes include the disabled text of inactive `#if` branches, so a change there always counts. `csharp.configurations` can narrow the list.
+  - **SQL scripts:** `**/*.sql` is in the C# default `roles.infra` (`infra-file-changed`, touches-existing). Phase 2 adds destructive statement findings (`DROP`, `TRUNCATE`, `ALTER … DROP`, `DELETE`/`UPDATE` without `WHERE`) read with a tokenizer, not regex.
+  - **`wwwroot`:** a new role `client` (default `**/wwwroot/**` minus `wwwroot/lib/**`, minified files and source maps), with new reasons `client-file-changed` (touches-existing) and `client-file-added` (info), a small capped score weight, and in phase 2 edges from views to the scripts and stylesheets they reference.
+- **Reason:**
+  - Option A keeps the helper offline, like the Go helper with `GOPROXY=off`.
+  - Analyzing `Debug` alone would miss callers that exist only in other configurations: a new file used only from `#if !DEBUG` code would look disconnected and the PR could be `isolated`, which breaks the fail-closed rule. Most solutions have two to four distinct symbol sets, so the cost stays small.
+  - SQL scripts and browser code ship with the app; leaving them as "other files" (weight 0) would let a PR that edits a schema script or a site-wide script look like it touches nothing.
+  - User decisions (answers to the design document's questions 1–4).
