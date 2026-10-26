@@ -193,6 +193,7 @@ function renderDiff(path, maxLines = 1500) {
   const marks = cf && !cf.missing && cf.total > 0
   const notes = notesOf(path)
   const added = addedLines(path)
+  const lang = langOf(path)
   let rows = ''
   let count = 0
   let inBlock = false
@@ -200,10 +201,17 @@ function renderDiff(path, maxLines = 1500) {
     rows += `<tr class="d-hunk"><td colspan="3">${esc(h.header)}</td></tr>`
     let o = h.oldStart
     let n = h.newStart
+    // What an open comment or string carries to the next line, on each side of the diff (context lines are both).
+    let before = null
+    let after = null
     for (const line of h.lines) {
       if (count++ > maxLines) break
       const kind = line[0]
-      const text = esc(line.slice(1)) || ' '
+      const hl = highlightLine(line.slice(1), lang, kind === '-' ? before : after)
+      if (kind === '-') before = hl.state
+      else if (kind === '+') after = hl.state
+      else before = after = hl.state
+      const text = hl.html || ' '
       if (kind === '+') {
         const unc = marks && inRanges(n, cf.uncovered)
         if (unc && !inBlock) {

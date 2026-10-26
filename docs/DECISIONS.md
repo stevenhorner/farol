@@ -860,3 +860,8 @@ Every decision not covered by `docs/SPEC.md`. One entry per decision: problem, o
 - **Self-review workflow:** the job that runs the pull request's own `./action` has a read-only token; it writes the comment with `farol report` (now with `--since-in` / `--since-report-url`, like `comment`), and a separate `comment` job, which runs no code of the pull request, posts the file with `gh pr comment`.
 - **Not changed:** `needs: [tests]` with `if: !cancelled() && …` does run after failed tests (`cancelled()` is a status function, so the default `success()` does not apply); the first run of this pull request shows it: tests failed, the farol job ran.
 
+## 2026-10-26 (7) — Syntax highlighting in the report's diffs; full width
+
+- **Choice:** `assets/report/wb-highlight.js`, a line tokenizer written for the report (no library): comments, strings, keywords, literals, numbers, types (capitalized names), calls and Python decorators, for TypeScript/JavaScript, Go, Python and GraphQL by file extension; other files stay plain. An open block comment or multi-line string carries to the next line, with one state per side of the diff (context lines feed both). Colors are theme tokens (`--t-*`, light and dark). The main area drops its 1,100px cap; paragraphs keep a 100ch measure.
+- **Reason:** user request. A highlighting library (highlight.js, Prism) would add a dependency and tens of kilobytes to every report for what diff review needs: telling code, strings and comments apart at a glance.
+

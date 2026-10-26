@@ -48,7 +48,7 @@ describe('review workbench', () => {
   })
 
   it('ships browser scripts that parse, in the order they share their names', () => {
-    const scripts = ['report/wb-core.js', 'report/wb-views.js', 'report/wb-pages.js'].map((name) => ASSETS[name] ?? '')
+    const scripts = ['report/wb-highlight.js', 'report/wb-core.js', 'report/wb-views.js', 'report/wb-pages.js'].map((name) => ASSETS[name] ?? '')
     // eslint-disable-next-line @typescript-eslint/no-implied-eval -- a syntax check, never called
     expect(() => new Function(scripts.join('\n'))).not.toThrow()
     const html = renderHtml(golden('p10-contracts'))
