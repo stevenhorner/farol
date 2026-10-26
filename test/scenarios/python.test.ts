@@ -42,6 +42,16 @@ const SCENARIOS: Record<string, { classification: Output['classification']; affe
       expect(o.diagnostics.dynamicRoutes).toHaveLength(1)
     },
   },
+  // The brand routes' prefix is computed by a function of main.py; the PR changes only that function: the routes keep
+  // their keys, but their URL may move, so the change is unknown (reported where the prefix is computed).
+  'p13-computed-prefix': {
+    classification: 'unknown',
+    affected: ['GET /health', 'GET /me', 'GET {brands_prefix()}', 'GET {brands_prefix()}/{brand_id}'],
+    check: (o) => {
+      expect(o.reasons.filter((r) => r.code === 'dynamic-route').map((r) => r.file)).toEqual(['src/shop/main.py', 'src/shop/main.py'])
+      expect(o.diagnostics.dynamicRoutes.every((d) => d.line === 12)).toBe(true)
+    },
+  },
   // BrandService.find runs only behind GET /brands/{brand_id} (service.find resolved by method name).
   'p2-service-changed': { classification: 'touches-existing', affected: ['GET /brands/{brand_id}'] },
   // A field of the Brand model: both brand routes (annotations are runtime in FastAPI) and the worker script.

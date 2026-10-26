@@ -136,9 +136,13 @@ export function classify(input: ClassifyInput): ClassifyResult {
   // A path computed at run time (kept as `{expr}`) cannot be compared with the others: a new one, or one registered in
   // a changed file, may take the URL of an existing route. Unchanged ones stay readable entry points.
   for (const r of headRoutes.routes) {
-    if (r.computed === undefined || (baseKeys.has(r.key) && !changed.has(r.computed.file))) continue
-    dynamicRoutes.push(r.computed)
-    reasons.push(reason('dynamic-route', `line ${r.computed.line}: ${r.computed.detail}`, r.computed.file))
+    const parts = r.computed ?? []
+    // A new route reports where its path is computed; an existing one, the changed files that compute it.
+    const shown = baseKeys.has(r.key) ? parts.filter((c) => changed.has(c.file)) : parts.slice(0, 1)
+    for (const c of shown) {
+      dynamicRoutes.push(c)
+      reasons.push(reason('dynamic-route', `line ${c.line}: ${c.detail}`, c.file))
+    }
   }
   for (const e of graph.parseErrors) if (changed.has(e.file)) reasons.push(reason('parse-error', `line ${e.line}: ${e.message}`, e.file))
   for (const u of graph.unresolved) {

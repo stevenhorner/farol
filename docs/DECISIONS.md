@@ -865,3 +865,11 @@ Every decision not covered by `docs/SPEC.md`. One entry per decision: problem, o
 - **Choice:** `assets/report/wb-highlight.js`, a line tokenizer written for the report (no library): comments, strings, keywords, literals, numbers, types (capitalized names), calls and Python decorators, for TypeScript/JavaScript, Go, Python and GraphQL by file extension; other files stay plain. An open block comment or multi-line string carries to the next line, with one state per side of the diff (context lines feed both). Colors are theme tokens (`--t-*`, light and dark). The main area drops its 1,100px cap; paragraphs keep a 100ch measure.
 - **Reason:** user request. A highlighting library (highlight.js, Prism) would add a dependency and tens of kilobytes to every report for what diff review needs: telling code, strings and comments apart at a glance.
 
+## 2026-10-26 (8) — Second review of PR #7 (Copilot)
+
+- **Self-review workflow:** a `pull_request` workflow is defined by the pull request itself (same-repository PRs), so a write token in any of its jobs is in reach of the PR. `farol.yml` now has no write permission at all; it uploads the comment and the PR number, and `farol-comment.yml` (`workflow_run`, always the default branch's version) posts it, after checking that the number is a number and that the pull request is still at the commit the run analyzed. Fork pull requests get the comment too. It only takes effect once on the default branch.
+- **Computed paths, where they are computed:** the helpers' mark now carries the file and line of each computed expression, and the entry lists them all (`computed: [{file, line}]`). A computed router prefix is reported at its `include_router`/`Route`/`Group` call, and an existing route is `unknown` when any file that computes its path changed (scenario p13: only the body of the prefix function changed).
+- **Coverage:** an Istanbul file without `fnMap` gives no proof that it never loaded.
+- **`.farol.json`:** `report.sinceIn` and `report.sinceReportUrl`, `sinceIn` relative to the file.
+- **Not changed:** an all-zero file with a top-level conditional is no false proof: the proof needs every statement at 0, and the `if` itself runs on load. File-less score items are one group each in `scoreGroups` (a contract change and a vulnerable dependency are two parts, both in Must check); a test covers it.
+

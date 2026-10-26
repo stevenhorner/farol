@@ -237655,9 +237655,12 @@ function classify(input2) {
   const changed = new Set(input2.files.filter((f) => f.status !== "deleted").map((f) => f.path));
   const removed = input2.files.flatMap((f) => f.status === "deleted" ? [f.path] : f.status === "renamed" && f.oldPath !== void 0 ? [f.oldPath] : []);
   for (const r of headRoutes.routes) {
-    if (r.computed === void 0 || baseKeys.has(r.key) && !changed.has(r.computed.file)) continue;
-    dynamicRoutes.push(r.computed);
-    reasons.push(reason("dynamic-route", `line ${r.computed.line}: ${r.computed.detail}`, r.computed.file));
+    const parts = r.computed ?? [];
+    const shown = baseKeys.has(r.key) ? parts.filter((c) => changed.has(c.file)) : parts.slice(0, 1);
+    for (const c of shown) {
+      dynamicRoutes.push(c);
+      reasons.push(reason("dynamic-route", `line ${c.line}: ${c.detail}`, c.file));
+    }
   }
   for (const e of graph.parseErrors) if (changed.has(e.file)) reasons.push(reason("parse-error", `line ${e.line}: ${e.message}`, e.file));
   for (const u of graph.unresolved) {
@@ -238605,10 +238608,10 @@ function parseCoverageReport(text, repoRoot2, projectPrefix, canonical2) {
     const path3 = reportPathToRepo(entry.path ?? key, repoRoot2, projectPrefix, canonical2);
     if (path3 === void 0) continue;
     const statements = [];
-    const functions = Object.values(entry.fnMap ?? {}).filter((f) => f.name !== EMPTY_REPORT).map((f) => f.loc);
+    const functions = entry.fnMap === void 0 ? void 0 : Object.values(entry.fnMap).filter((f) => f.name !== EMPTY_REPORT).map((f) => f.loc);
     for (const [id, loc] of Object.entries(entry.statementMap)) {
-      const inFunction = functions.some((f) => f.start.line <= loc.start.line && loc.end.line <= f.end.line);
-      statements.push({ start: loc.start.line, end: loc.end.line, count: entry.s[id] ?? 0, ...inFunction ? {} : { onLoad: true } });
+      const onLoad = functions !== void 0 && !functions.some((f) => f.start.line <= loc.start.line && loc.end.line <= f.end.line);
+      statements.push({ start: loc.start.line, end: loc.end.line, count: entry.s[id] ?? 0, ...onLoad ? { onLoad: true } : {} });
     }
     result.set(path3, statements);
   }
@@ -249128,7 +249131,7 @@ function declRouteTable(out) {
     entry: e.file === "" ? null : e.file,
     modules: sortedUnique(e.anchors.map((a) => out.decls[a]?.file ?? "").filter((f) => f !== "")),
     layouts: [],
-    ...e.computed === true ? { computed: { file: e.file, line: Math.max(1, e.line), detail: `${e.key}: path computed at run time` } } : {}
+    ...e.computed !== void 0 && e.computed.length > 0 ? { computed: e.computed.map((c) => ({ file: c.file, line: Math.max(1, c.line), detail: `${e.key}: path computed at run time` })) } : {}
   }));
   const dynamic = out.problems.filter((p) => p.kind === "dynamic-route").map((p) => ({ file: p.file, line: Math.max(1, p.line), detail: p.detail }));
   return { routes: routes.sort((a, b) => compareStrings(a.key, b.key)), dynamic, sources: sortedUnique(out.entries.map((e) => e.file)) };
@@ -249238,8 +249241,8 @@ var DeclHelperSchema = external_exports.object({
       inline: external_exports.string(),
       /** What the endpoint receives and returns, when the helper can read it (FastAPI, Go handlers, gRPC). */
       contract: ContractSchema.optional(),
-      /** The path (or a prefix of it) is computed at run time: the key holds the expression in braces. */
-      computed: external_exports.literal(true).optional()
+      /** The path (or a prefix of it) is computed at run time: the key holds the expression in braces; where each part is computed. */
+      computed: external_exports.array(external_exports.object({ file: external_exports.string(), line: line2 })).optional()
     })
   ),
   problems: external_exports.array(external_exports.object({ file: external_exports.string(), line: line2, kind: external_exports.enum(["type-error", "parse-error", "dynamic-route"]), detail: external_exports.string() })),
@@ -249644,7 +249647,7 @@ function buildBackendTable(input2) {
       const file2 = rel(sf.fileName);
       resolverFiles.add(file2);
       const line3 = sf.getLineAndCharacterOfPosition(node2.getStart(sf)).line + 1;
-      const entry = anchors.get(key) ?? { file: file2, modules: /* @__PURE__ */ new Set(), ...computed ? { computed: { file: file2, line: line3, detail: `${key}: path computed at run time` } } : {} };
+      const entry = anchors.get(key) ?? { file: file2, modules: /* @__PURE__ */ new Set(), ...computed ? { computed: [{ file: file2, line: line3, detail: `${key}: path computed at run time` }] } : {} };
       for (const m of resolverAnchors(value, checker, isProjectFile, rel, globals, contextOf)) if (m !== file2) entry.modules.add(m);
       anchors.set(key, entry);
     }
@@ -254531,7 +254534,7 @@ var FarolFileSchema = external_exports.object({
   cwd: str.optional(),
   verbose: external_exports.boolean().optional(),
   analyze: external_exports.object({ base: str, head: str, coverage: str, eslint: str, out: str, ignore: globs2, coverageIgnore: globs2, audit: str, usage: str, pr, since: str, reviewers: external_exports.boolean(), cacheDir: str, cache: external_exports.boolean() }).partial().strict().optional(),
-  report: external_exports.object({ in: str, repo: str, pr, reportUrl: str, reviewers: str }).partial().strict().optional(),
+  report: external_exports.object({ in: str, repo: str, pr, reportUrl: str, reviewers: str, sinceIn: str, sinceReportUrl: str }).partial().strict().optional(),
   html: external_exports.object({ in: str, out: str, repo: str, pr, reviewers: str }).partial().strict().optional(),
   comment: external_exports.object({ in: str, pr, repo: str, reportUrl: str, reviewers: str, new: external_exports.boolean(), sinceIn: str, sinceReportUrl: str }).partial().strict().optional(),
   routes: external_exports.object({ ref: str }).partial().strict().optional(),
@@ -254544,7 +254547,7 @@ var FarolFileSchema = external_exports.object({
 var PATH_KEYS = {
   global: ["config", "cwd"],
   analyze: ["coverage", "eslint", "audit", "usage", "out", "cacheDir"],
-  report: ["in", "reviewers"],
+  report: ["in", "reviewers", "sinceIn"],
   html: ["in", "out", "reviewers"],
   comment: ["in", "reviewers", "sinceIn"],
   routes: [],

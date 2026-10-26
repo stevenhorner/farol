@@ -40,10 +40,11 @@ export function parseCoverageReport(text: string, repoRoot: string, projectPrefi
     if (path === undefined) continue
     const statements: Statements = []
     // Vitest (v8) reports a file it never loaded as one "(empty-report)" function over the whole file: the module itself.
-    const functions = Object.values(entry.fnMap ?? {}).filter((f) => f.name !== EMPTY_REPORT).map((f) => f.loc)
+    // Without function metadata nothing is known to run on load (fail closed: no proof of unloaded files).
+    const functions = entry.fnMap === undefined ? undefined : Object.values(entry.fnMap).filter((f) => f.name !== EMPTY_REPORT).map((f) => f.loc)
     for (const [id, loc] of Object.entries(entry.statementMap)) {
-      const inFunction = functions.some((f) => f.start.line <= loc.start.line && loc.end.line <= f.end.line)
-      statements.push({ start: loc.start.line, end: loc.end.line, count: entry.s[id] ?? 0, ...(inFunction ? {} : { onLoad: true as const }) })
+      const onLoad = functions !== undefined && !functions.some((f) => f.start.line <= loc.start.line && loc.end.line <= f.end.line)
+      statements.push({ start: loc.start.line, end: loc.end.line, count: entry.s[id] ?? 0, ...(onLoad ? { onLoad: true as const } : {}) })
     }
     result.set(path, statements)
   }

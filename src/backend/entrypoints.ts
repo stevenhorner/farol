@@ -116,7 +116,7 @@ export function buildBackendTable(input: BackendInput): BackendTable {
       const file = rel(sf.fileName)
       resolverFiles.add(file)
       const line = sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1
-      const entry = anchors.get(key) ?? { file, modules: new Set<string>(), ...(computed ? { computed: { file, line, detail: `${key}: path computed at run time` } } : {}) }
+      const entry = anchors.get(key) ?? { file, modules: new Set<string>(), ...(computed ? { computed: [{ file, line, detail: `${key}: path computed at run time` }] } : {}) }
       for (const m of resolverAnchors(value, checker, isProjectFile, rel, globals, contextOf)) if (m !== file) entry.modules.add(m)
       anchors.set(key, entry)
     }

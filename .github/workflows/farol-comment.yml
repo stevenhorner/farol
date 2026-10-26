@@ -1,0 +1,40 @@
+# Posts the comment that farol.yml wrote for a pull request. A workflow_run workflow always runs the version of the
+# default branch, never the pull request's: the write token is never in reach of the pull request's code, and fork
+# pull requests get the comment too. It reads two files of the run (the comment and the PR number) as data.
+name: farol comment
+
+on:
+  workflow_run:
+    workflows: [farol]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  comment:
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      actions: read
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: farol-comment-${{ github.event.workflow_run.id }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      # The PR number comes from the run: it must be a number, and that pull request must still be at the commit the
+      # run analyzed (a run cannot comment on another pull request, and a stale run does not comment).
+      - name: Comment on the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          pr=$(head -c 20 farol-pr.txt | tr -d '[:space:]')
+          case "$pr" in ''|*[!0-9]*) echo "::error::not a pull request number: $pr"; exit 1 ;; esac
+          head=$(gh pr view "$pr" --json headRefOid --jq .headRefOid)
+          if [ "$head" != "$HEAD_SHA" ]; then echo "::notice::pull request $pr moved on from $HEAD_SHA: no comment"; exit 0; fi
+          gh pr comment "$pr" --body-file farol-comment.md

@@ -98,7 +98,7 @@ export function declRouteTable(out: DeclHelperOutput): RouteTable {
     entry: e.file === '' ? null : e.file,
     modules: sortedUnique(e.anchors.map((a) => out.decls[a]?.file ?? '').filter((f) => f !== '')),
     layouts: [],
-    ...(e.computed === true ? { computed: { file: e.file, line: Math.max(1, e.line), detail: `${e.key}: path computed at run time` } } : {}),
+    ...(e.computed !== undefined && e.computed.length > 0 ? { computed: e.computed.map((c) => ({ file: c.file, line: Math.max(1, c.line), detail: `${e.key}: path computed at run time` })) } : {}),
   }))
   const dynamic = out.problems.filter((p) => p.kind === 'dynamic-route').map((p) => ({ file: p.file, line: Math.max(1, p.line), detail: p.detail }))
   return { routes: routes.sort((a, b) => compareStrings(a.key, b.key)), dynamic, sources: sortedUnique(out.entries.map((e) => e.file)) }

@@ -19,8 +19,22 @@ APP_TYPES = {
 }
 
 
-# Tags a path read as an expression (see RouteFinder.path): a NUL character, which no route path holds.
+# Tags a path read as an expression (see RouteFinder.path): NUL characters, which no route path holds, around the
+# file and line of the expression.
 COMPUTED_MARK = "\x00"
+
+
+def computed_origin(path: str) -> tuple[str, list[dict]]:
+    """A path without its marks, and where each computed part of it is written (a prefix and the route path can be
+    computed in different files: the registration call of each)."""
+    clean, origins = path, []
+    while COMPUTED_MARK in clean:
+        a = clean.find(COMPUTED_MARK)
+        b = clean.find(COMPUTED_MARK, a + 1)
+        file, _, line = clean[a + 1:b].rpartition("\x1f")
+        origins.append({"file": file, "line": int(line)})
+        clean = clean[:a] + clean[b + 1:]
+    return clean, origins
 
 
 @dataclass
@@ -113,7 +127,8 @@ class RouteFinder:
             value = self.setting(module, expr)
         if value is not None:
             return value
-        return "{" + COMPUTED_MARK + ast.unparse(expr) + "}"  # type: ignore[arg-type]
+        origin = f"{COMPUTED_MARK}{module.file}\x1f{getattr(expr, 'lineno', 1)}{COMPUTED_MARK}"
+        return "{" + origin + ast.unparse(expr) + "}"  # type: ignore[arg-type]
 
     def problem(self, module: Module, node: ast.AST, detail: str) -> None:
         self.problems.append({"file": module.file, "line": getattr(node, "lineno", 1), "kind": "dynamic-route", "detail": detail})
@@ -167,7 +182,7 @@ class RouteFinder:
             listed = self.kwarg(dec, "methods")
             methods = [e.value.upper() for e in listed.elts if isinstance(e, ast.Constant) and isinstance(e.value, str)] if isinstance(listed, (ast.List, ast.Tuple)) else ["GET"]
         node = self.g.decls[handler].node
-        contract = self.contracts.endpoint(module, node, dec, path.replace(COMPUTED_MARK, "")) if obj.framework == "fastapi" and attr != "websocket" else None
+        contract = self.contracts.endpoint(module, node, dec, computed_origin(path)[0]) if obj.framework == "fastapi" and attr != "websocket" else None
         for m in methods:
             obj.routes.append((m, path, [handler], dump_hash(dec), dec.lineno, contract))
 
@@ -193,7 +208,7 @@ class RouteFinder:
             listed = self.kwarg(call, "methods")
             methods = [e.value.upper() for e in listed.elts if isinstance(e, ast.Constant)] if isinstance(listed, (ast.List, ast.Tuple)) else ["GET"]
             target = next((self.g.decls[a] for a in anchors if isinstance(self.g.decls[a].node, (ast.FunctionDef, ast.AsyncFunctionDef))), None)
-            contract = self.contracts.endpoint(target.module, target.node, call, path.replace(COMPUTED_MARK, "")) if obj.framework == "fastapi" and target is not None else None
+            contract = self.contracts.endpoint(target.module, target.node, call, computed_origin(path)[0]) if obj.framework == "fastapi" and target is not None else None
             for m in methods:
                 obj.routes.append((m, path, anchors, dump_hash(call), call.lineno, contract))
 
@@ -224,13 +239,12 @@ def find_entries(graph: Graph) -> tuple[list[dict], list[dict]]:
         module_code = graph.lookup(f"{app.module.name}.{MODULE_CODE}")
         for method, path, anchors, inline, module, line, contract in finder.expand(app, "", module_code, ()):
             label = f"{labels[app.key]} " if len(apps) > 1 else ""
-            computed = COMPUTED_MARK in path
-            path = path.replace(COMPUTED_MARK, "")
+            path, computed = computed_origin(path)
             entry = {"key": f"{label}{method} {path or '/'}", "file": module.file, "line": line, "kind": "ws" if method == "WS" else "http", "anchors": sorted(set(anchors)), "inline": inline}
             if contract is not None:
                 entry["contract"] = contract
             if computed:
-                entry["computed"] = True
+                entry["computed"] = computed
             entries.append(entry)
     more, more_problems = find_more_entries(graph, finder)
     entries += more

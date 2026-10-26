@@ -1,8 +1,8 @@
 # farol reviews its own pull requests: the same workflow as examples/workflow.yml, with the action of the pull
 # request itself (./action runs the committed dist/ of the PR, which CI keeps in sync with the sources), so every PR
 # is read by the version it proposes. Its command-line commands are the entry points (farol.config.json).
-# That code runs without a write token: it writes the comment as a file, and the comment job, which runs no code of
-# the pull request, posts it. Shadow mode: it comments, it never blocks.
+# Nothing here can write: it writes the comment as a file, and farol-comment.yml (workflow_run, always the version of
+# the default branch, never the pull request's) posts it. Shadow mode: it comments, it never blocks.
 name: farol
 
 on:
@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     # Shadow mode: nothing here can fail CI or block the pull request.
     continue-on-error: true
-    # Runs the pull request's own farol (./action): read-only, no write token. The comment job posts what it writes.
+    # Runs the pull request's own farol (./action): read-only, no write token. farol-comment.yml posts what it writes.
     permissions:
       contents: read
     steps:
@@ -188,28 +188,11 @@ jobs:
           if [ -n "$SINCE_SHA" ]; then args+=(--since-in farol-since.json); fi
           if [ -n "$SINCE_SHA" ] && [ -n "$SINCE_REPORT_URL" ]; then args+=(--since-report-url "$SINCE_REPORT_URL"); fi
           node dist/cli.js "${args[@]}" > farol-comment.md
+          echo "$PR" > farol-pr.txt
 
       - uses: actions/upload-artifact@v4
         with:
           name: farol-comment-${{ github.run_id }}
-          path: farol-comment.md
-
-  # Posts the comment written by the farol job. Runs no code of the pull request: only GitHub's own CLI, on a text
-  # file. Pull requests from forks get a read-only token: no comment there (the reports stay in the run's artifacts).
-  comment:
-    needs: [farol]
-    if: ${{ !cancelled() && needs.farol.result == 'success' && github.event.pull_request.head.repo.full_name == github.repository }}
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    permissions:
-      pull-requests: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: farol-comment-${{ github.run_id }}
-      - name: Comment on the pull request
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          PR: ${{ github.event.pull_request.number }}
-        run: gh pr comment "$PR" --body-file farol-comment.md
+          path: |
+            farol-comment.md
+            farol-pr.txt

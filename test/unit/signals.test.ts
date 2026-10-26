@@ -78,6 +78,9 @@ describe('coverage', () => {
       '',
     )
     expect(parsed.get('src/b.ts')?.map((x) => x.onLoad ?? false)).toEqual([true, false])
+    // Without fnMap nothing is known to run on load.
+    const bare = parseCoverageReport(JSON.stringify({ '/repo/src/d.ts': { path: '/repo/src/d.ts', statementMap: { '0': { start: { line: 1 }, end: { line: 1 } } }, s: { '0': 0 } } }), '/repo', '')
+    expect(listsUnloadedFiles(bare)).toBe(false)
     // Vitest's v8 provider: a file it never loaded is one "(empty-report)" function over the whole file.
     const vitest = parseCoverageReport(
       JSON.stringify({ '/repo/src/c.ts': { path: '/repo/src/c.ts', statementMap: { '0': { start: { line: 2 }, end: { line: 2 } } }, s: { '0': 0 }, fnMap: { '0': { name: '(empty-report)', loc: { start: { line: 1 }, end: { line: 9 } } } } } }),

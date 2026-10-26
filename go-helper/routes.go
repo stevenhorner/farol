@@ -24,8 +24,15 @@ type Entry struct {
 	Inline string `json:"inline"`
 	// What the endpoint receives and returns, when the handler decodes and encodes typed values (or a gRPC method).
 	Contract *Contract `json:"contract,omitempty"`
-	// The path (or a prefix of it) is computed at run time: the key holds the expression in braces.
-	Computed bool `json:"computed,omitempty"`
+	// The path (or a prefix of it) is computed at run time: the key holds the expression in braces, and these are
+	// the places that compute it.
+	Computed []Origin `json:"computed,omitempty"`
+}
+
+// Origin is where a computed part of a route path is written.
+type Origin struct {
+	File string `json:"file"`
+	Line int    `json:"line"`
 }
 
 // Problem is something the helper could not read: type errors, route paths it cannot compute.
@@ -120,8 +127,8 @@ func (f *routeFinder) anchorsOf(p *pkg, e ast.Expr, _ int) []int {
 func (f *routeFinder) add(p *pkg, call *ast.CallExpr, sc *scope, key, kind string, anchors []int) {
 	pos := f.g.fset.Position(call.Pos())
 	inline := append(append([]string{}, sc.inline...), f.inline...)
-	computed := strings.Contains(key, computedMark)
-	entry := Entry{Key: strings.ReplaceAll(key, computedMark, ""), File: f.g.rel(pos.Filename), Line: pos.Line, Kind: kind, Anchors: uniqueInts(anchors), Inline: strings.Join(inline, ","), Computed: computed}
+	clean, computed := computedOrigins(key)
+	entry := Entry{Key: clean, File: f.g.rel(pos.Filename), Line: pos.Line, Kind: kind, Anchors: uniqueInts(anchors), Inline: strings.Join(inline, ","), Computed: computed}
 	if kind == "http" {
 		mws := map[int]bool{}
 		for _, m := range sc.mws {

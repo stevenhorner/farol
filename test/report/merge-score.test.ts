@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { OutputSchema, type Output } from '../../src/output/schema.js'
 import { combineScore, DEPENDENCY_WEIGHT, fileCoverage, LEFT_OUT_RISK, mergeScore, scoreGroups, scoreItems, scoreLevel } from '../../src/report/merge-score.js'
+import { renderReport } from '../../src/report/markdown.js'
 import { reviewParts } from '../../src/report/review-parts.js'
 import { computeVerdict } from '../../src/report/verdict.js'
 import { FIXTURES_DIR } from '../helpers/repo.js'
@@ -92,6 +93,17 @@ describe('merge risk score', () => {
     expect(file?.items.every((i) => i.kind !== 'security' && i.kind !== 'lint')).toBe(true)
     // The file's own points leave its findings out, in the verdict too.
     expect(computeVerdict(out).startHere.concat(computeVerdict(out).skim).find((f) => f.path === at.path)?.points).toBe(file?.own)
+  })
+
+  it('keeps a contract change and a vulnerable dependency as separate parts to check, in the comment too', () => {
+    const o = golden('p10-contracts')
+    const vulnerability = { package: 'lib', severity: 'high' as const, title: 'Prototype pollution', id: 'GHSA-1', url: null, cves: [], vulnerableRange: null, patchedVersions: null, relatedTo: ['lib'], kind: 'direct' as const }
+    const out: Output = { ...o, signals: { ...o.signals, vulnerabilities: { ...o.signals.vulnerabilities, status: 'ok', related: [vulnerability] } } }
+    const parts = reviewParts(mergeScore(out).items)
+    expect([...new Set(parts.filter((p) => p.must).map((p) => p.kind))].sort()).toEqual(['contract', 'vulnerability'])
+    const comment = renderReport(out)
+    expect(comment).toContain('- [ ] Breaking API change')
+    expect(comment).toContain('- [ ] Vulnerable dependency: high advisory on lib: Prototype pollution')
   })
 
   it('keeps half the risk of files left out of coverage on purpose instead of counting them as untested', () => {

@@ -28,8 +28,8 @@ export const DeclHelperSchema = z.object({
       inline: z.string(),
       /** What the endpoint receives and returns, when the helper can read it (FastAPI, Go handlers, gRPC). */
       contract: ContractSchema.optional(),
-      /** The path (or a prefix of it) is computed at run time: the key holds the expression in braces. */
-      computed: z.literal(true).optional(),
+      /** The path (or a prefix of it) is computed at run time: the key holds the expression in braces; where each part is computed. */
+      computed: z.array(z.object({ file: z.string(), line })).optional(),
     }),
   ),
   problems: z.array(z.object({ file: z.string(), line, kind: z.enum(['type-error', 'parse-error', 'dynamic-route']), detail: z.string() })),
