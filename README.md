@@ -186,7 +186,7 @@ React Router route tables (object and JSX forms, lazy routes, split route module
 ```
 
 ```sh
-npx vitest run --coverage.enabled --coverage.reporter=json --coverage.reportsDirectory=reports/coverage
+npx vitest run --coverage.enabled --coverage.reportOnFailure --coverage.reporter=json --coverage.reportsDirectory=reports/coverage
 npx eslint -f json -o reports/eslint.json <changed files>
 npm audit --json > reports/audit.json                     # or pnpm audit --json
 

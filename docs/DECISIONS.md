@@ -846,3 +846,9 @@ Every decision not covered by `docs/SPEC.md`. One entry per decision: problem, o
   - `@vitest/coverage-v8` as a dev dependency (not runtime: nothing changes in the npm package), with `coverage.include: ['src/**/*.ts']` so files no test loads are reported.
 - **Reason:** user request (dogfooding), and command-line tools are a common shape of TypeScript open source projects.
 
+## 2026-10-26 (5) — GOTOOLCHAIN=local for go list; coverage on failure in the example workflows
+
+- **Problem:** CI failed on every push since 0.1.0: with Go 1.22 installed, the `g6-go-directive` fixture (`go 1.23`) made `go list` try to download the go1.23.0 toolchain (refused by `GOPROXY=off`). The helper's own build ran with `GOTOOLCHAIN=local`, the `go list` of the analyzed repository did not. And farol's first self-review had no coverage: Vitest writes no coverage report after a failing run unless `coverage.reportOnFailure` is set, although the example workflow said a failing run still has one.
+- **Choice:** `GOTOOLCHAIN=local` in every go command (helper `goEnv` and `lang-workspace`): a module that needs a newer Go fails closed (`unknown`, with Go's message). CI installs Go 1.23. `--coverage.reportOnFailure` in the example workflows, the README recipes and farol's own workflow (and `reportOnFailure: true` in vitest.config.ts).
+- **Reason:** `analyze` never touches the network; and a failing test must not turn into "nothing is tested".
+

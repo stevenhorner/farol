@@ -35,7 +35,7 @@ jobs:
       # The Go and Python helpers and their scenario tests need both toolchains (standard library only).
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '1.23'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -44,7 +44,7 @@ jobs:
 
       - name: Tests with coverage
         # coverage.include in vitest.config.ts: files no test loads are reported as untested.
-        run: npx vitest run --coverage.enabled --coverage.reporter=json --coverage.reportsDirectory=reports/coverage
+        run: npx vitest run --coverage.enabled --coverage.reportOnFailure --coverage.reporter=json --coverage.reportsDirectory=reports/coverage
 
       - name: ESLint on the changed files
         if: ${{ !cancelled() }}

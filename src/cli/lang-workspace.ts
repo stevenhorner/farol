@@ -19,7 +19,7 @@ const MAX_BUFFER = 1024 * 1024 * 1024
 
 /** Every go command runs offline, with the installed (or already cached) toolchain and without cgo. */
 function goEnv(): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { ...process.env, GOPROXY: 'off', GOFLAGS: '', CGO_ENABLED: '0', GOWORK: 'off' }
+  const env: NodeJS.ProcessEnv = { ...process.env, GOPROXY: 'off', GOTOOLCHAIN: 'local', GOFLAGS: '', CGO_ENABLED: '0', GOWORK: 'off' }
   delete env.PWD
   return env
 }

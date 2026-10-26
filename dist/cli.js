@@ -249239,7 +249239,7 @@ var DeclHelperSchema = external_exports.object({
 // src/cli/lang-workspace.ts
 var MAX_BUFFER2 = 1024 * 1024 * 1024;
 function goEnv() {
-  const env = { ...process.env, GOPROXY: "off", GOFLAGS: "", CGO_ENABLED: "0", GOWORK: "off" };
+  const env = { ...process.env, GOPROXY: "off", GOTOOLCHAIN: "local", GOFLAGS: "", CGO_ENABLED: "0", GOWORK: "off" };
   delete env.PWD;
   return env;
 }
