@@ -88,7 +88,9 @@ export function buildProgram(): Command {
     .option('--pr <number>', 'pull request number for file links (default: the one in the JSON)', positiveInt)
     .option('--report-url <url>', 'link to the HTML report (e.g. the workflow artifact) shown at the top')
     .option('--reviewers <file>', 'reviewers file written by "farol reviewers"')
-    .action((raw: Partial<RenderOptions>, cmd: Command) =>
+    .option('--since-in <file>', 'incremental analyze JSON (analyze --since) shown on top, as "farol comment" does')
+    .option('--since-report-url <url>', 'link to the HTML report of the incremental analysis')
+    .action((raw: Partial<RenderOptions & { sinceIn: string; sinceReportUrl: string }>, cmd: Command) =>
       runAction(() => {
         const opts = withFarolFile('report', cmd, raw)
         return reportCommand({ ...opts, in: required(opts.in, '--in', 'report') })

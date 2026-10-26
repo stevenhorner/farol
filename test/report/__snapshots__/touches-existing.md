@@ -1,11 +1,17 @@
 <!-- farol -->
-### farol · PR reading (shadow mode)
+### farol · merge risk 35/100 (medium) · ◐ quick review
 
-Signals computed on the lines this PR changes. farol only informs: it never approves or blocks.
+Most of the risk comes from `Card.tsx`, used by 2 of 4 existing pages. 1 code file changed; 2 of 4 existing pages run changed code.
 
-- **Review:** ◐ quick review — merge risk score 35/100; existing code changed: 2 existing page(s) run it; diff coverage not verified: risk is counted as if nothing were tested
-  - `src/components/Card.tsx` risk 35
-- **Merge risk score:** 35/100 (medium; higher is riskier)
+<sub>farol only informs: it never approves or blocks.</sub>
+
+**Files by risk** (points are each part's share of the 35)
+- 🔴 `src/components/Card.tsx` **35** · 2 of 4 pages
+
+<details>
+<summary>All signals</summary>
+
+- **Why this review:** merge risk score 35/100; existing code changed: 2 existing page(s) run it; diff coverage not verified: risk is counted as if nothing were tested
 - **Risk:** 1 high, 0 medium, 0 low
   - 🔴 `src/components/Card.tsx` 2/4 pages, 6 dependents
 - **Vulnerabilities in added or changed dependencies:** not verified
@@ -13,6 +19,8 @@ Signals computed on the lines this PR changes. farol only informs: it never appr
 - **Lint on changed lines:** not verified
 - **Added suppressions:** none
 - **Modified existing tests:** none
+
+</details>
 
 <details>
 <summary>Classification — open only after reviewing</summary>

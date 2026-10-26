@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "surface": "backend",
+  "tool": {
+    "name": "farol",
+    "version": "<version>"
+  },
+  "repo": null,
+  "pr": null,
+  "base": {
+    "ref": "main",
+    "sha": "<base>"
+  },
+  "mergeBase": "<base>",
+  "head": {
+    "ref": "feature",
+    "sha": "<head>"
+  },
+  "analyzedAt": "2026-01-15T12:00:00.000Z",
+  "classification": "unknown",
+  "reasons": [
+    {
+      "code": "dynamic-route",
+      "file": "src/shop/routers/brands.py",
+      "detail": "line 17: GET /brands{brand_id}: path computed at run time"
+    },
+    {
+      "code": "declarations-additive",
+      "file": "src/shop/routers/brands.py",
+      "detail": "only additions: new entry points GET /brands{brand_id}; new declarations shop.routers.brands.brand_id, shop.routers.brands.get_brand_v2, shop.routers.brands.path"
+    },
+    {
+      "code": "route-added",
+      "detail": "new entry point GET /brands{brand_id} (registered in src/shop/routers/brands.py)"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/shop/routers/brands.py",
+      "status": "modified",
+      "role": "source",
+      "linesAdded": 12,
+      "linesRemoved": 0,
+      "additive": true
+    }
+  ],
+  "ignoredFiles": [],
+  "dependencies": {
+    "manifests": [],
+    "lockfiles": [],
+    "changes": [],
+    "summary": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "patch": 0,
+      "added": 0,
+      "removed": 0
+    }
+  },
+  "risk": {
+    "totalPages": 5,
+    "files": [
+      {
+        "path": "src/shop/routers/brands.py",
+        "change": "additive",
+        "level": "low",
+        "directImporters": 1,
+        "transitiveDependents": 1,
+        "centrality": 0.1,
+        "pagesReached": 0,
+        "routesReached": 0,
+        "why": "additive change: nothing that existed changed"
+      }
+    ],
+    "summary": {
+      "high": 0,
+      "medium": 0,
+      "low": 1
+    }
+  },
+  "routes": {
+    "added": [
+      {
+        "key": "GET /brands{brand_id}",
+        "path": "GET /brands{brand_id}",
+        "entry": "src/shop/routers/brands.py",
+        "hasChildren": false
+      }
+    ],
+    "affected": [],
+    "disconnectedNewFiles": []
+  },
+  "signals": {
+    "coverage": {
+      "status": "not-provided",
+      "message": "no coverage report given (--coverage or signals.coverage)",
+      "files": [],
+      "total": null,
+      "ignoredFiles": []
+    },
+    "lint": {
+      "status": "not-provided",
+      "message": "no ruff report given (--eslint or signals.eslint)",
+      "changedLines": null,
+      "otherLines": null,
+      "findings": [],
+      "omittedFindings": 0
+    },
+    "security": {
+      "status": "not-provided",
+      "findings": [],
+      "summary": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "message": "Python files are checked by flake8-bandit: give a ruff JSON report (with the S rules selected) as the lint report"
+    },
+    "vulnerabilities": {
+      "status": "not-provided",
+      "message": "no audit report given (--audit or signals.audit)",
+      "related": [],
+      "total": null
+    },
+    "suppressions": {
+      "status": "ok",
+      "items": []
+    },
+    "testsModified": {
+      "status": "ok",
+      "files": []
+    }
+  },
+  "diagnostics": {
+    "unresolvedImports": [],
+    "dynamicRoutes": [
+      {
+        "file": "src/shop/routers/brands.py",
+        "line": 17,
+        "detail": "GET /brands{brand_id}: path computed at run time"
+      }
+    ],
+    "parseErrors": [],
+    "timingsMs": {
+      "diff": 0,
+      "helperSetup": 0,
+      "helperRead": 0,
+      "base": 0,
+      "classify": 0,
+      "signals": 0,
+      "diffs": 0
+    },
+    "error": null
+  },
+  "review": null,
+  "contracts": {
+    "readable": 5,
+    "entries": [],
+    "summary": {
+      "breaking": 0,
+      "dangerous": 0,
+      "safe": 0
+    }
+  }
+}

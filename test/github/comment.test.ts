@@ -139,7 +139,7 @@ describe('comment', () => {
     stderr.mockRestore()
     expect(gh.calls.map((c) => c.method)).toEqual(['POST'])
     const body = (JSON.parse(gh.calls[0]?.body ?? '{}') as { body: string }).body
-    expect(body).toContain('[Full report (HTML)](https://example.com/full)')
+    expect(body).toContain('[Open the review workbench](https://example.com/full)')
     expect(body).toContain('🔁 **Since the last push**')
     expect(body).toContain('[Report of these commits (HTML)](https://example.com/since)')
     await expect(commentCommand({ in: input, pr: '7', sinceReportUrl: 'http://x' }, { GITHUB_REPOSITORY: 'acme/shop', GITHUB_TOKEN: 'x' }, gh.impl)).rejects.toThrow('--since-report-url must be an https URL')

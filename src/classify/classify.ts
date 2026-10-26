@@ -133,6 +133,18 @@ export function classify(input: ClassifyInput): ClassifyResult {
 
   const changed = new Set(input.files.filter((f) => f.status !== 'deleted').map((f) => f.path))
   const removed = input.files.flatMap((f) => (f.status === 'deleted' ? [f.path] : f.status === 'renamed' && f.oldPath !== undefined ? [f.oldPath] : []))
+  // A path computed at run time (kept as `{expr}`) cannot be compared with the others: a new one, or one registered in
+  // a changed file, may take the URL of an existing route. Unchanged ones stay readable entry points.
+  for (const r of headRoutes.routes) {
+    const parts = r.computed ?? []
+    // Where the change is: the changed files that compute the path; a new route with none of them, its first part.
+    const inChanged = parts.filter((c) => changed.has(c.file))
+    const shown = inChanged.length > 0 || baseKeys.has(r.key) ? inChanged : parts.slice(0, 1)
+    for (const c of shown) {
+      dynamicRoutes.push(c)
+      reasons.push(reason('dynamic-route', `line ${c.line}: ${c.detail}`, c.file))
+    }
+  }
   for (const e of graph.parseErrors) if (changed.has(e.file)) reasons.push(reason('parse-error', `line ${e.line}: ${e.message}`, e.file))
   for (const u of graph.unresolved) {
     if (changed.has(u.file) || (u.target !== undefined && targetsRemoved(u.target, removed))) {

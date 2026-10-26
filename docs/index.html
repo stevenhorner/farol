@@ -97,11 +97,15 @@ h1 .beam { text-decoration: underline; text-decoration-color: var(--red); text-d
 .pc-verdict { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 10px; font-weight: 700; color: var(--red); background: color-mix(in srgb, var(--red) 10%, transparent); border: 1px solid color-mix(in srgb, var(--red) 30%, transparent); }
 .pc-score { font-variant-numeric: tabular-nums; }
 .pr-comment ul { margin: 12px 0 14px; padding-left: 18px; color: var(--text-2); display: grid; gap: 4px; }
-.pr-comment code { font-size: .86em; background: var(--bg-soft); padding: 1px 5px; border-radius: 5px; }
+.pr-comment code { font-size: .86em; background: var(--bg-soft); padding: 1px 5px; border-radius: 5px; white-space: nowrap; }
 .pc-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
 .pc-file { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; }
 .pc-pts { font-weight: 700; color: var(--red); font-variant-numeric: tabular-nums; }
 .pc-link { display: inline-block; margin-top: 8px; font-weight: 600; }
+.pc-lede { margin: 12px 0 14px; color: var(--text-2); line-height: 1.5; }
+.pc-label { margin-top: 12px; }
+.pc-mid { color: var(--amber); }
+.pc-tested { margin: 12px 0 0; color: var(--text-2); }
 
 
 .or-ci { margin: 10px 0 0; font-size: .9rem; color: var(--muted); }
@@ -282,18 +286,16 @@ footer a { color: var(--text-2); }
       <aside class="pr-comment" aria-label="Example of the comment farol posts on a pull request">
         <div class="pc-head"><span class="pc-avatar" aria-hidden="true"></span><b>github-actions</b><span class="pc-muted">commented on #1</span></div>
         <div class="pc-body">
-          <div class="pc-title">farol · PR reading <span class="pc-muted">(shadow mode)</span></div>
           <div class="pc-verdict">⚠ Careful review <span class="pc-score">69/100</span></div>
-          <ul>
-            <li><b>1 breaking contract change:</b> <code>GET /items/</code> lost <code>count</code></li>
-            <li><b>1 high-severity finding:</b> SQL built with an f-string</li>
-            <li><b>23 endpoints</b> reach the changed model</li>
-            <li><b>38% diff coverage</b> on the changed lines</li>
-          </ul>
-          <div class="pc-label">Start here</div>
-          <div class="pc-file"><code>api/routes/items.py</code><span class="pc-pts">34</span></div>
-          <div class="pc-file"><code>models.py</code><span class="pc-pts">21</span></div>
-          <a class="pc-link" href="demo/backend.html">📄 Full report (HTML) →</a>
+          <p class="pc-lede">Most of the risk comes from a breaking change to <code>GET /items/</code> and a security finding in <code>items.py</code>.</p>
+          <div class="pc-label">Must check</div>
+          <div class="pc-file"><span>☐ Breaking API change <code>GET /items/</code></span><span class="pc-pts">30</span></div>
+          <div class="pc-file"><span>☐ Security finding <code>items.py:56</code></span><span class="pc-pts">21</span></div>
+          <div class="pc-label">Files by risk</div>
+          <div class="pc-file"><code>models.py</code><span class="pc-pts pc-mid">10</span></div>
+          <div class="pc-file"><code>api/routes/items.py</code><span class="pc-pts pc-mid">4</span></div>
+          <p class="pc-tested"><b>New code tested:</b> 78% of the changed lines</p>
+          <a class="pc-link" href="demo/backend.html">📄 Open the review workbench →</a>
         </div>
       </aside>
       </div>
@@ -416,7 +418,7 @@ footer a { color: var(--text-2); }
           <span class="go">Open the backend report →</span>
         </a>
         <a class="demo-card" href="demo/frontend.html">
-          <div class="row"><h3>Frontend · React + TanStack Router</h3><span class="score">⚠ 77/100</span></div>
+          <div class="row"><h3>Frontend · React + TanStack Router</h3><span class="score">⚠ 76/100</span></div>
           <ul>
             <li>A new page, and four existing pages reached through the sidebar</li>
             <li>A shared component with no test</li>

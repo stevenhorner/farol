@@ -5,7 +5,8 @@ import type { CoverageSignal, LintSignal, SecurityFinding, SecuritySignal, Signa
 import { compareStrings } from '../output/order.js'
 import { isCoveragePyReport, isPipAuditReport, isRuffReport, parseCoveragePyReport, parsePipAuditReport, parseRuffReport, pythonSuppressions } from '../signals/python.js'
 import { goSuppressions, isGolangciReport, isGovulncheckReport, parseGoCoverProfile, parseGolangciReport, parseGovulncheckReport } from '../signals/go.js'
-import { coverageSignal, parseCoverageReport, ReportError } from '../signals/coverage.js'
+import { isDeclarationsOnlyModule, isScriptFile } from '../classify/declarations-only.js'
+import { coverageSignal, listsUnloadedFiles, parseCoverageReport, ReportError } from '../signals/coverage.js'
 import { coverageNotProvided, lintNotProvided, vulnerabilitiesNotProvided } from '../signals/index.js'
 import { parseAuditReport, vulnerabilitiesSignal } from '../signals/audit.js'
 import { securitySignal } from '../signals/security.js'
@@ -89,13 +90,16 @@ export function computeSignals(ctx: Context, inputs: SignalInputs): Signals {
   else if (cov.kind === 'error') coverage = { ...coverageNotProvided(cov.message), status: 'error' }
   else {
     try {
-      const report =
-        inputs.lang && cov.text.startsWith('mode:')
-          ? parseGoCoverProfile(cov.text, inputs.lang.module, ctx.projectPrefix)
-          : isCoveragePyReport(cov.text)
-            ? parseCoveragePyReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical)
-            : parseCoverageReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical)
-      coverage = coverageSignal(report, inputs.files, inputs.roleOf, inputs.coverageIgnored)
+      const goProfile = inputs.lang !== undefined && cov.text.startsWith('mode:')
+      const report = goProfile
+        ? parseGoCoverProfile(cov.text, inputs.lang?.module ?? '', ctx.projectPrefix)
+        : isCoveragePyReport(cov.text)
+          ? parseCoveragePyReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical)
+          : parseCoverageReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical)
+      coverage = coverageSignal(report, inputs.files, inputs.roleOf, inputs.coverageIgnored, {
+        missingIsExcluded: !goProfile && listsUnloadedFiles(report),
+        declarationsOnly: (p) => isScriptFile(p) && isDeclarationsOnlyModule(p, inputs.readHead(p) ?? 'x('),
+      })
     } catch (error) {
       coverage = { ...coverageNotProvided(asError(error)), status: 'error' }
     }

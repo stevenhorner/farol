@@ -97,6 +97,8 @@ export const ConfigSchema = z
         graphql: z.boolean().default(true),
         /** Read REST endpoints registered with Fastify/Express-style calls. */
         rest: z.boolean().default(true),
+        /** Read command-line commands (commander, cac, yargs): each command is an entry point. */
+        cli: z.boolean().default(true),
         /**
          * Context properties injected at runtime (dependency injection the import graph cannot see), with the files
          * that provide them, e.g. "loaders" → the loader registries of each module. A resolver reading `loaders.Brand…`

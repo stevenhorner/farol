@@ -816,3 +816,60 @@ Every decision not covered by `docs/SPEC.md`. One entry per decision: problem, o
 - **How:** the page is rendered in the browser from one JSON view model (`src/report/workbench-model.ts`) and texts (`src/report/strings-workbench.ts`). The stylesheet and browser scripts are real files in `assets/report/`, embedded into `src/report/html-assets.ts` by `scripts/embed-assets.mjs` like the logo (a test fails when they drift). No new runtime dependency.
 - **Score:** a dependency bump weighs by how much it can break (major or removed 0.15, versions that cannot be compared 0.10, a 0.x minor or 0.0.x patch 0.08, compatible 0.02) instead of 0.25 for any "critical" one; a lint error on the line of a security finding is counted once; security findings, lint errors and suppressions in files outside the project (`excluded`) no longer count.
 - **Reason:** user request after the first public feedback: the report was not clear about how much of the new code is tested and the score counted some things too much (a minor bump of a design-system package was a quarter of a 31-file PR; on the demo backend, two files and the contract left 42 points).
+
+## 2026-10-26 (2) — The PR comment counts like the report; files left out of coverage on purpose
+
+- **Problem:** the comment still listed "Start here" files with the points of the file and its findings together (`items.py` risk 34) while the report shows the file (4) and its security finding (21) apart. And changed files the project excludes from coverage (migrations, generated code, constants) counted as entirely untested.
+- **Choice:**
+  - `src/report/review-parts.ts` splits the score into parts like the report's browser code (a file without its security and lint findings, each finding, contract changes, vulnerable dependencies, analysis problems) with whole-number shares that add up to the score (log attribution, largest remainder). A test runs the page's `wb-core.js` on the same data and compares the points. The verdict's file points leave findings out too.
+  - The comment's top follows the report's summary: title with the merge risk and verdict, the lede sentence (same texts as the report), *Must check* as a task list, High and Medium files (by their own points: ≥20, ≥5) with their share, coverage. The former signal list moves to a collapsed *All signals* block; classification and the test checklist stay where they were.
+  - Coverage: a changed file missing from the report is **excluded by the project** when the report lists at least one file whose statements all count 0 (the tool was told which files to measure: Vitest/Jest `coverage.include`/`all`, coverage.py `source`). Not for Go profiles, which leave out packages without tests. A TypeScript file that only declares things (`isDeclarationsOnlyModule` on the head content) has no executable line. Excluded files are listed in `signals.coverage.excludedByProject` (optional, absent when empty).
+  - Excluded and `coverageIgnore` files keep `LEFT_OUT_RISK` = 0.5 of their reach weight (like declarations), labeled as left out, instead of 1.
+- **Reason:** user request; the comment and the report must not disagree on the same PR. Fail closed still holds where it matters: without evidence that the report lists unloaded files, a missing file stays untested; and a left-out file keeps half its risk rather than the 30% of a fully covered one.
+
+## 2026-10-26 (3) — Routes with a computed path: unknown when new or changed (issue #6)
+
+- **Problem:** a new FastAPI route whose path came from a function call was read as a new entry point `GET /reports{path('summary')}`, so a PR that shadows an existing route was `isolated` and fast track. Go kept such paths the same way; TypeScript REST dropped the route entirely. The 0.1.0 choice (keep `{expr}`, no problem) was meant to avoid making every PR of a repository with one such route `unknown`, but it did not tell new routes from old ones.
+- **Choice:**
+  - The helpers (Python `RouteFinder.path`, Go `routeFinder.pattern`) record every path they read as `{expr}`; an entry whose key holds one is `computed`. TypeScript `restNodes` keeps a non-string path on a server receiver (`app`, `router`, `fastify`…) as `{expr}`, `computed`. `RouteEntry.computed` carries where it is registered.
+  - `classify`: a computed route that is new (not in the base table) or registered in a changed file adds `dynamic-route` (→ `unknown`) and a diagnostic. Untouched computed routes stay readable entry points.
+  - Report and comment: `unknown` score items tied to a file are parts of their own in Must check ("farol could not read this", checked by hand), like security findings. Reviewing the file no longer clears them, and the "likely safe to approve" state needs them checked.
+- **Reason:** fail closed. farol cannot tell which URL a computed path takes, so it cannot rule out that it takes an existing one (FastAPI, chi and Express serve the first match).
+
+## 2026-10-26 (4) — Command-line commands as TypeScript entry points; farol reviews its own pull requests
+
+- **Problem:** farol run on itself found no entry point (Python `__main__` and Go `main` are entry points, a TypeScript CLI was not): every changed file was "no operation reaches it", ranked by dependents only.
+- **Choice:**
+  - `src/backend/cli.ts` (inside the existing `backend` module, next to `rest.ts`): commander and cac `X.command('<spec>')….action(handler)`, and yargs `X.command('<spec>', '<description>' | false, builder, handler)`. The key is `CLI <first word of the spec>` (`$0`/`*` → `(default)`); the handler's code is the entry point's, as for a REST handler. A computed spec is kept as `{expr}` and marked computed (see 2026-10-26 (3)). `backend.cli` (default true) turns it off. `package.json` `bin` is not read: it usually points to the build output, not the sources.
+  - The yargs form needs a string (or `false`) description, so `redis.command('GET', key, cb)` is not a command.
+  - `.github/workflows/farol.yml` is `examples/workflow.yml` with `./action` (the PR's committed `dist/`, which CI checks against the sources), Go and Python for the helper scenario tests, and no Datadog job. `farol.config.json` at the root: backend surface, no GraphQL, `test/fixtures/**` and `dist/**` excluded.
+  - `@vitest/coverage-v8` as a dev dependency (not runtime: nothing changes in the npm package), with `coverage.include: ['src/**/*.ts']` so files no test loads are reported.
+- **Reason:** user request (dogfooding), and command-line tools are a common shape of TypeScript open source projects.
+
+## 2026-10-26 (5) — GOTOOLCHAIN=local for go list; coverage on failure in the example workflows
+
+- **Problem:** CI failed on every push since 0.1.0: with Go 1.22 installed, the `g6-go-directive` fixture (`go 1.23`) made `go list` try to download the go1.23.0 toolchain (refused by `GOPROXY=off`). The helper's own build ran with `GOTOOLCHAIN=local`, the `go list` of the analyzed repository did not. And farol's first self-review had no coverage: Vitest writes no coverage report after a failing run unless `coverage.reportOnFailure` is set, although the example workflow said a failing run still has one.
+- **Choice:** `GOTOOLCHAIN=local` in every go command (helper `goEnv` and `lang-workspace`): a module that needs a newer Go fails closed (`unknown`, with Go's message). CI installs Go 1.23. `--coverage.reportOnFailure` in the example workflows, the README recipes and farol's own workflow (and `reportOnFailure: true` in vitest.config.ts).
+- **Reason:** `analyze` never touches the network; and a failing test must not turn into "nothing is tested".
+
+## 2026-10-26 (6) — Review of PR #7 (Copilot)
+
+- **Computed paths:** the helpers no longer match every computed expression against every route key (a computed `{id}` marked the literal `GET /{id}` as computed). The braces of a computed path carry a NUL mark (no route path holds one), turned into the entry's `computed` flag and stripped from the key. Scenarios p12 and g11 now use a computed expression whose text is a literal path parameter of the same file.
+- **TypeScript REST:** `router.route(path('x')).get(handler)` keeps the computed path too (the chained form dropped it).
+- **Coverage, files left out by the project:** an all-zero file is no proof on its own (a module that loaded but whose functions never ran is one). The proof is a file where nothing ran, not even a statement that runs on load: an Istanbul statement outside every function, Vitest's `(empty-report)` function (its mark for a file of `coverage.include` it never loaded), or any coverage.py line (a module that loads runs its import and def lines).
+- **Self-review workflow:** the job that runs the pull request's own `./action` has a read-only token; it writes the comment with `farol report` (now with `--since-in` / `--since-report-url`, like `comment`), and a separate `comment` job, which runs no code of the pull request, posts the file with `gh pr comment`.
+- **Not changed:** `needs: [tests]` with `if: !cancelled() && …` does run after failed tests (`cancelled()` is a status function, so the default `success()` does not apply); the first run of this pull request shows it: tests failed, the farol job ran.
+
+## 2026-10-26 (7) — Syntax highlighting in the report's diffs; full width
+
+- **Choice:** `assets/report/wb-highlight.js`, a line tokenizer written for the report (no library): comments, strings, keywords, literals, numbers, types (capitalized names), calls and Python decorators, for TypeScript/JavaScript, Go, Python and GraphQL by file extension; other files stay plain. An open block comment or multi-line string carries to the next line, with one state per side of the diff (context lines feed both). Colors are theme tokens (`--t-*`, light and dark). The main area drops its 1,100px cap; paragraphs keep a 100ch measure.
+- **Reason:** user request. A highlighting library (highlight.js, Prism) would add a dependency and tens of kilobytes to every report for what diff review needs: telling code, strings and comments apart at a glance.
+
+## 2026-10-26 (8) — Second review of PR #7 (Copilot)
+
+- **Self-review workflow:** a `pull_request` workflow is defined by the pull request itself (same-repository PRs), so a write token in any of its jobs is in reach of the PR. `farol.yml` now has no write permission at all; it uploads the comment and the PR number, and `farol-comment.yml` (`workflow_run`, always the default branch's version) posts it, after checking that the number is a number and that the pull request is still at the commit the run analyzed. Fork pull requests get the comment too. It only takes effect once on the default branch.
+- **Computed paths, where they are computed:** the helpers' mark now carries the file and line of each computed expression, and the entry lists them all (`computed: [{file, line}]`). A computed router prefix is reported at its `include_router`/`Route`/`Group` call, and an existing route is `unknown` when any file that computes its path changed (scenario p13: only the body of the prefix function changed).
+- **Coverage:** an Istanbul file without `fnMap` gives no proof that it never loaded.
+- **`.farol.json`:** `report.sinceIn` and `report.sinceReportUrl`, `sinceIn` relative to the file.
+- **Not changed:** an all-zero file with a top-level conditional is no false proof: the proof needs every statement at 0, and the `if` itself runs on load. File-less score items are one group each in `scoreGroups` (a contract change and a vulnerable dependency are two parts, both in Must check); a test covers it.
+

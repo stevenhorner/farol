@@ -73,8 +73,8 @@ describe('html report', () => {
     const html = renderHtml(golden('signals-coverage-lint'))
     expect(html).toMatch(/^<!doctype html>/)
     expect(html).not.toMatch(/(src|href)="https?:/)
-    // Five scripts: the Details page (JSON), the view model and texts, and the three browser scripts.
-    expect(html.match(/<script/g)).toHaveLength(5)
+    // Six scripts: the Details page (JSON), the view model and texts, and the four browser scripts.
+    expect(html.match(/<script/g)).toHaveLength(6)
     expect(html).toContain('id="theme"')
     const { D } = workbenchOf(html)
     expect(D.verdict).toMatch(/^(pass|quick|careful)$/)

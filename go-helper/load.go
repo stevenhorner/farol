@@ -50,7 +50,7 @@ type pkg struct {
 // goEnv is the environment of every go command: no network, no toolchain download, no cgo, no workspace.
 func goEnv() []string {
 	env := os.Environ()
-	return append(env, "GOPROXY=off", "GOFLAGS=", "CGO_ENABLED=0", "GOWORK=off")
+	return append(env, "GOPROXY=off", "GOTOOLCHAIN=local", "GOFLAGS=", "CGO_ENABLED=0", "GOWORK=off")
 }
 
 // listPackages runs `go list -deps` in dir: dependencies come before the packages that import them.

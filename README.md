@@ -186,7 +186,7 @@ React Router route tables (object and JSX forms, lazy routes, split route module
 ```
 
 ```sh
-npx vitest run --coverage.enabled --coverage.reporter=json --coverage.reportsDirectory=reports/coverage
+npx vitest run --coverage.enabled --coverage.reportOnFailure --coverage.reporter=json --coverage.reportsDirectory=reports/coverage
 npx eslint -f json -o reports/eslint.json <changed files>
 npm audit --json > reports/audit.json                     # or pnpm audit --json
 
@@ -313,7 +313,7 @@ matching rules are in the [reference](docs/reference.md#traffic-and-errors-from-
 
 | | TypeScript / React frontends | TypeScript / JavaScript backends | Go | Python |
 |---|---|---|---|---|
-| **Entry points** | React Router route tables (object and JSX forms, lazy routes, split route modules); Next.js Pages and App Router (pages, API routes, layouts, middleware); TanStack Router file-based routes | GraphQL root operations (schema files and `gql` templates) and REST endpoints (Fastify/Express style) | chi, gin, echo and net/http routes; gRPC service methods; `main` binaries | FastAPI and Flask routes (routers, blueprints, prefixes); Django URLs; MCP tools, resources and prompts; Celery tasks; Temporal workflows and activities; Prefect flows; `__main__` scripts |
+| **Entry points** | React Router route tables (object and JSX forms, lazy routes, split route modules); Next.js Pages and App Router (pages, API routes, layouts, middleware); TanStack Router file-based routes | GraphQL root operations (schema files and `gql` templates), REST endpoints (Fastify/Express style) and command-line commands (commander, cac, yargs) | chi, gin, echo and net/http routes; gRPC service methods; `main` binaries | FastAPI and Flask routes (routers, blueprints, prefixes); Django URLs; MCP tools, resources and prompts; Celery tasks; Temporal workflows and activities; Prefect flows; `__main__` scripts |
 | **Reach precision** | per declaration (TypeScript type checker) | per module, per resolver for GraphQL | per declaration (`go/types`, interface calls resolved to implementations) | per declaration (Python `ast` with local type inference) |
 | **Contract changes** | — | GraphQL schema (breaking / dangerous / safe) | Handler request and response types (net/http, chi, gin, echo); gRPC messages | FastAPI parameters, body, response and Pydantic models |
 | **Dependencies** | `package.json` + npm/pnpm/yarn/bun lockfiles | same | `go.mod` + `go.sum` | `pyproject.toml` (PEP 621, extras, groups, uv, Poetry), `requirements.txt` + `uv.lock`/`poetry.lock`/`Pipfile.lock` |
@@ -328,10 +328,15 @@ In every language: environment, infrastructure and CI files (`.env*`, Dockerfile
 terraform…) in a section of their own; incremental analysis since any commit (`--since`); suggested reviewers from
 git blame and CODEOWNERS; reports as a GitHub comment, Markdown or a single-file HTML page.
 
+farol reviews its own pull requests with [`.github/workflows/farol.yml`](.github/workflows/farol.yml): a TypeScript
+command-line tool, with `"surface": "backend"` and its commands (`analyze`, `html`, `comment`…) as the entry points.
+
 ## Reading the review
 
-farol produces two things: a **PR comment** with the verdict, the riskiest files and a test checklist, and a
-**single-file HTML report** (linked from the comment) where the review happens. The report is a workbench: the left
+farol produces two things: a **PR comment** and a **single-file HTML report** (linked from the comment) where the
+review happens. The comment is the report's summary in Markdown and counts the same way: merge risk and verdict,
+where the risk comes from, **Must check** as a task list, the **High** and **Medium** files with their share of the
+score, and how much new code is tested; every other signal sits in a collapsed *All signals* block. The report is a workbench: the left
 rail holds the risk that is left and what to read next, the main area shows what you picked.
 
 <p align="center"><img alt="A file in the farol report: a security finding to check, the file's share of the score, its coverage and the diff with the untested lines marked" src="docs/images/report-file.png" width="900"></p>
@@ -380,9 +385,19 @@ a compatible minor or patch little.
 ### How much of the new code is tested
 
 On the summary, collapsed: the share of changed executable lines that ran in your tests, file by file, with the lines
-that never ran. Files the coverage report never saw are listed apart: no test loaded them, which often means they are
-excluded on purpose (types, constants, translations), so check before reading them as gaps. Without a coverage
-report the line says so; it never counts as tested.
+that never ran. A changed file missing from the coverage report counts as untested, except:
+
+- a file that only declares things (types, static constants): nothing for a test to run;
+- a file your coverage settings leave out: when the report shows that it lists files no test loaded, a file missing
+  from it was excluded on purpose (migrations, generated code, config). farol sees that in Vitest reports with
+  `coverage.include` (they mark such files), in coverage.py reports with `source`, and in Jest/Istanbul reports with
+  `collectCoverageFrom` when one of the unloaded files has code that runs on load (a top-level statement; a file of
+  functions only proves nothing). Without that proof, and always for Go profiles (they leave out packages without
+  tests), a missing file stays untested;
+- a file in `signals.coverageIgnore`.
+
+The last two are listed as *left out of coverage on purpose*: neither tested nor untested, they keep half of their
+risk. Without a coverage report the line says so; it never counts as tested.
 
 ### Can affect
 

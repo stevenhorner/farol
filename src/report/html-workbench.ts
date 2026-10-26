@@ -21,7 +21,7 @@ function asset(name: string): string {
 }
 
 /** Browser scripts of the workbench, in load order (they share the page's global scope). */
-const SCRIPTS = ['report/wb-core.js', 'report/wb-views.js', 'report/wb-pages.js'] as const
+const SCRIPTS = ['report/wb-highlight.js', 'report/wb-core.js', 'report/wb-views.js', 'report/wb-pages.js'] as const
 
 /**
  * The HTML report: a review workbench. The side rail holds the live merge risk, what must be checked by hand and the

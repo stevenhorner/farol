@@ -19,7 +19,7 @@ export const FarolFileSchema = z
     cwd: str.optional(),
     verbose: z.boolean().optional(),
     analyze: z.object({ base: str, head: str, coverage: str, eslint: str, out: str, ignore: globs, coverageIgnore: globs, audit: str, usage: str, pr, since: str, reviewers: z.boolean(), cacheDir: str, cache: z.boolean() }).partial().strict().optional(),
-    report: z.object({ in: str, repo: str, pr, reportUrl: str, reviewers: str }).partial().strict().optional(),
+    report: z.object({ in: str, repo: str, pr, reportUrl: str, reviewers: str, sinceIn: str, sinceReportUrl: str }).partial().strict().optional(),
     html: z.object({ in: str, out: str, repo: str, pr, reviewers: str }).partial().strict().optional(),
     comment: z.object({ in: str, pr, repo: str, reportUrl: str, reviewers: str, new: z.boolean(), sinceIn: str, sinceReportUrl: str }).partial().strict().optional(),
     routes: z.object({ ref: str }).partial().strict().optional(),
@@ -38,7 +38,7 @@ export type CommandName = 'analyze' | 'report' | 'html' | 'comment' | 'routes' |
 const PATH_KEYS: Record<CommandName | 'global', readonly string[]> = {
   global: ['config', 'cwd'],
   analyze: ['coverage', 'eslint', 'audit', 'usage', 'out', 'cacheDir'],
-  report: ['in', 'reviewers'],
+  report: ['in', 'reviewers', 'sinceIn'],
   html: ['in', 'out', 'reviewers'],
   comment: ['in', 'reviewers', 'sinceIn'],
   routes: [],

@@ -27,7 +27,7 @@ describe('analyze + report through the built binary', () => {
     expect(r.stdout.startsWith('<!-- farol -->\n')).toBe(true)
     expect(r.stdout).toContain('- **Diff coverage:** 44.4% (4 of 9 changed executable lines covered)')
     expect(r.stdout).toContain('- **Lint on changed lines:** 1 error, 1 warning')
-    const [signals, details] = r.stdout.split('<details>')
+    const [signals = '', details = ''] = r.stdout.split('<summary>Classification')
     // format.ts only gains functions (declaration-level additive) and discount.ts is new: nothing existing changed.
     expect(signals).not.toContain('isolated')
     expect(details).toContain('**Class:** `isolated`')

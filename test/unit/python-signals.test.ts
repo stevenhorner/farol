@@ -9,9 +9,9 @@ describe('Python reports', () => {
     const text = JSON.stringify({ meta: { version: '7' }, files: { 'src/a.py': { executed_lines: [1, 2], missing_lines: [3] } } })
     expect(isCoveragePyReport(text)).toBe(true)
     expect(parseCoveragePyReport(text, '/repo', 'svc').get('svc/src/a.py')).toEqual([
-      { start: 1, end: 1, count: 1 },
-      { start: 2, end: 2, count: 1 },
-      { start: 3, end: 3, count: 0 },
+      { start: 1, end: 1, count: 1, onLoad: true },
+      { start: 2, end: 2, count: 1, onLoad: true },
+      { start: 3, end: 3, count: 0, onLoad: true },
     ])
   })
 

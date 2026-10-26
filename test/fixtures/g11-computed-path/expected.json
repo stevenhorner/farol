@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "surface": "backend",
+  "tool": {
+    "name": "farol",
+    "version": "<version>"
+  },
+  "repo": null,
+  "pr": null,
+  "base": {
+    "ref": "main",
+    "sha": "<base>"
+  },
+  "mergeBase": "<base>",
+  "head": {
+    "ref": "feature",
+    "sha": "<head>"
+  },
+  "analyzedAt": "2026-01-15T12:00:00.000Z",
+  "classification": "unknown",
+  "reasons": [
+    {
+      "code": "dynamic-route",
+      "file": "cmd/api/main.go",
+      "detail": "line 20: ANY {id}: path computed at run time"
+    },
+    {
+      "code": "declarations-additive",
+      "file": "cmd/api/main.go",
+      "detail": "only additions: new entry points ANY {id}; new declarations cmd/api.id, cmd/api.route"
+    },
+    {
+      "code": "declarations-additive",
+      "file": "internal/api/handler.go",
+      "detail": "only additions: new declarations internal/api.(Handler).CountBrands"
+    },
+    {
+      "code": "route-added",
+      "detail": "new entry point ANY {id} (registered in cmd/api/main.go)"
+    }
+  ],
+  "files": [
+    {
+      "path": "cmd/api/main.go",
+      "status": "modified",
+      "role": "source",
+      "linesAdded": 7,
+      "linesRemoved": 0,
+      "additive": true
+    },
+    {
+      "path": "internal/api/handler.go",
+      "status": "modified",
+      "role": "source",
+      "linesAdded": 4,
+      "linesRemoved": 0,
+      "additive": true
+    }
+  ],
+  "ignoredFiles": [],
+  "dependencies": {
+    "manifests": [],
+    "lockfiles": [],
+    "changes": [],
+    "summary": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "patch": 0,
+      "added": 0,
+      "removed": 0
+    }
+  },
+  "risk": {
+    "totalPages": 5,
+    "files": [
+      {
+        "path": "internal/api/handler.go",
+        "change": "additive",
+        "level": "low",
+        "directImporters": 1,
+        "transitiveDependents": 1,
+        "centrality": 0.167,
+        "pagesReached": 0,
+        "routesReached": 0,
+        "why": "additive change: nothing that existed changed"
+      },
+      {
+        "path": "cmd/api/main.go",
+        "change": "additive",
+        "level": "low",
+        "directImporters": 0,
+        "transitiveDependents": 0,
+        "centrality": 0,
+        "pagesReached": 0,
+        "routesReached": 0,
+        "why": "additive change: nothing that existed changed"
+      }
+    ],
+    "summary": {
+      "high": 0,
+      "medium": 0,
+      "low": 2
+    }
+  },
+  "routes": {
+    "added": [
+      {
+        "key": "ANY {id}",
+        "path": "ANY {id}",
+        "entry": "cmd/api/main.go",
+        "hasChildren": false
+      }
+    ],
+    "affected": [],
+    "disconnectedNewFiles": []
+  },
+  "signals": {
+    "coverage": {
+      "status": "not-provided",
+      "message": "no coverage report given (--coverage or signals.coverage)",
+      "files": [],
+      "total": null,
+      "ignoredFiles": []
+    },
+    "lint": {
+      "status": "not-provided",
+      "message": "no golangci-lint report given (--eslint or signals.eslint)",
+      "changedLines": null,
+      "otherLines": null,
+      "findings": [],
+      "omittedFindings": 0
+    },
+    "security": {
+      "status": "not-provided",
+      "findings": [],
+      "summary": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "message": "Go files are checked by gosec: give a golangci-lint JSON report (with gosec enabled) as the lint report"
+    },
+    "vulnerabilities": {
+      "status": "not-provided",
+      "message": "no audit report given (--audit or signals.audit)",
+      "related": [],
+      "total": null
+    },
+    "suppressions": {
+      "status": "ok",
+      "items": []
+    },
+    "testsModified": {
+      "status": "ok",
+      "files": []
+    }
+  },
+  "diagnostics": {
+    "unresolvedImports": [],
+    "dynamicRoutes": [
+      {
+        "file": "cmd/api/main.go",
+        "line": 20,
+        "detail": "ANY {id}: path computed at run time"
+      }
+    ],
+    "parseErrors": [],
+    "timingsMs": {
+      "diff": 0,
+      "helperSetup": 0,
+      "helperRead": 0,
+      "base": 0,
+      "classify": 0,
+      "signals": 0,
+      "diffs": 0
+    },
+    "error": null
+  },
+  "review": null,
+  "contracts": {
+    "readable": 4,
+    "entries": [],
+    "summary": {
+      "breaking": 0,
+      "dangerous": 0,
+      "safe": 0
+    }
+  }
+}

@@ -14,6 +14,17 @@ afterAll(() => {
 /** Expected class and affected entry points per Go scenario (stdlib-only module, net/http routes); full output is golden. */
 const SCENARIOS: Record<string, { classification: Output['classification']; affected: string[]; check?: (o: Output) => void }> = {
   // A new route and a new handler method: main() only gains a registration, so nothing that existed changed.
+  // A new route whose pattern is computed (issue #6): farol cannot tell which URL it takes (it may take an existing
+  // one), so the PR is unknown instead of isolated. Its expression reads `{id}`, like the literal pattern of
+  // GET /brands/{id} in the same file: only the computed one is marked.
+  'g11-computed-path': {
+    classification: 'unknown',
+    affected: [],
+    check: (o) => {
+      expect(o.reasons.filter((r) => r.code === 'dynamic-route').map((r) => r.file)).toEqual(['cmd/api/main.go'])
+      expect(o.diagnostics.dynamicRoutes.map((d) => d.detail)).toEqual(['ANY {id}: path computed at run time'])
+    },
+  },
   'g1-new-endpoint': {
     classification: 'isolated',
     affected: [],

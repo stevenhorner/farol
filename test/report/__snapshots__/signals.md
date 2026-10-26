@@ -1,11 +1,22 @@
 <!-- farol -->
-### farol · PR reading (shadow mode)
+### farol · merge risk 8/100 (low) · ◐ quick review
 
-Signals computed on the lines this PR changes. farol only informs: it never approves or blocks.
+Most of the risk comes from a lint error in `format.ts` and `discount.ts`, new code not used by existing pages. 2 code files changed; 0 of 4 existing pages run changed code.
 
-- **Review:** ◐ quick review — diff coverage 44%; 1 lint error(s) on changed lines
-  - `src/lib/format.ts` risk 6 · 67% of changed lines covered
-- **Merge risk score:** 8/100 (low; higher is riskier)
+<sub>farol only informs: it never approves or blocks.</sub>
+
+**Must check** (by hand, before approving)
+- [ ] Lint error at `format.ts:9`: `no-magic-numbers`, No magic number: 100. — **5**
+
+**Files by risk** (points are each part's share of the 8)
+- 2 files to skim: 3 points together
+
+**New code tested:** 44% (4 of 9 changed lines), 67% without 1 file not in the coverage report
+
+<details>
+<summary>All signals</summary>
+
+- **Why this review:** diff coverage 44%; 1 lint error(s) on changed lines
 - **Risk:** 0 high, 0 medium, 2 low
 - **Vulnerabilities in added or changed dependencies:** not verified
 - **Diff coverage:** 44.4% (4 of 9 changed executable lines covered) — uncovered ranges:
@@ -16,6 +27,8 @@ Signals computed on the lines this PR changes. farol only informs: it never appr
   - `src/lib/format.ts:14` warning `no-nested-ternary`: Do not nest ternary expressions.
 - **Added suppressions:** none
 - **Modified existing tests:** none
+
+</details>
 
 <details>
 <summary>Classification — open only after reviewing</summary>

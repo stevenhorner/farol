@@ -12,6 +12,8 @@ export interface ScoreItem {
   kind: 'change' | 'infra' | 'security' | 'lint' | 'suppression' | 'tests' | 'dependency' | 'vulnerability' | 'global' | 'unknown' | 'contract'
   weight: number
   title: string
+  /** Line of a finding (security, lint, suppression). */
+  line?: number
 }
 
 export type ScoreLevel = 'high' | 'medium' | 'low'
@@ -75,6 +77,11 @@ function reachWeight(f: Output['risk']['files'][number], totalPages: number): nu
 export const COVERED_RISK = 0.3
 /** Share kept by a file whose changed lines are all declarations (nothing executable to cover). */
 export const DECLARATIONS_RISK = 0.5
+/**
+ * Share kept by a file left out of coverage on purpose (coverageIgnore, or the project's own coverage settings):
+ * neither tested nor untested, and usually constants, types, migrations or generated code.
+ */
+export const LEFT_OUT_RISK = 0.5
 
 export interface FileCoverage {
   /** Covered share of the changed executable lines, or null when unknown (no report, or no executable line changed). */
@@ -87,6 +94,8 @@ export interface FileCoverage {
 export function fileCoverage(o: Output): Map<string, FileCoverage> {
   const out = new Map<string, FileCoverage>()
   if (o.signals.coverage.status !== 'ok') return out
+  for (const path of o.signals.coverage.ignoredFiles) out.set(path, { ratio: null, factor: LEFT_OUT_RISK, label: 'left out of diff coverage (coverageIgnore)' })
+  for (const path of o.signals.coverage.excludedByProject ?? []) out.set(path, { ratio: null, factor: LEFT_OUT_RISK, label: "left out by the project's coverage settings" })
   for (const f of o.signals.coverage.files) {
     if (f.changedExecutableLines === 0) {
       // Only declarations changed (types, fields, constants): tests cannot cover them, and they rarely break alone.
@@ -102,8 +111,8 @@ export function fileCoverage(o: Output): Map<string, FileCoverage> {
 /** Everything that adds to the merge risk score, heaviest first. Pure: derived from the analysis output only. */
 export function scoreItems(o: Output): ScoreItem[] {
   const items: ScoreItem[] = []
-  const add = (file: string | null, kind: ScoreItem['kind'], weight: number, title: string): void => {
-    if (round(weight) > 0) items.push({ file, kind, weight: round(Math.min(weight, 0.95)), title })
+  const add = (file: string | null, kind: ScoreItem['kind'], weight: number, title: string, line?: number): void => {
+    if (round(weight) > 0) items.push({ file, kind, weight: round(Math.min(weight, 0.95)), title, ...(line === undefined ? {} : { line }) })
   }
   const coverage = fileCoverage(o)
   const coverageNote = o.signals.coverage.status === 'ok' ? 'not measured' : 'coverage not verified'
@@ -126,11 +135,11 @@ export function scoreItems(o: Output): ScoreItem[] {
   // Findings in files outside the project belong to another project's review.
   const outside = new Set(o.files.filter((f) => f.role === 'excluded').map((f) => f.path))
   const security = o.signals.security.findings.filter((s) => !outside.has(s.path))
-  for (const s of security) add(s.path, 'security', SECURITY_WEIGHT[s.severity], `${s.severity} ${s.rule} at line ${s.line}`)
+  for (const s of security) add(s.path, 'security', SECURITY_WEIGHT[s.severity], `${s.severity} ${s.rule} at line ${s.line}`, s.line)
   // A lint error on the line of a security finding is the same problem seen twice (ruff S608 and bandit): counted once.
   const securityLines = new Set(security.map((s) => `${s.path}:${s.line}`))
-  for (const l of o.signals.lint.findings) if (l.severity === 'error' && !outside.has(l.path) && !securityLines.has(`${l.path}:${l.line}`)) add(l.path, 'lint', 0.05, `lint error ${l.rule} at line ${l.line}`)
-  for (const s of o.signals.suppressions.items) if (!outside.has(s.path)) add(s.path, 'suppression', 0.02, `${s.kind} at line ${s.line}`)
+  for (const l of o.signals.lint.findings) if (l.severity === 'error' && !outside.has(l.path) && !securityLines.has(`${l.path}:${l.line}`)) add(l.path, 'lint', 0.05, `lint error ${l.rule} at line ${l.line}`, l.line)
+  for (const s of o.signals.suppressions.items) if (!outside.has(s.path)) add(s.path, 'suppression', 0.02, `${s.kind} at line ${s.line}`, s.line)
   // A deleted or heavily trimmed test may hide a regression; a few removed lines are usual test maintenance.
   for (const t of o.signals.testsModified.files) if (t.linesRemoved > 0) add(t.path, 'tests', t.status === 'deleted' ? 0.1 : t.linesRemoved >= 10 ? 0.05 : 0.02, `existing test ${t.status}, ${t.linesRemoved} line(s) removed`)
   for (const c of o.dependencies.changes) add(c.manifest, 'dependency', dependencyWeight(c), `${c.name} ${c.change}${c.bump ? ` (${c.bump})` : ''}${c.critical ? ', critical' : ''}`)

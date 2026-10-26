@@ -29,6 +29,12 @@ describe('.farol.json', () => {
     expect(output.pr).toBe(7)
     expect(runCli(['html'], { cwd: s.repo.dir }).code).toBe(0)
     expect(readFileSync(join(s.repo.dir, 'out', 'farol.html'), 'utf8')).toContain('https://github.com/acme/shop/pull/7/files#diff-')
+    // report takes the incremental analysis too, like comment (paths relative to the file).
+    s.repo.write('.farol.json', JSON.stringify({ report: { in: 'out/farol.json', sinceIn: 'out/farol.json', sinceReportUrl: 'https://example.com/since.html' } }))
+    const r = runCli(['report'], { cwd: join(s.repo.dir, 'src', 'deep') })
+    expect(r.stderr).toBe('')
+    expect(r.stdout).toContain('Since the last push')
+    expect(r.stdout).toContain('https://example.com/since.html')
   })
 
   it('command-line flags win over the file', () => {

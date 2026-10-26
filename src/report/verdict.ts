@@ -2,7 +2,8 @@ import { posix } from 'node:path'
 import { REASONS } from '../classify/reasons.js'
 import { compareStrings } from '../output/order.js'
 import type { Output } from '../output/schema.js'
-import { fileCoverage, mergeScore, scoreGroups, type FileCoverage } from './merge-score.js'
+import { fileCoverage, mergeScore, type FileCoverage } from './merge-score.js'
+import { reviewParts } from './review-parts.js'
 
 /** How much review a PR needs, from the reviewer's point of view. */
 export type VerdictLevel = 'pass' | 'quick' | 'careful'
@@ -16,7 +17,7 @@ export const START_HERE_MIN_POINTS = 5
 
 export interface FileToReview {
   path: string
-  /** Risk points of the file on its own (0–100), as in the merge score. */
+  /** Risk points of the file's change on its own (0–100); its findings are parts of their own, as in the report. */
   points: number
   change: string | null
   level: 'high' | 'medium' | 'low' | null
@@ -58,7 +59,7 @@ function percent(ratio: number): string {
 export function computeVerdict(o: Output): Verdict {
   const { score, items } = mergeScore(o)
   const coverage = fileCoverage(o)
-  const points = new Map(scoreGroups(items).flatMap((g) => (g.file === null ? [] : [[g.file, g.points] as const])))
+  const points = new Map(reviewParts(items).flatMap((p) => (p.kind === 'file' && p.file !== null ? [[p.file, p.own] as const] : [])))
   const riskOf = new Map(o.risk.files.map((f) => [f.path, f]))
   const entriesOf = new Map<string, Set<string>>()
   const addEntry = (file: string, path: string): void => {

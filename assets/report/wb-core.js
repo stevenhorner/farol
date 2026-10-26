@@ -35,21 +35,26 @@ const isFlagged = (key) => state.flagged.includes(key)
 const flagCovered = (file) => { const keys = FILE_OPS.get(file); return !!keys?.length && keys.every(isFlagged) }
 
 /* Score groups: one per file, one per finding (security, lint: checked on their own, not by reviewing the file), and
- * one per item without a file (contract, vulnerable dependency, analysis problems). */
+ * one per item without a file (contract, vulnerable dependency, analysis problems). The PR comment splits the score
+ * the same way (src/report/review-parts.ts). */
 const FINDING_KINDS = new Set(['security', 'lint'])
 const lineOf = (title) => Number(title.match(/at line (\d+)/)?.[1] ?? 0)
 const logOf = (items) => items.reduce((s, it) => s - Math.log(1 - it.weight), 0)
+/* Something farol could not read (a route path computed at run time…): checked by hand, not by reviewing the file. */
+const UNREAD = 'unknown'
 const GROUPS = D.groups.flatMap((g, i) => {
-  const rest = g.items.filter((it) => !(g.file && FINDING_KINDS.has(it.kind)))
+  const rest = g.items.filter((it) => !(g.file && (FINDING_KINDS.has(it.kind) || it.kind === UNREAD)))
   const findings = g.file ? g.items.filter((it) => FINDING_KINDS.has(it.kind)) : []
+  const unread = g.file ? g.items.filter((it) => it.kind === UNREAD) : []
   return [
     ...(rest.length ? [{ file: g.file, items: rest, id: g.file ?? `item:${g.items[0].kind}:${i}`, log: logOf(rest) }] : []),
     ...findings.map((it) => ({ file: null, owner: g.file, items: [it], id: `finding:${it.kind}:${g.file}:${lineOf(it.title)}`, log: logOf([it]) })),
+    ...unread.map((it, j) => ({ file: null, items: [it], id: `unread:${g.file}:${j}`, log: logOf([it]) })),
   ]
 })
 const groupActive = (g) => (g.file ? !isReviewed(g.file) && !flagCovered(g.file) : !isAcked(g.id))
 /** What must be checked by hand, above every file: breaking contracts, security findings, lint errors, vulnerable dependencies. */
-const isMust = (g) => g.owner != null || g.items.every((i) => i.kind === 'contract' || i.kind === 'vulnerability')
+const isMust = (g) => g.owner != null || g.items.every((i) => i.kind === 'contract' || i.kind === 'vulnerability' || i.kind === UNREAD)
 const MUST = GROUPS.filter(isMust)
 /** Removable by the reviewer: files by reviewing them, the rest of Must check by checking it. */
 const groupRemovable = (g) => g.file !== null || isMust(g)
@@ -114,6 +119,7 @@ function riskLede() {
     const it = g.items[0]
     if (it.kind === 'contract') return t(T.lede.contract, { key: `<code>${esc(it.title.match(/of (.+?):/)?.[1] ?? '')}</code>` })
     if (g.owner) return t(it.kind === 'security' ? T.lede.security : T.lede.lint, { file: `<code>${esc(base(g.owner))}</code>` })
+    if (it.kind === UNREAD) return t(T.lede.unknown, { what: esc(it.title.slice(it.title.indexOf(': ') + 2)) })
     if (!g.file) return esc(it.title)
     const code = `<code>${esc(base(g.file))}</code>`
     if (g.items.some((i) => i.kind === 'global')) return t(T.lede.global, { file: code })
@@ -187,6 +193,7 @@ function renderDiff(path, maxLines = 1500) {
   const marks = cf && !cf.missing && cf.total > 0
   const notes = notesOf(path)
   const added = addedLines(path)
+  const lang = langOf(path)
   let rows = ''
   let count = 0
   let inBlock = false
@@ -194,10 +201,17 @@ function renderDiff(path, maxLines = 1500) {
     rows += `<tr class="d-hunk"><td colspan="3">${esc(h.header)}</td></tr>`
     let o = h.oldStart
     let n = h.newStart
+    // What an open comment or string carries to the next line, on each side of the diff (context lines are both).
+    let before = null
+    let after = null
     for (const line of h.lines) {
       if (count++ > maxLines) break
       const kind = line[0]
-      const text = esc(line.slice(1)) || ' '
+      const hl = highlightLine(line.slice(1), lang, kind === '-' ? before : after)
+      if (kind === '-') before = hl.state
+      else if (kind === '+') after = hl.state
+      else before = after = hl.state
+      const text = hl.html || ' '
       if (kind === '+') {
         const unc = marks && inRanges(n, cf.uncovered)
         if (unc && !inBlock) {

@@ -43,8 +43,8 @@ export async function backendImpacts(
     const schema = diffSdl(fileSchema(f.path, before), fileSchema(f.path, after))
     let resolvers: Parameters<typeof backendFileImpact>[2]
     if (isCode && before !== undefined && after !== undefined) {
-      const b = resolverEntries(f.path, before, table.typeFields, ctx.config.backend.rest)
-      const h = resolverEntries(f.path, after, table.typeFields, ctx.config.backend.rest)
+      const b = resolverEntries(f.path, before, table.typeFields, ctx.config.backend.rest, ctx.config.backend.cli)
+      const h = resolverEntries(f.path, after, table.typeFields, ctx.config.backend.rest, ctx.config.backend.cli)
       if (b.entries.length + h.entries.length > 0) resolvers = { ...diffResolvers(b, h), keys: [...new Set([...b.entries, ...h.entries].map((e) => e.key))] }
     }
     const impact = backendFileImpact(table, schema.added.length + schema.removed.length + schema.changed.length > 0 ? schema : undefined, resolvers)
@@ -57,7 +57,7 @@ export async function backendImpacts(
       const after = (await readFiles(ctx.repoRoot, headSha, [f.path])).get(f.path)
       const schema = diffSdl(null, fileSchema(f.path, after))
       for (const m of schema.added) if (table.rootTypes.has(m.slice(0, m.indexOf('.'))) && m.includes('.')) addedOperations.add(m)
-      if (after !== undefined && !f.path.endsWith('.graphql')) for (const e of resolverEntries(f.path, after, table.typeFields, ctx.config.backend.rest).entries) if (e.key.includes(' ')) addedOperations.add(e.key)
+      if (after !== undefined && !f.path.endsWith('.graphql')) for (const e of resolverEntries(f.path, after, table.typeFields, ctx.config.backend.rest, ctx.config.backend.cli).entries) if (e.key.includes(' ')) addedOperations.add(e.key)
     }
   }
   return { impacts, baseRoutes: { routes: table.operations.filter((r) => !addedOperations.has(r.key)), dynamic: [], sources: [] }, contracts: await schemaContracts(ctx, table, files, baseSha) }

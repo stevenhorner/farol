@@ -11,6 +11,12 @@ export interface RouteEntry {
   modules: string[]
   /** Entry modules of the ancestor routes that have a component, from the root down. */
   layouts: string[]
+  /**
+   * Where each part of a path computed at run time is written (backends: the route's registration, a router prefix):
+   * the key holds the expression in braces, so farol cannot tell which URL it takes. New, or with a part in a changed
+   * file, it makes the PR `unknown` (see classify).
+   */
+  computed?: DynamicRoute[]
 }
 
 /** A construct the adapter does not understand: it makes the PR `unknown`. */

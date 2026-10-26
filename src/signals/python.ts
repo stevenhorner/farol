@@ -7,7 +7,7 @@ import { ReportError } from './coverage.js'
 import type { LintMessage } from './lint.js'
 import { reportPathToRepo } from './paths.js'
 
-type Statements = { start: number; end: number; count: number }[]
+type Statements = { start: number; end: number; count: number; onLoad?: true }[]
 
 function json(text: string, label: string): unknown {
   try {
@@ -35,7 +35,9 @@ export function parseCoveragePyReport(text: string, repoRoot: string, projectPre
   for (const [file, entry] of Object.entries(parsed.data.files)) {
     const path = reportPathToRepo(file, repoRoot, projectPrefix, canonical)
     if (path === undefined) continue
-    result.set(path, [...entry.executed_lines.map((l) => ({ start: l, end: l, count: 1 })), ...entry.missing_lines.map((l) => ({ start: l, end: l, count: 0 }))])
+    // A Python module that loads runs its import and def lines: a file where no line ran was never imported, so every
+    // line counts as one that runs on load (see listsUnloadedFiles).
+    result.set(path, [...entry.executed_lines.map((l) => ({ start: l, end: l, count: 1, onLoad: true as const })), ...entry.missing_lines.map((l) => ({ start: l, end: l, count: 0, onLoad: true as const }))])
   }
   return result
 }

@@ -43,7 +43,7 @@ jobs:
 
       - name: Tests with coverage
         # Needs @vitest/coverage-v8. Set coverage.include in the Vitest config so files no test loads are reported.
-        run: npx vitest run --coverage.enabled --coverage.reporter=json --coverage.reportsDirectory=reports/coverage
+        run: npx vitest run --coverage.enabled --coverage.reportOnFailure --coverage.reporter=json --coverage.reportsDirectory=reports/coverage
 
       - name: ESLint on the changed files
         if: ${{ !cancelled() }}

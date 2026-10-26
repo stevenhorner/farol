@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest'
 import { OutputSchema } from '../../src/output/schema.js'
 import { renderHtml } from '../../src/report/html.js'
 import { createLinker } from '../../src/report/links.js'
+import { mergeScore } from '../../src/report/merge-score.js'
+import { reviewParts } from '../../src/report/review-parts.js'
 import { ASSETS } from '../../src/report/html-assets.js'
 import { detailsOf, workbenchOf } from '../helpers/html.js'
 import { FIXTURES_DIR } from '../helpers/repo.js'
@@ -46,11 +48,23 @@ describe('review workbench', () => {
   })
 
   it('ships browser scripts that parse, in the order they share their names', () => {
-    const scripts = ['report/wb-core.js', 'report/wb-views.js', 'report/wb-pages.js'].map((name) => ASSETS[name] ?? '')
+    const scripts = ['report/wb-highlight.js', 'report/wb-core.js', 'report/wb-views.js', 'report/wb-pages.js'].map((name) => ASSETS[name] ?? '')
     // eslint-disable-next-line @typescript-eslint/no-implied-eval -- a syntax check, never called
     expect(() => new Function(scripts.join('\n'))).not.toThrow()
     const html = renderHtml(golden('p10-contracts'))
     expect(html.indexOf(scripts[0] ?? '')).toBeLessThan(html.indexOf(scripts[1] ?? ''))
     expect(html.indexOf(scripts[1] ?? '')).toBeLessThan(html.indexOf(scripts[2] ?? ''))
+  })
+
+  it('splits the score into the same parts and points as the PR comment', () => {
+    for (const scenario of ['p10-contracts', 'signals-coverage-lint', '05-shared-component']) {
+      const o = golden(scenario)
+      const out = { ...o, signals: { ...o.signals, security: { ...o.signals.security, findings: (o.files[0] ? [{ path: o.files[0].path, line: 3, severity: 'high' as const, rule: 'bandit' as const, message: 'S608 sql', text: 'q' }] : []) } } }
+      // eslint-disable-next-line @typescript-eslint/no-implied-eval -- runs the page's own core script on its data
+      const run = new Function('window', 'localStorage', 'document', `${ASSETS['report/wb-core.js'] ?? ''}\nreturn { GROUPS, POINTS0 }`) as (w: unknown, s: unknown, d: unknown) => { GROUPS: { id: string }[]; POINTS0: Map<string, number> }
+      const { GROUPS, POINTS0 } = run({ FAROL: workbenchOf(renderHtml(out)) }, { getItem: () => null, setItem: () => undefined }, { addEventListener: () => undefined })
+      const page = GROUPS.map((g) => POINTS0.get(g.id) ?? 0).sort((a, b) => b - a)
+      expect(reviewParts(mergeScore(out).items).map((p) => p.points).sort((a, b) => b - a)).toEqual(page)
+    }
   })
 })

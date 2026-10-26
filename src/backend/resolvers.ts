@@ -1,6 +1,7 @@
 import ts from 'typescript'
 import { compareStrings, sortedUnique } from '../output/order.js'
 import { parseIsolated } from '../project/parse.js'
+import { cliNodes } from './cli.js'
 import { restNodes } from './rest.js'
 
 /** One resolver of a resolver map: `Type.field` and the code that implements it. */
@@ -66,15 +67,15 @@ export function resolverNodes(sf: ts.SourceFile, typeFields: ReadonlyMap<string,
   return out
 }
 
-/** Entry points defined in a file: GraphQL resolvers (`Type.field`) and REST handlers (`GET /path`). */
-export function entryNodes(sf: ts.SourceFile, typeFields: ReadonlyMap<string, ReadonlySet<string>>, rest: boolean): { key: string; node: ts.Node; value: ts.Node }[] {
-  return [...resolverNodes(sf, typeFields), ...(rest ? restNodes(sf) : [])]
+/** Entry points defined in a file: GraphQL resolvers (`Type.field`), REST handlers (`GET /path`) and CLI commands (`CLI name`). */
+export function entryNodes(sf: ts.SourceFile, typeFields: ReadonlyMap<string, ReadonlySet<string>>, rest: boolean, cli = false): { key: string; node: ts.Node; value: ts.Node; computed?: true }[] {
+  return [...resolverNodes(sf, typeFields), ...(rest ? restNodes(sf) : []), ...(cli ? cliNodes(sf) : [])]
 }
 
 /** Resolver entries of a file, parsed on its own (used for the base and the head of changed files). */
-export function resolverEntries(file: string, code: string, typeFields: ReadonlyMap<string, ReadonlySet<string>>, withRest = true): { entries: ResolverEntry[]; rest: string[]; imports: Set<string> } {
+export function resolverEntries(file: string, code: string, typeFields: ReadonlyMap<string, ReadonlySet<string>>, withRest = true, withCli = false): { entries: ResolverEntry[]; rest: string[]; imports: Set<string> } {
   const { sourceFile: sf } = parseIsolated(file, code)
-  const nodes = entryNodes(sf, typeFields, withRest)
+  const nodes = entryNodes(sf, typeFields, withRest, withCli)
   const entries = nodes.map(({ key, node }) => ({ key, file, line: sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1, text: normalized(node, sf) }))
   // Everything outside the resolver members (helpers, module-level code), for "did anything else change". Imports are
   // compared as bindings: adding one is not a change to what existed.

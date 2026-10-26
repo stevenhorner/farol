@@ -1,0 +1,198 @@
+# farol reviews its own pull requests: the same workflow as examples/workflow.yml, with the action of the pull
+# request itself (./action runs the committed dist/ of the PR, which CI keeps in sync with the sources), so every PR
+# is read by the version it proposes. Its command-line commands are the entry points (farol.config.json).
+# Nothing here can write: it writes the comment as a file, and farol-comment.yml (workflow_run, always the version of
+# the default branch, never the pull request's) posts it. Shadow mode: it comments, it never blocks.
+name: farol
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions: {}
+
+concurrency:
+  group: farol-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # The Go and Python helpers and their scenario tests need both toolchains (standard library only).
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: npm ci
+
+      - name: Tests with coverage
+        # coverage.include in vitest.config.ts: files no test loads are reported as untested.
+        run: npx vitest run --coverage.enabled --coverage.reportOnFailure --coverage.reporter=json --coverage.reportsDirectory=reports/coverage
+
+      - name: ESLint on the changed files
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          mkdir -p reports
+          mapfile -t files < <(git diff --name-only --diff-filter=AMR "$BASE_SHA"...HEAD -- '*.ts' '*.tsx')
+          if [ "${#files[@]}" -gt 0 ]; then
+            npx eslint --no-error-on-unmatched-pattern -f json -o reports/eslint.json "${files[@]}" || true
+          fi
+
+      - name: Dependency audit
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: npm audit --json > reports/audit.json || true
+
+      # A failing test run still has a coverage report: farol shows it either way.
+      - name: Keep the reports for farol
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: farol-reports-${{ github.run_id }}
+          path: reports/
+          if-no-files-found: ignore
+
+  farol:
+    needs: [tests]
+    # After the tests whatever their result, never on drafts.
+    if: ${{ !cancelled() && github.event.pull_request.draft == false }}
+    runs-on: ubuntu-latest
+    # Shadow mode: nothing here can fail CI or block the pull request.
+    continue-on-error: true
+    # Runs the pull request's own farol (./action): read-only, no write token. farol-comment.yml posts what it writes.
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          # The base, the merge-base and the history (suggested reviewers) must be available.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Reports of the other jobs
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: 'farol-reports-${{ github.run_id }}'
+          path: reports
+          merge-multiple: true
+
+      # After a push, also the commits since the previous head of the pull request.
+      - name: Previous push
+        id: since
+        env:
+          ACTION: ${{ github.event.action }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          since=""
+          if [ "$ACTION" = "synchronize" ] && [ -n "$BEFORE" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then since="$BEFORE"; fi
+          echo "sha=$since" >> "$GITHUB_OUTPUT"
+
+      - name: farol analyze
+        uses: ./action
+        with:
+          command: analyze
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha }}
+          coverage: ${{ hashFiles('reports/coverage/coverage-final.json') != '' && 'reports/coverage/coverage-final.json' || '' }}
+          eslint: ${{ hashFiles('reports/eslint.json') != '' && 'reports/eslint.json' || '' }}
+          audit: ${{ hashFiles('reports/audit.json') != '' && 'reports/audit.json' || '' }}
+          out: farol.json
+
+      - name: farol analyze (since the last push)
+        if: steps.since.outputs.sha != ''
+        uses: ./action
+        with:
+          command: analyze
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha }}
+          since: ${{ steps.since.outputs.sha }}
+          coverage: ${{ hashFiles('reports/coverage/coverage-final.json') != '' && 'reports/coverage/coverage-final.json' || '' }}
+          eslint: ${{ hashFiles('reports/eslint.json') != '' && 'reports/eslint.json' || '' }}
+          audit: ${{ hashFiles('reports/audit.json') != '' && 'reports/audit.json' || '' }}
+          out: farol-since.json
+
+      - name: farol reviewers
+        uses: ./action
+        continue-on-error: true
+        with:
+          command: reviewers
+          in: farol.json
+          reviewers-file: reviewers.json
+
+      - name: farol html
+        uses: ./action
+        with:
+          command: html
+          in: farol.json
+          html-out: farol.html
+          reviewers-file: ${{ hashFiles('reviewers.json') != '' && 'reviewers.json' || '' }}
+
+      - name: farol html (since the last push)
+        if: steps.since.outputs.sha != ''
+        uses: ./action
+        with:
+          command: html
+          in: farol-since.json
+          html-out: farol-since.html
+
+      # Single, non-zipped files: the link in the comment opens the report in the browser.
+      - uses: actions/upload-artifact@v7
+        id: upload
+        with:
+          path: farol.html
+          archive: false
+
+      - uses: actions/upload-artifact@v7
+        id: upload-since
+        if: steps.since.outputs.sha != ''
+        with:
+          path: farol-since.html
+          archive: false
+
+      - name: farol report (the comment, as text)
+        env:
+          REPORT_URL: ${{ steps.upload.outputs.artifact-url }}
+          SINCE_SHA: ${{ steps.since.outputs.sha }}
+          SINCE_REPORT_URL: ${{ steps.upload-since.outputs.artifact-url }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          args=(report --in farol.json --pr "$PR" --report-url "$REPORT_URL")
+          if [ -f reviewers.json ]; then args+=(--reviewers reviewers.json); fi
+          if [ -n "$SINCE_SHA" ]; then args+=(--since-in farol-since.json); fi
+          if [ -n "$SINCE_SHA" ] && [ -n "$SINCE_REPORT_URL" ]; then args+=(--since-report-url "$SINCE_REPORT_URL"); fi
+          node dist/cli.js "${args[@]}" > farol-comment.md
+          echo "$PR" > farol-pr.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: farol-comment-${{ github.run_id }}
+          path: |
+            farol-comment.md
+            farol-pr.txt

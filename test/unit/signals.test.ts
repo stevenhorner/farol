@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ChangedFile } from '../../src/git/types.js'
-import { coverageSignal, parseCoverageReport, ReportError } from '../../src/signals/coverage.js'
+import { coverageSignal, listsUnloadedFiles, parseCoverageReport, ReportError } from '../../src/signals/coverage.js'
 import { lintSignal, parseEslintReport } from '../../src/signals/lint.js'
 import { reportPathToRepo, toRanges } from '../../src/signals/paths.js'
 import { testsModifiedSignal } from '../../src/signals/tests-modified.js'
@@ -51,6 +51,50 @@ describe('coverage', () => {
   it('only counts added/modified source code files', () => {
     const files = [changed('src/a.ts', [1], 'renamed'), changed('src/b.css', [1]), changed('src/c.test.ts', [1]), changed('src/d.d.ts', [1])]
     expect(coverageSignal(report, files, (p) => (p.includes('.test.') ? 'test' : 'source')).files).toEqual([])
+  })
+
+  it('leaves out files the project excludes from coverage, and does not count declarations-only files as untested', () => {
+    const files = [changed('src/a.ts', [1, 2]), changed('src/types.ts', [1, 2, 3]), changed('src/gen.ts', [1, 2])]
+    const missing = coverageSignal(report, files, () => 'source', () => false, { declarationsOnly: (p) => p === 'src/types.ts' })
+    expect(missing.files.map((f) => [f.path, f.changedExecutableLines, f.missingFromReport])).toEqual([['src/a.ts', 2, false], ['src/gen.ts', 2, true], ['src/types.ts', 0, false]])
+    const excluded = coverageSignal(report, files, () => 'source', () => false, { missingIsExcluded: true, declarationsOnly: (p) => p === 'src/types.ts' })
+    expect(excluded.excludedByProject).toEqual(['src/gen.ts'])
+    expect(excluded.files.map((f) => f.path)).toEqual(['src/a.ts', 'src/types.ts'])
+  })
+
+  it('tells a report that lists files no test loaded from one that only lists loaded files', () => {
+    expect(listsUnloadedFiles(report)).toBe(false)
+    // Nothing ran, not even code that runs on load: the module never loaded, so the report lists unloaded files.
+    expect(listsUnloadedFiles(new Map([...report, ['src/never.ts', [{ start: 1, end: 1, count: 0, onLoad: true }]]]))).toBe(true)
+    // A module that loaded but whose functions never ran, and an empty module (an __init__.py), prove nothing.
+    expect(listsUnloadedFiles(new Map([...report, ['src/idle.ts', [{ start: 2, end: 2, count: 0 }]]]))).toBe(false)
+    expect(listsUnloadedFiles(new Map([...report, ['src/empty.ts', []]]))).toBe(false)
+  })
+
+  it('marks Istanbul statements outside every function as running on load', () => {
+    const parsed = parseCoverageReport(
+      JSON.stringify({ '/repo/src/b.ts': { path: '/repo/src/b.ts', statementMap: { '0': { start: { line: 1 }, end: { line: 1 } }, '1': { start: { line: 3 }, end: { line: 3 } } }, s: { '0': 0, '1': 0 }, fnMap: { '0': { loc: { start: { line: 2 }, end: { line: 4 } } } } } }),
+      '/repo',
+      '',
+    )
+    expect(parsed.get('src/b.ts')?.map((x) => x.onLoad ?? false)).toEqual([true, false])
+    // Jest marks nothing: a never-loaded file of functions only cannot be told from a loaded one, so it is no proof.
+    const jest = parseCoverageReport(
+      JSON.stringify({ '/repo/src/e.ts': { path: '/repo/src/e.ts', statementMap: { '0': { start: { line: 2 }, end: { line: 2 } } }, s: { '0': 0 }, fnMap: { '0': { name: 'f', loc: { start: { line: 1 }, end: { line: 3 } } } } } }),
+      '/repo',
+      '',
+    )
+    expect(listsUnloadedFiles(jest)).toBe(false)
+    // Without fnMap nothing is known to run on load.
+    const bare = parseCoverageReport(JSON.stringify({ '/repo/src/d.ts': { path: '/repo/src/d.ts', statementMap: { '0': { start: { line: 1 }, end: { line: 1 } } }, s: { '0': 0 } } }), '/repo', '')
+    expect(listsUnloadedFiles(bare)).toBe(false)
+    // Vitest's v8 provider: a file it never loaded is one "(empty-report)" function over the whole file.
+    const vitest = parseCoverageReport(
+      JSON.stringify({ '/repo/src/c.ts': { path: '/repo/src/c.ts', statementMap: { '0': { start: { line: 2 }, end: { line: 2 } } }, s: { '0': 0 }, fnMap: { '0': { name: '(empty-report)', loc: { start: { line: 1 }, end: { line: 9 } } } } } }),
+      '/repo',
+      '',
+    )
+    expect(listsUnloadedFiles(vitest)).toBe(true)
   })
 
   it('rejects files that are not Istanbul JSON', () => {

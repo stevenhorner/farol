@@ -31,6 +31,27 @@ const SCENARIOS: Record<string, { classification: Output['classification']; affe
       expect(o.routes.affected[0]?.key).toBe('GET /api/v1/{brand_id}')
     },
   },
+  // A new route whose path is computed (issue #6): FastAPI serves it before GET /brands/{brand_id}, which it shadows;
+  // farol cannot tell which URL it takes, so the PR is unknown instead of isolated. Its expression reads `{brand_id}`,
+  // like the literal path of the existing route: only the computed one is marked.
+  'p12-computed-path': {
+    classification: 'unknown',
+    affected: [],
+    check: (o) => {
+      expect(o.reasons.filter((r) => r.code === 'dynamic-route').map((r) => [r.file, r.detail])).toEqual([['src/shop/routers/brands.py', 'line 17: GET /brands{brand_id}: path computed at run time']])
+      expect(o.diagnostics.dynamicRoutes).toHaveLength(1)
+    },
+  },
+  // The brand routes' prefix is computed by a function of main.py; the PR changes only that function: the routes keep
+  // their keys, but their URL may move, so the change is unknown (reported where the prefix is computed).
+  'p13-computed-prefix': {
+    classification: 'unknown',
+    affected: ['GET /health', 'GET /me', 'GET {brands_prefix()}', 'GET {brands_prefix()}/{brand_id}'],
+    check: (o) => {
+      expect(o.reasons.filter((r) => r.code === 'dynamic-route').map((r) => r.file)).toEqual(['src/shop/main.py', 'src/shop/main.py'])
+      expect(o.diagnostics.dynamicRoutes.every((d) => d.line === 12)).toBe(true)
+    },
+  },
   // BrandService.find runs only behind GET /brands/{brand_id} (service.find resolved by method name).
   'p2-service-changed': { classification: 'touches-existing', affected: ['GET /brands/{brand_id}'] },
   // A field of the Brand model: both brand routes (annotations are runtime in FastAPI) and the worker script.
