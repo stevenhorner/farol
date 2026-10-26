@@ -18,6 +18,7 @@ import { createDiskFileSystem } from './disk-fs.js'
 import { defaultCacheDir, loadLangWorkspace, readToml } from './lang-workspace.js'
 import { diffPyproject, diffRequirementsTxt } from '../python/pyproject.js'
 import { UsageError } from '../config/load.js'
+import { isHelperLanguage, isHelperSource } from '../config/languages.js'
 import { EXIT_FAILURE, EXIT_OK, writeStdout } from './run.js'
 import { createAnalysisRoleOf, createIgnoreOf, extractRoutes, filesUnder, loadWorkspace, SOURCE_EXTENSIONS, type Workspace } from './workspace.js'
 import { diffManifest, ManifestParseError, type ManifestDiff } from '../classify/dependencies.js'
@@ -203,18 +204,18 @@ export async function runAnalyze(ctx: Context, options: AnalyzeOptions, deps: An
     let lang: SignalInputs['lang']
     let headRoutes: RouteTable
     let contracts: Output['contracts']
-    if (ctx.config.language !== 'typescript') {
+    const { language } = ctx.config
+    if (isHelperLanguage(language)) {
       const baseRole = createAnalysisRoleOf(ctx, [])
-      const ext = ctx.config.language === 'go' ? '.go' : '.py'
       const cache = options.cache === false ? null : resolve(options.cacheDir ?? defaultCacheDir(deps.env))
-      const langWs = await loadLangWorkspace(ctx, files, mb, meta.head.sha, (p) => p.endsWith(ext) && baseRole(p) === 'source', wsTimings, deps.clock, cache)
+      const langWs = await loadLangWorkspace(ctx, files, mb, meta.head.sha, (p) => isHelperSource(language, p) && baseRole(p) === 'source', wsTimings, deps.clock, cache)
       Object.assign(timings, wsTimings)
       t = deps.clock()
       roleOf = createAnalysisRoleOf(ctx, langWs.graph.nodes)
       const manifests = await manifestDiffs(ctx, files, roleOf, mb, meta.head.sha)
       const headContents = await readFiles(ctx.repoRoot, meta.head.sha, files.filter((f) => f.status !== 'deleted').map((f) => f.path))
       readHead = (path) => headContents.get(path)
-      lang = { language: ctx.config.language, module: langWs.head.module, comments: langWs.head.comments }
+      lang = { language, module: langWs.head.module, comments: langWs.head.comments }
       headRoutes = langWs.headRoutes
       const helperContracts = helperContractChanges(langWs.base, langWs.head)
       contracts = contractsSection(helperContracts.changes, helperContracts.readable)

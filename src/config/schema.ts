@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { HELPER_LANGUAGES, isHelperLanguage, LANGUAGES, type Language } from './languages.js'
 
 const globs = z.array(z.string().min(1, 'glob patterns cannot be empty'))
 
@@ -61,7 +62,10 @@ export const DatadogSchema = z
 type Roles = typeof DEFAULT_ROLES
 
 /** Default roles of each language. */
-const LANGUAGE_ROLES: Record<'typescript' | 'go' | 'python', Roles> = { typescript: DEFAULT_ROLES, go: GO_DEFAULT_ROLES, python: PYTHON_DEFAULT_ROLES }
+const LANGUAGE_ROLES: Record<Language, Roles> = { typescript: DEFAULT_ROLES, go: GO_DEFAULT_ROLES, python: PYTHON_DEFAULT_ROLES }
+
+/** Default `exclude` of each language, used when the configuration sets none. */
+const LANGUAGE_EXCLUDE: Record<Language, string[]> = { typescript: [], go: GO_DEFAULT_EXCLUDE, python: [] }
 
 function rolesWithDefaults(given: Partial<Record<keyof Roles, string[]>>, defaults: Roles): Roles {
   return {
@@ -80,7 +84,7 @@ export const ConfigSchema = z
      * typescript: the TypeScript compiler reads the project; go: the Go toolchain does (a helper built from go-helper/);
      * python: Python's own parser does (py-helper/, run with python3).
      */
-    language: z.enum(['typescript', 'go', 'python']).default('typescript'),
+    language: z.enum(LANGUAGES).default('typescript'),
     python: z
       .object({
         /** Import roots, relative to the project: `src` for a src layout (`from orders_api import x` is src/orders_api/x.py). */
@@ -163,7 +167,7 @@ export const ConfigSchema = z
   })
   .strict()
   .superRefine((config, ctx) => {
-    if (config.language !== 'typescript' && config.surface !== 'backend') ctx.addIssue({ code: 'custom', path: ['surface'], message: `a ${config.language === 'go' ? 'Go' : 'Python'} project is a backend: set "surface": "backend"` })
+    if (isHelperLanguage(config.language) && config.surface !== 'backend') ctx.addIssue({ code: 'custom', path: ['surface'], message: `a ${HELPER_LANGUAGES[config.language].label} project is a backend: set "surface": "backend"` })
     if (config.surface === 'frontend' && config.routes === undefined) ctx.addIssue({ code: 'custom', path: ['routes'], message: 'routes is required for a frontend (routes.file for React Router, or routes.adapter "next" / "tanstack-router"), or set "surface": "backend"' })
   })
   // A backend has no routes file: an empty one keeps the rest of the code uniform.
@@ -173,7 +177,7 @@ export const ConfigSchema = z
     // Every role the configuration leaves out takes the default of the project's language, key by key: setting
     // roles.global in a Python project keeps the Python test globs.
     roles: rolesWithDefaults(config.roles, LANGUAGE_ROLES[config.language]),
-    exclude: config.language === 'go' && config.exclude.length === 0 ? GO_DEFAULT_EXCLUDE : config.exclude,
+    exclude: config.exclude.length === 0 ? LANGUAGE_EXCLUDE[config.language] : config.exclude,
   }))
 
 export type Config = z.infer<typeof ConfigSchema>

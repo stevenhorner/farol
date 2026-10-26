@@ -1,4 +1,5 @@
 import { isDeepStrictEqual } from 'node:util'
+import type { Language } from '../config/languages.js'
 import { compareStrings } from '../output/order.js'
 
 export const DEPENDENCY_SECTIONS = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'] as const
@@ -13,7 +14,7 @@ export const LOCKFILES = new Set(['package-lock.json', 'npm-shrinkwrap.json', 'p
 export const MANIFESTS = new Set(['package.json', 'go.mod', 'pyproject.toml', 'requirements.txt'])
 
 /** Manifests and lockfiles of each language's ecosystem. */
-export const ECOSYSTEM_FILES: Record<'typescript' | 'go' | 'python', ReadonlySet<string>> = {
+export const ECOSYSTEM_FILES: Record<Language, ReadonlySet<string>> = {
   typescript: new Set(['package.json', 'package-lock.json', 'npm-shrinkwrap.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lock', 'bun.lockb']),
   go: new Set(['go.mod', 'go.sum']),
   python: new Set(['pyproject.toml', 'requirements.txt', 'uv.lock', 'poetry.lock', 'Pipfile.lock', 'pdm.lock']),

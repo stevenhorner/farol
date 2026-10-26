@@ -5,6 +5,7 @@ import { homedir, tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { UsageError } from '../config/load.js'
+import { HELPER_LANGUAGES, isHelperLanguage, isHelperSource, type HelperLanguage, type HelperLanguageInfo } from '../config/languages.js'
 import type { BackendFileImpact } from '../backend/impact.js'
 import { exportTree, treeOf } from '../git/index.js'
 import { TOOL_VERSION } from '../output/tool.js'
@@ -45,7 +46,7 @@ function missingTool(error: unknown, message: string): never {
 }
 
 /** Directory of a helper shipped next to dist/ (bundle) or to src/ (tests): go-helper/ or py-helper/. */
-export function helperDir(name: 'go-helper' | 'py-helper'): string {
+export function helperDir(name: HelperLanguageInfo['helper']): string {
   let dir = dirname(fileURLToPath(import.meta.url))
   for (let i = 0; i < 5; i++) {
     if (existsSync(join(dir, name))) return join(dir, name)
@@ -109,12 +110,11 @@ export async function readToml(text: string): Promise<unknown> {
 /** Prints the helper JSON of a tree exported to `dir`. */
 type TreeReader = (dir: string, project: string, comments: readonly string[]) => Promise<string>
 
-async function readerFor(ctx: Context): Promise<{ label: string; version: string; read: TreeReader }> {
-  if (ctx.config.language === 'go') {
+/** How each helper language reads a tree. */
+const READERS: Record<HelperLanguage, (ctx: Context) => Promise<Omit<Reader, 'label' | 'version'>>> = {
+  go: async () => {
     const binary = await goHelperBinary()
     return {
-      label: 'Go',
-      version: sourceHash(helperDir('go-helper')),
       read: async (dir, project, comments) => {
         try {
           return await run(binary, ['-root', dir, '-project', project, ...(comments.length > 0 ? ['-comments', comments.join(',')] : [])], dir, goEnv())
@@ -124,9 +124,23 @@ async function readerFor(ctx: Context): Promise<{ label: string; version: string
         }
       },
     }
-  }
-  const roots = ctx.config.python.roots.join(',')
-  return { label: 'Python', version: sourceHash(helperDir('py-helper')), read: (dir, project, comments) => runPythonHelper(['analyze', '--root', dir, '--project', project, '--roots', roots, '--comments', comments.join(',')], dir) }
+  },
+  python: (ctx) => {
+    const roots = ctx.config.python.roots.join(',')
+    return Promise.resolve({ read: (dir, project, comments) => runPythonHelper(['analyze', '--root', dir, '--project', project, '--roots', roots, '--comments', comments.join(',')], dir) })
+  },
+}
+
+function helperLanguage(ctx: Context): HelperLanguage {
+  const { language } = ctx.config
+  if (!isHelperLanguage(language)) throw new Error('internal: a TypeScript project has no language helper')
+  return language
+}
+
+async function readerFor(ctx: Context): Promise<Reader> {
+  const language = helperLanguage(ctx)
+  const info = HELPER_LANGUAGES[language]
+  return { label: info.label, version: sourceHash(helperDir(info.helper)), ...(await READERS[language](ctx)) }
 }
 
 /** Where helper outputs are kept between runs; null disables the cache. */
@@ -200,10 +214,8 @@ export interface LangWorkspace {
   impacts: Map<string, BackendFileImpact>
 }
 
-const EXTENSIONS = { go: '.go', python: '.py' } as const
-
 /**
- * Reads base and head with the language helper (Go or Python) and computes the declaration-level impact of every
+ * Reads base and head with the language helper and computes the declaration-level impact of every
  * changed source file.
  */
 export async function loadLangWorkspace(ctx: Context, files: readonly ChangedFile[], mergeBaseSha: string, headSha: string, isSource: (path: string) => boolean, timings: Record<string, number>, clock: () => number, cache: CacheDir = null): Promise<LangWorkspace> {
@@ -212,8 +224,8 @@ export async function loadLangWorkspace(ctx: Context, files: readonly ChangedFil
   const { label } = reader
   timings.helperSetup = Math.round(clock() - t)
   t = clock()
-  const ext = ctx.config.language === 'go' ? EXTENSIONS.go : EXTENSIONS.python
-  const changed = files.filter((f) => f.status !== 'deleted' && f.path.endsWith(ext)).map((f) => f.path)
+  const language = helperLanguage(ctx)
+  const changed = files.filter((f) => f.status !== 'deleted' && isHelperSource(language, f.path)).map((f) => f.path)
   const [base, head] = await Promise.all([readTree(ctx, reader, mergeBaseSha, [], cache), readTree(ctx, reader, headSha, changed, cache)])
   timings.helperRead = Math.round(clock() - t)
   ctx.log(`${label}: ${head.files.length} files, ${head.decls.length} declarations, ${head.entries.length} entry points`)

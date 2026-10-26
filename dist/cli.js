@@ -236447,6 +236447,33 @@ function date4(params) {
   return _coercedDate(ZodDate, params);
 }
 
+// src/config/languages.ts
+var LANGUAGES = ["typescript", "go", "python"];
+var HELPER_LANGUAGES = {
+  go: {
+    label: "Go",
+    helper: "go-helper",
+    extensions: [".go"],
+    lintTool: "golangci-lint",
+    securityHint: "Go files are checked by gosec: give a golangci-lint JSON report (with gosec enabled) as the lint report"
+  },
+  python: {
+    label: "Python",
+    helper: "py-helper",
+    extensions: [".py"],
+    lintTool: "ruff",
+    securityHint: "Python files are checked by flake8-bandit: give a ruff JSON report (with the S rules selected) as the lint report"
+  }
+};
+function isHelperLanguage(language) {
+  return language !== "typescript";
+}
+var SCRIPT_EXTENSIONS = [".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs"];
+var HELPER_EXTENSIONS = Object.values(HELPER_LANGUAGES).flatMap((l) => l.extensions);
+function isHelperSource(language, path3) {
+  return HELPER_LANGUAGES[language].extensions.some((e) => path3.endsWith(e));
+}
+
 // src/config/schema.ts
 var globs = external_exports.array(external_exports.string().min(1, "glob patterns cannot be empty"));
 var DEFAULT_INFRA = [
@@ -236519,6 +236546,7 @@ var DatadogSchema = external_exports.object({
   apm: external_exports.object({ service: external_exports.union([ddName, external_exports.array(ddName).min(1)]), operations: external_exports.array(ddName).min(1) }).strict().optional()
 }).strict().refine((d) => d.rum !== void 0 || d.apm !== void 0, { message: "set datadog.rum (pages) or datadog.apm (operations)" });
 var LANGUAGE_ROLES = { typescript: DEFAULT_ROLES, go: GO_DEFAULT_ROLES, python: PYTHON_DEFAULT_ROLES };
+var LANGUAGE_EXCLUDE = { typescript: [], go: GO_DEFAULT_EXCLUDE, python: [] };
 function rolesWithDefaults(given, defaults) {
   return {
     barrel: given.barrel ?? defaults.barrel,
@@ -236534,7 +236562,7 @@ var ConfigSchema = external_exports.object({
    * typescript: the TypeScript compiler reads the project; go: the Go toolchain does (a helper built from go-helper/);
    * python: Python's own parser does (py-helper/, run with python3).
    */
-  language: external_exports.enum(["typescript", "go", "python"]).default("typescript"),
+  language: external_exports.enum(LANGUAGES).default("typescript"),
   python: external_exports.object({
     /** Import roots, relative to the project: `src` for a src layout (`from orders_api import x` is src/orders_api/x.py). */
     roots: external_exports.array(external_exports.string().min(1)).min(1).default(["src", "."])
@@ -236598,7 +236626,7 @@ var ConfigSchema = external_exports.object({
     coverageIgnore: globs.default([])
   }).strict().prefault({})
 }).strict().superRefine((config2, ctx) => {
-  if (config2.language !== "typescript" && config2.surface !== "backend") ctx.addIssue({ code: "custom", path: ["surface"], message: `a ${config2.language === "go" ? "Go" : "Python"} project is a backend: set "surface": "backend"` });
+  if (isHelperLanguage(config2.language) && config2.surface !== "backend") ctx.addIssue({ code: "custom", path: ["surface"], message: `a ${HELPER_LANGUAGES[config2.language].label} project is a backend: set "surface": "backend"` });
   if (config2.surface === "frontend" && config2.routes === void 0) ctx.addIssue({ code: "custom", path: ["routes"], message: 'routes is required for a frontend (routes.file for React Router, or routes.adapter "next" / "tanstack-router"), or set "surface": "backend"' });
 }).transform((config2) => ({
   ...config2,
@@ -236606,7 +236634,7 @@ var ConfigSchema = external_exports.object({
   // Every role the configuration leaves out takes the default of the project's language, key by key: setting
   // roles.global in a Python project keeps the Python test globs.
   roles: rolesWithDefaults(config2.roles, LANGUAGE_ROLES[config2.language]),
-  exclude: config2.language === "go" && config2.exclude.length === 0 ? GO_DEFAULT_EXCLUDE : config2.exclude
+  exclude: config2.exclude.length === 0 ? LANGUAGE_EXCLUDE[config2.language] : config2.exclude
 }));
 
 // src/config/load.ts
@@ -238560,7 +238588,7 @@ import { isAbsolute as isAbsolute3 } from "path";
 
 // src/signals/paths.ts
 import { isAbsolute as isAbsolute2, posix as posix5 } from "path";
-var CODE_EXTENSIONS = /* @__PURE__ */ new Set([".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs", ".go", ".py"]);
+var CODE_EXTENSIONS = /* @__PURE__ */ new Set([...SCRIPT_EXTENSIONS, ...HELPER_EXTENSIONS]);
 function isCodeFile(path3) {
   return CODE_EXTENSIONS.has(posix5.extname(path3)) && !path3.endsWith(".d.ts");
 }
@@ -239541,6 +239569,7 @@ function usageSignal(file2, input2) {
 }
 
 // src/cli/signals.ts
+var LANGUAGE_SUPPRESSIONS = { go: goSuppressions, python: pythonSuppressions };
 function readReport(path3, label2, option) {
   if (path3 === void 0) return { kind: "missing", message: `no ${label2} report given (--${option} or signals.${option})` };
   if (!existsSync2(path3)) return { kind: "missing", message: `${label2} report not found at ${path3}` };
@@ -239564,10 +239593,7 @@ function asError(error62) {
 }
 var SEVERITY_RANK = { high: 0, medium: 1, low: 2 };
 function langSecurity(base, gosec, files, readHead, skip, language) {
-  if (gosec === void 0) {
-    const message = language === "go" ? "Go files are checked by gosec: give a golangci-lint JSON report (with gosec enabled) as the lint report" : "Python files are checked by flake8-bandit: give a ruff JSON report (with the S rules selected) as the lint report";
-    return { ...base, status: "not-provided", message };
-  }
+  if (gosec === void 0) return { ...base, status: "not-provided", message: HELPER_LANGUAGES[language].securityHint };
   const added = new Map(files.map((f) => [f.path, new Set(f.added.map((l) => l.line))]));
   const found = gosec.filter((g) => added.get(g.path)?.has(g.line) && !skip(g.path)).map((g) => ({ ...g, text: (readHead(g.path)?.split("\n")[g.line - 1] ?? "").trim().slice(0, 200) }));
   const findings = [...base.findings, ...found].sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || compareStrings(a.path, b.path) || a.line - b.line);
@@ -239592,7 +239618,7 @@ function computeSignals(ctx, inputs) {
   }
   let lint;
   let gosec;
-  const es = readReport(inputs.eslint, inputs.lang ? inputs.lang.language === "go" ? "golangci-lint" : "ruff" : "ESLint", "eslint");
+  const es = readReport(inputs.eslint, inputs.lang ? HELPER_LANGUAGES[inputs.lang.language].lintTool : "ESLint", "eslint");
   if (es.kind === "missing") lint = lintNotProvided(es.message);
   else if (es.kind === "error") lint = { ...lintNotProvided(es.message), status: "error" };
   else {
@@ -239626,11 +239652,11 @@ function computeSignals(ctx, inputs) {
     const role = inputs.roleOf(path3);
     return role === "test" || role === "story" || role === "excluded";
   };
-  const notGo = inputs.files.filter((f) => !f.path.endsWith(".go") && !f.path.endsWith(".py"));
-  const suppressions = suppressionsSignal(notGo, inputs.readHead);
-  let security = securitySignal(notGo, inputs.readHead, notCode);
+  const scripts = inputs.files.filter((f) => !HELPER_EXTENSIONS.some((e) => f.path.endsWith(e)));
+  const suppressions = suppressionsSignal(scripts, inputs.readHead);
+  let security = securitySignal(scripts, inputs.readHead, notCode);
   if (inputs.lang) {
-    const own2 = inputs.lang.language === "go" ? goSuppressions(inputs.files, inputs.lang.comments) : pythonSuppressions(inputs.files, inputs.lang.comments);
+    const own2 = LANGUAGE_SUPPRESSIONS[inputs.lang.language](inputs.files, inputs.lang.comments);
     suppressions.items = [...suppressions.items, ...own2].sort((a, b) => compareStrings(a.path, b.path) || a.line - b.line);
     security = langSecurity(security, gosec, inputs.files, inputs.readHead, notCode, inputs.lang.language);
   }
@@ -249324,12 +249350,10 @@ function runPythonHelper(args, cwd, input2) {
 async function readToml(text) {
   return JSON.parse(await runPythonHelper(["toml"], tmpdir(), text));
 }
-async function readerFor(ctx) {
-  if (ctx.config.language === "go") {
+var READERS = {
+  go: async () => {
     const binary = await goHelperBinary();
     return {
-      label: "Go",
-      version: sourceHash(helperDir("go-helper")),
       read: async (dir, project, comments) => {
         try {
           return await run(binary, ["-root", dir, "-project", project, ...comments.length > 0 ? ["-comments", comments.join(",")] : []], dir, goEnv());
@@ -249339,9 +249363,21 @@ async function readerFor(ctx) {
         }
       }
     };
+  },
+  python: (ctx) => {
+    const roots = ctx.config.python.roots.join(",");
+    return Promise.resolve({ read: (dir, project, comments) => runPythonHelper(["analyze", "--root", dir, "--project", project, "--roots", roots, "--comments", comments.join(",")], dir) });
   }
-  const roots = ctx.config.python.roots.join(",");
-  return { label: "Python", version: sourceHash(helperDir("py-helper")), read: (dir, project, comments) => runPythonHelper(["analyze", "--root", dir, "--project", project, "--roots", roots, "--comments", comments.join(",")], dir) };
+};
+function helperLanguage(ctx) {
+  const { language } = ctx.config;
+  if (!isHelperLanguage(language)) throw new Error("internal: a TypeScript project has no language helper");
+  return language;
+}
+async function readerFor(ctx) {
+  const language = helperLanguage(ctx);
+  const info = HELPER_LANGUAGES[language];
+  return { label: info.label, version: sourceHash(helperDir(info.helper)), ...await READERS[language](ctx) };
 }
 function defaultCacheDir(env = process.env) {
   return env.FAROL_CACHE_DIR ?? env.REVSCOPE_CACHE_DIR ?? join3(env.XDG_CACHE_HOME ?? join3(homedir(), ".cache"), "farol");
@@ -249386,15 +249422,14 @@ async function readLangTree(ctx, ref, cache = null) {
   if (!parsed.success) throw new Error(`internal: unexpected ${label2} helper output: ${parsed.error.issues[0]?.message ?? ""}`);
   return parsed.data;
 }
-var EXTENSIONS = { go: ".go", python: ".py" };
 async function loadLangWorkspace(ctx, files, mergeBaseSha, headSha, isSource2, timings, clock, cache = null) {
   let t = clock();
   const reader = await readerFor(ctx);
   const { label: label2 } = reader;
   timings.helperSetup = Math.round(clock() - t);
   t = clock();
-  const ext = ctx.config.language === "go" ? EXTENSIONS.go : EXTENSIONS.python;
-  const changed = files.filter((f) => f.status !== "deleted" && f.path.endsWith(ext)).map((f) => f.path);
+  const language = helperLanguage(ctx);
+  const changed = files.filter((f) => f.status !== "deleted" && isHelperSource(language, f.path)).map((f) => f.path);
   const [base, head] = await Promise.all([readTree(ctx, reader, mergeBaseSha, [], cache), readTree(ctx, reader, headSha, changed, cache)]);
   timings.helperRead = Math.round(clock() - t);
   ctx.log(`${label2}: ${head.files.length} files, ${head.decls.length} declarations, ${head.entries.length} entry points`);
@@ -250916,7 +250951,7 @@ var RoutesFileMissingError = class extends Error {
   }
 };
 async function loadWorkspace(ctx, ref, timings, now = () => performance.now()) {
-  if (ctx.config.language !== "typescript") throw new UsageError("internal: the TypeScript workspace was asked for a Go or Python project");
+  if (ctx.config.language !== "typescript") throw new UsageError("internal: the TypeScript workspace was asked for a project read by a language helper");
   let t = now();
   const lap = (name) => {
     const current = now();
@@ -251511,18 +251546,18 @@ async function runAnalyze(ctx, options, deps) {
     let lang;
     let headRoutes;
     let contracts;
-    if (ctx.config.language !== "typescript") {
+    const { language } = ctx.config;
+    if (isHelperLanguage(language)) {
       const baseRole = createAnalysisRoleOf(ctx, []);
-      const ext = ctx.config.language === "go" ? ".go" : ".py";
       const cache = options.cache === false ? null : resolve3(options.cacheDir ?? defaultCacheDir(deps.env));
-      const langWs = await loadLangWorkspace(ctx, files, mb, meta3.head.sha, (p) => p.endsWith(ext) && baseRole(p) === "source", wsTimings, deps.clock, cache);
+      const langWs = await loadLangWorkspace(ctx, files, mb, meta3.head.sha, (p) => isHelperSource(language, p) && baseRole(p) === "source", wsTimings, deps.clock, cache);
       Object.assign(timings, wsTimings);
       t = deps.clock();
       roleOf = createAnalysisRoleOf(ctx, langWs.graph.nodes);
       const manifests = await manifestDiffs(ctx, files, roleOf, mb, meta3.head.sha);
       const headContents = await readFiles(ctx.repoRoot, meta3.head.sha, files.filter((f) => f.status !== "deleted").map((f) => f.path));
       readHead = (path3) => headContents.get(path3);
-      lang = { language: ctx.config.language, module: langWs.head.module, comments: langWs.head.comments };
+      lang = { language, module: langWs.head.module, comments: langWs.head.comments };
       headRoutes = langWs.headRoutes;
       const helperContracts = helperContractChanges(langWs.base, langWs.head);
       contracts = contractsSection(helperContracts.changes, helperContracts.readable);
@@ -251777,7 +251812,7 @@ var QUICK_SCORE = 25;
 var CAREFUL_SCORE = 60;
 var START_HERE_MAX = 7;
 var START_HERE_MIN_POINTS = 5;
-var CODE2 = /* @__PURE__ */ new Set([".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs", ".go", ".py", ".graphql", ".gql"]);
+var CODE2 = /* @__PURE__ */ new Set([...SCRIPT_EXTENSIONS, ...HELPER_EXTENSIONS, ".graphql", ".gql"]);
 function percent(ratio) {
   return `${Math.round(ratio * 100)}%`;
 }
@@ -254636,7 +254671,7 @@ async function historyCommand(ctx, options) {
 // src/cli/impact.ts
 async function computeImpact(ctx, file2, ref) {
   const target = projectToRepoPath(ctx, file2);
-  if (ctx.config.language !== "typescript") {
+  if (isHelperLanguage(ctx.config.language)) {
     const out = await readLangTree(ctx, ref);
     const graph = new DeclGraph(out);
     const starts = out.decls.flatMap((d, i) => d.file === target ? [i] : []);
@@ -254662,7 +254697,7 @@ async function impactCommand(ctx, file2, ref) {
 
 // src/cli/routes.ts
 async function computeRoutes(ctx, ref) {
-  if (ctx.config.language !== "typescript") {
+  if (isHelperLanguage(ctx.config.language)) {
     const table3 = declRouteTable(await readLangTree(ctx, ref));
     return { file: "", routes: table3.routes, dynamicRoutes: table3.dynamic, sources: table3.sources };
   }

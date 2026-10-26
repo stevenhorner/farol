@@ -134,6 +134,13 @@ Milestones from `docs/SPEC.md`. Each one is done only when its acceptance criter
 ### Traffic from Datadog — done (first version, information only)
 - `farol usage` (RUM page views by `@view.url_path_group`, APM `trace.<op>.hits` by `resource_name`) writes `usage.json`; `analyze --usage` adds an optional `usage` section; comment line, HTML fact, per-route chips (busiest first) and per-file pills. Name formats checked against real Datadog data (RUM path groups, normalized metric tags). GraphQL operations are not matched.
 
+### C#/.NET projects — planned ([design](csharp-support.md))
+- [x] Design document and decisions (DECISIONS 2026-10-26 (9) and (10)).
+- [x] Phase 0: one language table (`src/config/languages.ts`) instead of Go/Python ternaries; no behavior change.
+- [ ] Phase 1: `cs-helper/` (Roslyn from the .NET SDK): projects, declarations, edges, controller/minimal API/hosted service entry points, views by convention, every build configuration; roles (SQL as `infra`, new `client` role for `wwwroot`); NuGet dependencies.
+- [ ] Phase 2: Razor compiler, Razor Pages, SignalR, `.resx`, coverlet/Cobertura, SARIF, `dotnet list package`, suppressions, view → client file edges, destructive SQL findings.
+- [ ] Phase 3: contracts, gRPC, MediatR/Hangfire/Quartz, `history`/`calibrate` on real C# history.
+
 ### Python projects — done (first version)
 - `language: "python"`: py-helper/ (stdlib only, `python3 -I`) + shared `src/decls/`; FastAPI routes with routers/prefixes, several apps labeled by service, `__main__` scripts; AST-hash declarations; name-based method resolution for unknown receivers; pyproject/requirements dependencies; coverage.py, ruff (+bandit S rules) and pip-audit reports; Python suppressions. Scenarios p1–p6.
 - Checked on a real Python PR (reach, new endpoints, diff coverage, ruff findings). About 3 s per run.

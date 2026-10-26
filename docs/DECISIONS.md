@@ -888,3 +888,12 @@ Every decision not covered by `docs/SPEC.md`. One entry per decision: problem, o
   - Analyzing `Debug` alone would miss callers that exist only in other configurations: a new file used only from `#if !DEBUG` code would look disconnected and the PR could be `isolated`, which breaks the fail-closed rule. Most solutions have two to four distinct symbol sets, so the cost stays small.
   - SQL scripts and browser code ship with the app; leaving them as "other files" (weight 0) would let a PR that edits a schema script or a site-wide script look like it touches nothing.
   - User decisions (answers to the design document's questions 1–4).
+
+## 2026-10-26 (10) — One language table; names for the C# phase
+
+- **Problem:** the Go and Python branches were `language === 'go' ? … : …` ternaries in about ten places (config messages, default excludes, helper reader, source extensions, lint report name, security hint, suppressions). A third helper language would have fallen into the Python side of each one without any error.
+- **Choice:**
+  - **`src/config/languages.ts`** (a file of the existing `config/` module): `LANGUAGES`, `Language`, `HelperLanguage` and `HELPER_LANGUAGES`, one entry per helper language with its label, helper directory, source extensions, lint tool name and security hint. Helper-specific code lives in tables typed `Record<HelperLanguage, …>` (readers in `lang-workspace.ts`, suppressions in `cli/signals.ts`) or `Record<Language, …>` (default roles, default excludes, `ECOSYSTEM_FILES`), so adding a language fails to compile until each table has its entry. Code extensions in `signals/paths.ts` and `report/verdict.ts` are derived from the table.
+  - No behavior change: the JSON of every scenario is unchanged. Asking the helper reader for a TypeScript project now throws an internal error instead of silently using the Python reader (no caller does).
+  - **Names reserved for C#** (implementation in phase 1): helper `cs-helper/` (see entry (9)); pure module `src/dotnet/` for NuGet manifests and versions (like `src/golang/` and `src/python/`); language id `csharp`; configuration key `csharp` with `projects`, `configurations`, `defines`, `entryCalls` and `viewRoots` as described in [csharp-support.md](csharp-support.md#configuration).
+- **Reason:** phase 0 of the C# plan (user request); the compiler then lists every place a new language needs.

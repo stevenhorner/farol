@@ -154,7 +154,7 @@ export class RoutesFileMissingError extends Error {
 
 /** Builds the program, import graph and route table of the project at a ref (or the working tree). */
 export async function loadWorkspace(ctx: Context, ref: string | undefined, timings?: Record<string, number>, now: () => number = () => performance.now()): Promise<Workspace> {
-  if (ctx.config.language !== 'typescript') throw new UsageError('internal: the TypeScript workspace was asked for a Go or Python project')
+  if (ctx.config.language !== 'typescript') throw new UsageError('internal: the TypeScript workspace was asked for a project read by a language helper')
   let t = now()
   const lap = (name: string): void => {
     const current = now()

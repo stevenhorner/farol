@@ -1,5 +1,6 @@
 import type { RouteTable } from '../routes/types.js'
 import type { Context } from './context.js'
+import { isHelperLanguage } from '../config/languages.js'
 import { writeStdout } from './run.js'
 import { loadWorkspace } from './workspace.js'
 import { declRouteTable } from '../decls/impact.js'
@@ -14,8 +15,8 @@ export interface RoutesResult {
 }
 
 export async function computeRoutes(ctx: Context, ref: string | undefined): Promise<RoutesResult> {
-  if (ctx.config.language !== 'typescript') {
-    // Go and Python: the entry points the language helper finds (routes, operations, scripts and binaries).
+  if (isHelperLanguage(ctx.config.language)) {
+    // Helper languages (Go, Python): the entry points the language helper finds (routes, operations, scripts and binaries).
     const table = declRouteTable(await readLangTree(ctx, ref))
     return { file: '', routes: table.routes, dynamicRoutes: table.dynamic, sources: table.sources }
   }
