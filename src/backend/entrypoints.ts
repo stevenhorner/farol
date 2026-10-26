@@ -42,6 +42,7 @@ export interface BackendInput {
   isOrigin: (repoPath: string) => boolean
   graphql: boolean
   rest: boolean
+  cli: boolean
   /** Context properties → provider file globs (repo-relative). */
   context: Readonly<Record<string, readonly string[]>>
 }
@@ -111,7 +112,7 @@ export function buildBackendTable(input: BackendInput): BackendTable {
   const anchors = new Map<string, { file: string; modules: Set<string>; computed?: RouteEntry['computed'] }>()
   const resolverFiles = new Set<string>()
   for (const sf of programFiles) {
-    for (const { key, node, value, computed } of entryNodes(sf, typeFields, input.rest)) {
+    for (const { key, node, value, computed } of entryNodes(sf, typeFields, input.rest, input.cli)) {
       const file = rel(sf.fileName)
       resolverFiles.add(file)
       const line = sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1

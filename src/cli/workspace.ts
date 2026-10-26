@@ -241,7 +241,7 @@ function loadBackendWorkspace(ctx: Context, fs: ProjectFileSystem, treeFiles: st
   const graph = buildImportGraph(project, { repoRoot: ctx.repoRoot, isOrigin: (path) => isOrigin(path) || roleOf(path) === 'outside' })
   lap('graph')
   const files = (treeFiles ?? diskFiles(projectDir, repoRoot)).filter((f) => ctx.projectPrefix === '' || f.startsWith(`${ctx.projectPrefix}/`))
-  const backend = buildBackendTable({ project, repoRoot, files, read: (f) => fs.readFile(posix.join(repoRoot, f)), isOrigin, graphql: ctx.config.backend.graphql, rest: ctx.config.backend.rest, context: projectGlobs(ctx, ctx.config.backend.context) })
+  const backend = buildBackendTable({ project, repoRoot, files, read: (f) => fs.readFile(posix.join(repoRoot, f)), isOrigin, graphql: ctx.config.backend.graphql, rest: ctx.config.backend.rest, cli: ctx.config.backend.cli, context: projectGlobs(ctx, ctx.config.backend.context) })
   // A global set with `global.X = …` (service locators such as `Core`) is an import of its module for every reader.
   const rel = (fileName: string): string => posix.relative(repoRoot, toPosix(fileName))
   const isProjectFile = (fileName: string): boolean => toPosix(fileName).startsWith(`${repoRoot}/`) && !toPosix(fileName).includes('/node_modules/')

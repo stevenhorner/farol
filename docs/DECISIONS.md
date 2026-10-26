@@ -836,3 +836,13 @@ Every decision not covered by `docs/SPEC.md`. One entry per decision: problem, o
   - Report and comment: `unknown` score items tied to a file are parts of their own in Must check ("farol could not read this", checked by hand), like security findings. Reviewing the file no longer clears them, and the "likely safe to approve" state needs them checked.
 - **Reason:** fail closed. farol cannot tell which URL a computed path takes, so it cannot rule out that it takes an existing one (FastAPI, chi and Express serve the first match).
 
+## 2026-10-26 (4) — Command-line commands as TypeScript entry points; farol reviews its own pull requests
+
+- **Problem:** farol run on itself found no entry point (Python `__main__` and Go `main` are entry points, a TypeScript CLI was not): every changed file was "no operation reaches it", ranked by dependents only.
+- **Choice:**
+  - `src/backend/cli.ts` (inside the existing `backend` module, next to `rest.ts`): commander and cac `X.command('<spec>')….action(handler)`, and yargs `X.command('<spec>', '<description>' | false, builder, handler)`. The key is `CLI <first word of the spec>` (`$0`/`*` → `(default)`); the handler's code is the entry point's, as for a REST handler. A computed spec is kept as `{expr}` and marked computed (see 2026-10-26 (3)). `backend.cli` (default true) turns it off. `package.json` `bin` is not read: it usually points to the build output, not the sources.
+  - The yargs form needs a string (or `false`) description, so `redis.command('GET', key, cb)` is not a command.
+  - `.github/workflows/farol.yml` is `examples/workflow.yml` with `./action` (the PR's committed `dist/`, which CI checks against the sources), Go and Python for the helper scenario tests, and no Datadog job. `farol.config.json` at the root: backend surface, no GraphQL, `test/fixtures/**` and `dist/**` excluded.
+  - `@vitest/coverage-v8` as a dev dependency (not runtime: nothing changes in the npm package), with `coverage.include: ['src/**/*.ts']` so files no test loads are reported.
+- **Reason:** user request (dogfooding), and command-line tools are a common shape of TypeScript open source projects.
+

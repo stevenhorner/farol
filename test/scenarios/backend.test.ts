@@ -39,6 +39,14 @@ const SCENARIOS: Record<string, { classification: Output['classification']; affe
   // is the module: renameBrand uses services/brands.ts, which loads legacy.js, so it is listed too (conservative).
   'b6-global-changed': { classification: 'touches-existing', affected: ['Mutation.renameBrand', 'Query.brands'] },
   'b7-rest': { classification: 'touches-existing', affected: ['POST /webhooks/stripe'] },
+  // Command-line commands (commander) are entry points: a job used only by `shop report` affects that command alone.
+  'b11-cli-command': {
+    classification: 'touches-existing',
+    affected: ['CLI report'],
+    check: (o) => {
+      expect(o.risk.totalPages).toBe(BRAND_OPS.length + 3 + 2)
+    },
+  },
   // A new endpoint whose path is computed (issue #6) is registered before POST /webhooks/stripe, which it can shadow:
   // farol cannot tell its URL, so the PR is unknown instead of isolated.
   'b10-rest-computed': {

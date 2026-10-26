@@ -89,7 +89,7 @@ A complete example is in [examples/.farol.json](../examples/.farol.json).
 | `routes.file` | — | `react-router`: the file that builds the route table. |
 | `routes.dir` | `next`: the project, or its `src/`; `tanstack-router`: `src/routes` | File-system routers: `next` → the directory holding `pages/` and `app/`; `tanstack-router` → the routes directory. |
 | `routes.extraFiles` | `[]` | `react-router`: modules that **only** define routes (split route trees). |
-| `backend.graphql` / `backend.rest` | `true` | TypeScript backends: read GraphQL schemas and resolvers / REST registrations. |
+| `backend.graphql` / `backend.rest` / `backend.cli` | `true` | TypeScript backends: read GraphQL schemas and resolvers / REST registrations / command-line commands (commander and cac `.command('name')…action(handler)`, yargs `.command('name', 'description', builder, handler)`), each command an entry point `CLI name`. |
 | `backend.context` | `{}` | TypeScript backends: values injected at runtime, as context property → provider files. For example, `"loaders"` makes `loaders.Brand.byId()` use the provider whose name matches `Brand`. |
 | `python.roots` | `["src", "."]` | Python import roots (`src` for a src layout). |
 | `exclude` | `[]` (Go: generated mocks) | Files left out of the analysis, still listed. |
