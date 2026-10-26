@@ -17,6 +17,7 @@ export const DEFAULT_INFRA = [
 ]
 
 export const DEFAULT_ROLES = {
+  client: [] as string[],
   barrel: ['**/index.ts'],
   i18n: ['src/locales/**/*.json'],
   test: ['**/*.test.ts', '**/*.test.tsx'],
@@ -26,13 +27,32 @@ export const DEFAULT_ROLES = {
 }
 
 /** Roles of a Go module: tests are `_test.go` files; go.mod and go.sum are the manifest and lockfile (not globs). */
-export const GO_DEFAULT_ROLES = { barrel: [], i18n: [], test: ['**/*_test.go'], story: [], global: [], infra: DEFAULT_INFRA }
+export const GO_DEFAULT_ROLES = { client: [], barrel: [], i18n: [], test: ['**/*_test.go'], story: [], global: [], infra: DEFAULT_INFRA }
 
 /** Generated mocks are test doubles: they implement every interface and would be reached through each of them. */
 export const GO_DEFAULT_EXCLUDE = ['**/mock/**', '**/mocks/**', '**/*_mock.go', '**/mock_*.go']
 
 /** Roles of a Python project: pytest files and directories are tests. */
-export const PYTHON_DEFAULT_ROLES = { barrel: [], i18n: [], test: ['tests/**', '**/tests/**', '**/test/**', '**/test_*.py', '**/*_test.py', '**/conftest.py'], story: [], global: [], infra: DEFAULT_INFRA }
+export const PYTHON_DEFAULT_ROLES = { client: [], barrel: [], i18n: [], test: ['tests/**', '**/tests/**', '**/test/**', '**/test_*.py', '**/*_test.py', '**/conftest.py'], story: [], global: [], infra: DEFAULT_INFRA }
+
+/**
+ * Roles of a C# solution: test projects and files are tests; MSBuild, SDK and NuGet settings shared by every project are
+ * global; app settings, deployment profiles, solution files and SQL scripts are infrastructure; what wwwroot serves is
+ * client code.
+ * .csproj, Directory.Packages.props and packages.lock.json are the manifests and lockfile (not globs).
+ */
+export const CSHARP_DEFAULT_ROLES = {
+  client: ['**/wwwroot/**'],
+  barrel: [],
+  i18n: [],
+  test: ['**/*.Tests/**', '**/*.Test/**', '**/*.UnitTests/**', '**/*.IntegrationTests/**', '**/test/**', '**/tests/**', '**/*Tests.cs', '**/*Test.cs'],
+  story: [],
+  global: ['**/Directory.Build.props', '**/Directory.Build.targets', '**/global.json', '**/NuGet.config', '**/nuget.config', '**/NuGet.Config', '**/.editorconfig'],
+  infra: [...DEFAULT_INFRA, '**/appsettings*.json', '**/web.config', '**/Web.config', '**/launchSettings.json', '**/*.pubxml', '**/*.sql', '**/*.sln', '**/*.slnx'],
+}
+
+/** Build outputs, generated code and vendored or minified client files of a C# solution. */
+export const CSHARP_DEFAULT_EXCLUDE = ['**/bin/**', '**/obj/**', '**/*.g.cs', '**/*.g.i.cs', '**/*.Designer.cs', '**/*.AssemblyInfo.cs', '**/*ModelSnapshot.cs', '**/wwwroot/lib/**', '**/*.min.js', '**/*.min.css', '**/*.map']
 
 /** Datadog sites: the API host is `api.<site>`. A closed list, so a changed configuration cannot send the keys elsewhere. */
 export const DATADOG_SITES = ['datadoghq.com', 'us3.datadoghq.com', 'us5.datadoghq.com', 'datadoghq.eu', 'ap1.datadoghq.com', 'ap2.datadoghq.com', 'ddog-gov.com'] as const
@@ -62,13 +82,14 @@ export const DatadogSchema = z
 type Roles = typeof DEFAULT_ROLES
 
 /** Default roles of each language. */
-const LANGUAGE_ROLES: Record<Language, Roles> = { typescript: DEFAULT_ROLES, go: GO_DEFAULT_ROLES, python: PYTHON_DEFAULT_ROLES }
+const LANGUAGE_ROLES: Record<Language, Roles> = { typescript: DEFAULT_ROLES, go: GO_DEFAULT_ROLES, python: PYTHON_DEFAULT_ROLES, csharp: CSHARP_DEFAULT_ROLES }
 
 /** Default `exclude` of each language, used when the configuration sets none. */
-const LANGUAGE_EXCLUDE: Record<Language, string[]> = { typescript: [], go: GO_DEFAULT_EXCLUDE, python: [] }
+const LANGUAGE_EXCLUDE: Record<Language, string[]> = { typescript: [], go: GO_DEFAULT_EXCLUDE, python: [], csharp: CSHARP_DEFAULT_EXCLUDE }
 
 function rolesWithDefaults(given: Partial<Record<keyof Roles, string[]>>, defaults: Roles): Roles {
   return {
+    client: given.client ?? defaults.client,
     barrel: given.barrel ?? defaults.barrel,
     i18n: given.i18n ?? defaults.i18n,
     test: given.test ?? defaults.test,
@@ -89,6 +110,21 @@ export const ConfigSchema = z
       .object({
         /** Import roots, relative to the project: `src` for a src layout (`from orders_api import x` is src/orders_api/x.py). */
         roots: z.array(z.string().min(1)).min(1).default(['src', '.']),
+      })
+      .strict()
+      .prefault({}),
+    csharp: z
+      .object({
+        /** .csproj globs relative to the project directory; default: every project below it (test projects are left out). */
+        projects: globs.default([]),
+        /** Build configurations to compile (their #if symbols); default: Debug, Release and every one the projects declare. */
+        configurations: z.array(z.string().min(1)).default([]),
+        /** Extra preprocessor symbols for every configuration. */
+        defines: z.array(z.string().regex(/^[A-Za-z_][A-Za-z0-9_]*$/, 'a preprocessor symbol is a C# identifier')).default([]),
+        /** Fully qualified methods (Namespace.Type.Method) whose delegate arguments are background entry points (TASK). */
+        entryCalls: z.array(z.string().min(1)).default([]),
+        /** Directories holding views by controller name, besides Views/ and Areas/<area>/Views/ (project-relative). */
+        viewRoots: z.array(z.string().min(1)).default([]),
       })
       .strict()
       .prefault({}),
@@ -148,6 +184,8 @@ export const ConfigSchema = z
         global: globs.optional(),
         /** Environment, infrastructure and CI files (repo-relative globs; source code files never match). */
         infra: globs.optional(),
+        /** Client files the app serves (scripts, styles) that no helper reads: wwwroot of a C# web project. */
+        client: globs.optional(),
       })
       .strict()
       .prefault({}),

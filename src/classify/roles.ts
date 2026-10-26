@@ -1,7 +1,7 @@
 import picomatch from 'picomatch'
 import type { Config } from '../config/schema.js'
 
-export type Role = 'global' | 'routes' | 'test' | 'story' | 'infra' | 'barrel' | 'i18n' | 'source'
+export type Role = 'global' | 'routes' | 'test' | 'story' | 'infra' | 'client' | 'barrel' | 'i18n' | 'source'
 /** A file matched by `exclude` (and not a test or story) is left out of the analysis. */
 export type FileRole = Role | 'excluded'
 
@@ -11,7 +11,7 @@ export type AnalysisRole = FileRole | 'manifest' | 'lockfile' | 'schema' | 'reso
 export type RoleMatcher = (projectPath: string) => FileRole
 
 /** Extensions of source code: such files are never infrastructure, wherever they live. */
-const SOURCE_CODE = /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs|go|py|graphql|gql)$/
+const SOURCE_CODE = /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs|go|py|cs|cshtml|graphql|gql)$/
 
 /** Whether a repo-relative path is an environment, infrastructure or CI file. */
 export function createInfraMatcher(config: Config): (repoPath: string) => boolean {
@@ -25,8 +25,8 @@ function matcher(globs: readonly string[]): (path: string) => boolean {
 }
 
 /**
- * Builds the role function for project-relative paths. Precedence: global, routes, test, story, infra, barrel, i18n,
- * source (infra globs are matched against repo-relative paths by createRepoRoleOf).
+ * Builds the role function for project-relative paths. Precedence: global, routes, test, story, infra, client, barrel,
+ * i18n, source (infra globs are matched against repo-relative paths by createRepoRoleOf).
  * `exclude` only removes files whose role would be barrel, i18n or source: globals and the routes file always count,
  * and tests/stories keep their role so they can be reported.
  */
@@ -36,6 +36,7 @@ export function createRoleMatcher(config: Config): RoleMatcher {
   const isStory = matcher(config.roles.story)
   const isBarrel = matcher(config.roles.barrel)
   const isI18n = matcher(config.roles.i18n)
+  const isClient = matcher(config.roles.client)
   const isExcluded = matcher(config.exclude)
   const routesFile = normalizeProjectPath(config.routes.file)
   const isExtraRoutes = matcher(config.routes.extraFiles)
@@ -45,6 +46,7 @@ export function createRoleMatcher(config: Config): RoleMatcher {
     if (isTest(path)) return 'test'
     if (isStory(path)) return 'story'
     if (isExcluded(path)) return 'excluded'
+    if (isClient(path)) return 'client'
     if (isBarrel(path)) return 'barrel'
     if (isI18n(path)) return 'i18n'
     return 'source'

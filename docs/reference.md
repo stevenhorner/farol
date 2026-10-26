@@ -18,7 +18,7 @@ review; [how-it-works.md](how-it-works.md) explains how farol reads each languag
 ## Installation and requirements
 
 farol is published on npm as [`@winninjs/farol`](https://www.npmjs.com/package/@winninjs/farol), with no runtime
-dependencies: one bundled file plus the Go and Python helpers.
+dependencies: one bundled file plus the Go, Python and C# helpers.
 
 ```sh
 npx @winninjs/farol --help              # no install needed
@@ -34,6 +34,7 @@ https://github.com/winnin/farol.git && node farol/dist/cli.js --help` works too.
 - **TypeScript:** the project's `node_modules` only matter for packages its `tsconfig` extends and for workspace packages. farol installs nothing.
 - **Go:** `go` on the `PATH`, and the module's dependencies in the module cache (`go mod download`). farol builds a small helper (standard library only) on first use and reads modules **offline**: nothing is downloaded during the analysis.
 - **Python:** `python3` 3.11 or later. farol's helper uses only the standard library and only **parses** your code; it never imports it.
+- **C#/.NET:** the .NET SDK (`dotnet`, 8 or later; the one that builds your solution is best) on the `PATH`. farol builds a small helper on first use against the Roslyn compiler assemblies of that SDK (no NuGet download) and reads your projects with it; MSBuild never evaluates them. Restored packages (`obj/project.assets.json` in the checkout) are optional: they make calls on package types precise.
 
 ## Commands
 
@@ -82,8 +83,8 @@ A complete example is in [examples/.farol.json](../examples/.farol.json).
 
 | Key | Default | Meaning |
 |---|---|---|
-| `language` | `typescript` | `typescript`, `go` or `python`. |
-| `surface` | `frontend` | `frontend` (pages) or `backend` (operations, endpoints). Go and Python are always `backend`. |
+| `language` | `typescript` | `typescript`, `go`, `python` or `csharp`. |
+| `surface` | `frontend` | `frontend` (pages) or `backend` (operations, endpoints). Go, Python and C# are always `backend`. |
 | `tsconfig` | `tsconfig.json` | TypeScript only. Solution-style configs are followed to the reference that includes the routes file. Packages it extends (`"extends": "tsconfig/nextjs.json"`) must be in `node_modules`. |
 | `routes.adapter` | `react-router` | Frontend router: `react-router` (a route table in `routes.file`), `next` (Next.js Pages and App Router) or `tanstack-router` (TanStack Router file-based routes). |
 | `routes.file` | — | `react-router`: the file that builds the route table. |
@@ -92,12 +93,18 @@ A complete example is in [examples/.farol.json](../examples/.farol.json).
 | `backend.graphql` / `backend.rest` / `backend.cli` | `true` | TypeScript backends: read GraphQL schemas and resolvers / REST registrations / command-line commands (commander and cac `.command('name')…action(handler)`, yargs `.command('name', 'description', builder, handler)`), each command an entry point `CLI name`. |
 | `backend.context` | `{}` | TypeScript backends: values injected at runtime, as context property → provider files. For example, `"loaders"` makes `loaders.Brand.byId()` use the provider whose name matches `Brand`. |
 | `python.roots` | `["src", "."]` | Python import roots (`src` for a src layout). |
-| `exclude` | `[]` (Go: generated mocks) | Files left out of the analysis, still listed. |
+| `csharp.projects` | `[]` (every project) | C#: `.csproj` globs relative to the project directory. Test projects are always left out. |
+| `csharp.configurations` | `[]` (all) | C#: build configurations to compile, each with its `#if` symbols; by default Debug, Release and every configuration the projects declare. Edges are the union, so code one edition compiles is still reached. |
+| `csharp.defines` | `[]` | C#: extra preprocessor symbols for every configuration (symbols your build sets outside the `.csproj`). |
+| `csharp.entryCalls` | `[]` | C#: fully qualified methods (`Namespace.Type.Method`) whose delegate arguments are background entry points, e.g. a scheduler's `Every(...)`: each delegate becomes `TASK <method> <first string argument>`. |
+| `csharp.viewRoots` | `[]` | C#: directories holding views by controller name besides `Views/` and `Areas/<area>/Views/` (project-relative), for custom view locations. |
+| `exclude` | `[]` (Go: generated mocks; C#: `bin/`, `obj/`, generated code, `wwwroot/lib/`, minified files) | Files left out of the analysis, still listed. |
 | `ignore` | `[]` | Changed files left out of **everything**: classification, dependencies, signals. |
 | `roles.global` | TS: app entry, configs, `package.json`… | Files whose change affects everything (class `global`). Globs may point above the project in a monorepo (`../../pnpm-lock.yaml`). |
 | `roles.test` / `roles.story` | per language | Tests and stories: reported, never treated as code. |
 | `roles.barrel` / `roles.i18n` | `**/index.ts` / `src/locales/**/*.json` | TypeScript re-export files and translation JSON: additive when they only add exports or keys. |
-| `roles.infra` | env, Docker, compose, CI, helm, k8s, terraform… | Environment, infrastructure and CI files, matched on repo-relative paths. Source code files never match. |
+| `roles.infra` | env, Docker, compose, CI, helm, k8s, terraform… (C#: also app settings, `web.config`, publish profiles, solution files, `*.sql`) | Environment, infrastructure and CI files, matched on repo-relative paths. Source code files never match. |
+| `roles.client` | C#: `**/wwwroot/**`; others: none | Files the app serves to browsers that no helper reads (scripts, styles). A changed one makes the PR `touches-existing`. |
 | `signals.coverage` / `signals.eslint` / `signals.audit` | — | Default report paths, relative to the project. Flags override them. |
 | `signals.usage` | — | Default usage report path (written by `farol usage`). |
 | `signals.coverageIgnore` | `[]` | Changed files left out of diff coverage only (constants, types…). |

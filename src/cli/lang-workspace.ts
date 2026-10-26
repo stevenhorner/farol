@@ -15,6 +15,7 @@ import { DeclHelperSchema, type DeclHelperOutput } from '../decls/types.js'
 import type { ImportGraph } from '../project/graph.js'
 import type { RouteTable } from '../routes/types.js'
 import type { Context } from './context.js'
+import { csHelperAssembly, runCsHelper } from './cs-helper.js'
 
 const MAX_BUFFER = 1024 * 1024 * 1024
 
@@ -60,7 +61,7 @@ function sourceHash(dir: string): string {
   const hash = createHash('sha256')
   const walk = (d: string): void => {
     for (const name of readdirSync(d).sort()) {
-      if (name === '__pycache__') continue
+      if (name === '__pycache__' || name === 'bin' || name === 'obj') continue
       const full = join(d, name)
       if (statSync(full).isDirectory()) walk(full)
       else hash.update(full.slice(dir.length)).update(readFileSync(full))
@@ -129,6 +130,19 @@ const READERS: Record<HelperLanguage, (ctx: Context) => Promise<Omit<Reader, 'la
     const roots = ctx.config.python.roots.join(',')
     return Promise.resolve({ read: (dir, project, comments) => runPythonHelper(['analyze', '--root', dir, '--project', project, '--roots', roots, '--comments', comments.join(',')], dir) })
   },
+  csharp: async (ctx) => {
+    const assembly = await csHelperAssembly(helperDir('cs-helper'), sourceHash(helperDir('cs-helper')), defaultCacheDir())
+    const { projects, configurations, defines, entryCalls, viewRoots } = ctx.config.csharp
+    const lists = Object.entries({ projects, configurations, defines, 'entry-calls': entryCalls, 'view-roots': viewRoots }).flatMap(([flag, values]) => (values.length > 0 ? [`--${flag}`, values.join(',')] : []))
+    // Packages restored in the checkout (obj/project.assets.json) give the compiler their types, for both trees.
+    return { read: (dir, project, comments) => runCsHelper(assembly, ['analyze', '--root', dir, '--project', project, '--comments', comments.join(','), '--assets-root', ctx.repoRoot, ...lists], dir) }
+  },
+}
+
+/** A .csproj or Directory.Packages.props as JSON (packages and other fields), read by the C# helper's XML reader. */
+export async function readCsManifest(text: string): Promise<unknown> {
+  const assembly = await csHelperAssembly(helperDir('cs-helper'), sourceHash(helperDir('cs-helper')), defaultCacheDir())
+  return JSON.parse(await runCsHelper(assembly, ['manifest'], tmpdir(), text)) as unknown
 }
 
 function helperLanguage(ctx: Context): HelperLanguage {
@@ -168,7 +182,7 @@ interface Reader {
 async function readTree(ctx: Context, reader: Reader, sha: string, comments: readonly string[], cache: CacheDir): Promise<DeclHelperOutput> {
   const project = ctx.projectPrefix === '' ? '.' : ctx.projectPrefix
   // Same tree, same helper, same settings: same output. Base trees repeat across the runs of every PR.
-  const key = cache === null ? null : createHash('sha256').update(JSON.stringify([TOOL_VERSION, reader.label, reader.version, await treeOf(ctx.repoRoot, sha), project, ctx.config.python.roots, [...comments].sort()])).digest('hex')
+  const key = cache === null ? null : createHash('sha256').update(JSON.stringify([TOOL_VERSION, reader.label, reader.version, await treeOf(ctx.repoRoot, sha), project, ctx.config.python.roots, ctx.config.csharp, [...comments].sort()])).digest('hex')
   const file = key === null || cache === null ? null : join(cache, `${key}.json`)
   if (file !== null && existsSync(file)) {
     const cached = DeclHelperSchema.safeParse(JSON.parse(readFileSync(file, 'utf8')))

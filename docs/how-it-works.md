@@ -10,6 +10,7 @@ finds what a change reaches, and how the score and the verdict are computed. For
 - [TypeScript and JavaScript backends (GraphQL, REST)](#typescript-and-javascript-backends-graphql-rest)
 - [Go](#go)
 - [Python](#python)
+- [C#/.NET](#cnet)
 - [Roles](#roles)
 - [Dependencies](#dependencies)
 - [Signals](#signals)
@@ -189,16 +190,105 @@ files (`ast`, `tokenize`, `tomllib`): nothing of the project is imported or exec
   - **Prefect:** `@flow` and `@flow(name=…)` become `FLOW <name>`, with Prefect's default name (the function name with hyphens). Tasks run inside flows and are reached through them.
   - **Scripts:** scripts with a `__main__` guard.
 
+## C#/.NET
+
+A helper in `cs-helper/` (C#) is built once per version with the installed .NET SDK and reads each tree with **Roslyn**,
+the C# compiler of that SDK. It references the compiler assemblies the SDK ships: nothing is downloaded. MSBuild never
+evaluates your projects, and no analyzer or source generator of your repository or its packages runs.
+
+**Projects and compilations:**
+
+- every `.csproj` under the project directory (`csharp.projects` narrows the list); test projects (`IsTestProject`, or
+  a reference to `Microsoft.NET.Test.Sdk`, xunit, NUnit or MSTest) are left out: tests never count as callers;
+- each `.csproj` (and the nearest `Directory.Build.props`) is read as XML data: SDK, target framework, `DefineConstants`
+  per configuration (`'$(Configuration)|$(Platform)'=='X|…'` conditions), `Compile` items, `ProjectReference`,
+  `Using` items and the SDK's implicit usings. Other conditions are ignored (noted on stderr);
+- each source file belongs to the nearest project above it;
+- references: the SDK's reference packs (`Microsoft.NETCore.App.Ref`, `Microsoft.AspNetCore.App.Ref` for web projects)
+  and, when the checkout was restored, the packages listed in `obj/project.assets.json` (read as metadata). Without
+  them, package types are unknown and calls on them fall back by name (below).
+
+**Build configurations.** Debug, Release and every configuration a project declares (`csharp.configurations`
+narrows the list) are compiled, each with its own `#if` symbols (`TRACE`, the configuration name, `DefineConstants`,
+the framework symbols, `csharp.defines`). Configurations that give the same values to every symbol an `#if` tests are
+compiled once. Edges and entry points are the union over all of them, so code only one edition compiles is still
+reached. Only code that may bind differently (files with `#if`, or code naming a declaration some configurations
+lack) is bound again after the first configuration.
+
+**Declarations** (hash of their tokens without comments or formatting; the text of inactive `#if` branches and the
+directives count, so a change in another edition's code is a change):
+
+- each type part (header: attributes, base list, fields, auto-properties, members without a body; partial types get
+  one declaration per file);
+- each member with a body (methods, constructors, operators, properties and indexers with accessors);
+- top-level statements;
+- each service registration of startup code (`services.AddX(...)` in top-level statements, `ConfigureServices` and
+  `IServiceCollection` extension methods) on its own: a new registration is additive, a changed or removed one is a
+  change (a changed registration reads as the old one removed);
+- each Razor view (`.cshtml`), on its text without `@* *@` comments;
+- the `core` hash leaves out route registrations (`app.MapGet(...)`, `MapControllerRoute(...)`, `MapGroup(...)`),
+  compared entry point by entry point.
+
+**References** (resolved with the semantic model):
+
+- a call through an interface, an abstract or a virtual member reaches every project implementation or override
+  (dependency injection needs no container reading);
+- constructors (DI builds the object), overrides of library members (`OnActionExecuting`, `ExecuteAsync`, `Dispose`…),
+  implementations of library interfaces (`IActionFilter`…) and properties with bodies depend on their type, and so
+  does any member nothing in the project calls (middleware `InvokeAsync`, code only views call), except controller
+  actions;
+- an attribute is a use of its class: an action filter reaches the actions it decorates;
+- reading a field of the member's own type is not a use of the type;
+- the types a registration names (`AddScoped<IFoo, Foo>()`) are not uses: whoever calls `IFoo` reaches `Foo`; code in
+  its configuration lambdas (filters, options) is;
+- a member of a value whose type is unknown (`dynamic`, a package that was not restored) reaches every project method
+  (when called) or property (when read) with that name, except controller actions.
+
+**Entry points:**
+
+- **MVC and Web API controllers** (ASP.NET's rules: public, not abstract, named `*Controller` or deriving from
+  `ControllerBase`/`Controller`, no `[NonController]`): every public action (`[NonAction]`, framework overrides and
+  `Dispose` excluded; `Async` suffix removed; `[ActionName]`), inherited ones included.
+  - **Attribute routes:** `[Route]` on the controller and the action, `[HttpGet("…")]` and the other verbs,
+    `[AcceptVerbs]`, `[controller]`/`[action]`/`[area]` tokens, `~/` and `/` overrides.
+  - **Conventional routes:** `MapControllerRoute`, `MapDefaultControllerRoute`, `MapAreaControllerRoute`, `MapRoute`
+    and `UseMvcWithDefaultRoute` patterns with their defaults; each action without attribute routes gets one key per
+    pattern that applies to it (areas included), e.g. `GET /Orders/Details/{id?}`. Verb attributes give the method,
+    `ANY` otherwise. A pattern that is not a constant is a dynamic route. Without any pattern, the default one is used.
+  - **Anchors:** the action, its controller (constructor and injected services, base controllers), its filter
+    attributes, the views it renders and the startup code.
+- **Minimal APIs:** `MapGet`/`MapPost`/`MapPut`/`MapDelete`/`MapPatch`/`Map`/`MapMethods`, with `MapGroup` prefixes
+  through local variables, chains and the callers of methods that receive a route builder. Inline handlers are compared
+  by hash; `AddEndpointFilter` filters are anchors. A path that is not a constant is kept in braces (`GET {expr}`).
+- **Background services:** classes deriving from `BackgroundService` or implementing `IHostedService` (`TASK <type>`),
+  and the delegates passed to the methods listed in `csharp.entryCalls` (`TASK <method> <first string argument>`).
+- **Programs:** an executable project that registers no endpoint is `RUN <dir>`.
+
+**Views (by convention).** `View()`/`PartialView()` in a controller reaches the files the view engine would look up
+(`Views/<Controller>/<name>.cshtml`, `Views/Shared/`, `Areas/<area>/Views/…`, `csharp.viewRoots`); a name computed at
+run time reaches every view of the controller and every shared view. Every view depends on the `_`-prefixed files of
+its folder and the folders above (layouts, `_ViewStart`, `_ViewImports`, partials) and on every file under a `Shared`
+folder: a layout change reaches every action that renders a view. Code inside views is not read yet: a method only a
+view calls depends on its type.
+
+**Problems.** Syntax errors in a changed file make the PR `unknown`. Type errors do not: without restored packages most
+files have some, and the edges between project declarations do not depend on them.
+
+**Dependencies:** `.csproj` and `Directory.Packages.props` (see [Dependencies](#dependencies)); `packages.lock.json` is
+the lockfile. A test project's `.csproj` is a test file.
+
 ## Roles
 
-Precedence: `global`, `routes`, `test`, `story`, `infra`, then `barrel`, `i18n`, `source`. Files matching `exclude` are
+Precedence: `global`, `routes`, `test`, `story`, `infra`, `client`, then `barrel`, `i18n`, `source`. Files matching `exclude` are
 left out and listed. Each `roles` key the configuration leaves out takes the default of the project's language
-(TypeScript, Go or Python), key by key. Roles assigned on top of the configuration:
+(TypeScript, Go, Python or C#), key by key. Roles assigned on top of the configuration:
 
-- **`manifest`:** `package.json`, `go.mod`, `pyproject.toml` or `requirements.txt` of the project, of a directory above it, or (npm) of a workspace package the project imports.
-- **`lockfile`:** `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `bun.lock(b)`, `go.sum`, `uv.lock`, `poetry.lock`, `Pipfile.lock` or `pdm.lock`.
+- **`manifest`:** `package.json`, `go.mod`, `pyproject.toml`, `requirements.txt`, a `.csproj` or `Directory.Packages.props` of the project, of a directory above it, or (npm) of a workspace package the project imports.
+- **`lockfile`:** `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `bun.lock(b)`, `go.sum`, `uv.lock`, `poetry.lock`, `Pipfile.lock`, `pdm.lock` or `packages.lock.json`.
 - **`infra`:** environment, infrastructure and CI files (`roles.infra`), matched on repo-relative paths, also outside the project directory, and never for source code files. They make the PR `touches-existing` (`infra-file-changed`), get their own section and weigh at most 0.12 in the score together.
 - **`schema` / `resolvers`:** TypeScript backends, files with SDL or resolver maps.
+- **`client`:** files a web app serves to browsers that no helper reads (C# default: `**/wwwroot/**`; vendored `wwwroot/lib/**`, minified files and source maps are excluded). A changed or deleted one makes the PR `touches-existing` (`client-file-changed`); a new one is `client-file-added`. Scripts and styles weigh 0.05 each in the score (0.1 deleted), 0.25 at most together; images and fonts nothing.
+- **C# defaults:** `infra` adds `appsettings*.json`, `web.config`, `launchSettings.json`, `*.pubxml`, `*.sln`/`*.slnx` and **`*.sql`** (database scripts); `global` adds `Directory.Build.props/.targets`, `global.json`, `NuGet.config` and `.editorconfig` (analyzer severities); `exclude` adds `bin/`, `obj/`, generated code (`*.g.cs`, `*.Designer.cs`, EF model snapshots).
 
 ## Dependencies
 
@@ -206,6 +296,7 @@ Each changed manifest is compared requirement by requirement:
 
 - **npm:** `dependencies`, `devDependencies`, `peerDependencies`, `optionalDependencies`, and moves between them.
 - **Go:** direct `require` and `// indirect`.
+- **NuGet:** `PackageReference` (`PrivateAssets="all"`: build-time only, like `devDependencies`) and `PackageVersion` (central versions). A range (`[1.0,2.0)`) counts as its lowest version; floating (`1.*`) and computed (`$(Version)`) versions cannot be compared. Any other change to a project file (target framework, `DefineConstants`, imports, targets, a changed or removed item) is a manifest change; a new `Compile`/`Content`/`None`/`EmbeddedResource`/`Folder`/`Using`/`ProjectReference` item is not.
 - **Python:** `project.dependencies`, extras (`optional-dependencies`, with their name in `group`), PEP 735 `dependency-groups`, uv `dev-dependencies`, Poetry dependencies and groups, and `requirements.txt` lines.
 
 Versions are compared on the lowest version each range allows.
@@ -228,13 +319,13 @@ never change the class.
 - **Diff coverage:**
   - Changed lines are the added lines of changed code files. A changed line is *executable* when it intersects a statement, and *covered* when every statement intersecting it ran.
   - A changed file missing from the report counts as fully uncovered.
-  - Formats: Istanbul JSON, Go coverprofile (blocks of several test binaries merged), coverage.py JSON.
+  - Formats: Istanbul JSON, Go coverprofile (blocks of several test binaries merged), coverage.py JSON. C# coverage (coverlet) is not read yet: it shows as not verified.
 - **Lint on changed lines:**
   - Findings on changed lines count; findings elsewhere are context. At most 50 are kept.
-  - Formats: ESLint JSON, golangci-lint JSON, ruff JSON.
+  - Formats: ESLint JSON, golangci-lint JSON, ruff JSON. SARIF (C# analyzers) is not read yet.
 - **Added suppressions:**
   - TypeScript: computed with the scanner and the AST (`eslint-disable*`, `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`, `as any`, `: any`), so the same text in strings is ignored.
-  - Go and Python: read from comments (`//nolint`, `//lint:ignore`, `#nosec`; `# noqa`, `# type: ignore`, `# nosec`, `# pragma: no cover`, `# pyright: ignore`, `# pylint: disable`).
+  - Go, Python and C#: read from comments and directives (`//nolint`, `//lint:ignore`, `#nosec`; `# noqa`, `# type: ignore`, `# nosec`, `# pragma: no cover`, `# pyright: ignore`, `# pylint: disable`; `#pragma warning disable`, `#nullable disable`, `// ReSharper disable`).
 - **Modified tests:** existing test files modified, deleted or renamed, with removed line counts.
 - **Security (added lines):**
   - TypeScript built-in rules:
@@ -342,7 +433,7 @@ The reports (`html`, `report`, `comment`) are pure functions of this JSON.
 
 ## Guarantees
 
-- **No execution of the analyzed code.** farol never imports, `require`s or runs the analyzed code: no build tools, no configs that execute code (Vite, ESLint, Jest), no `go generate`, no Python imports. Go is read with `go list` and `go/types` offline, Python with `ast`.
+- **No execution of the analyzed code.** farol never imports, `require`s or runs the analyzed code: no build tools, no configs that execute code (Vite, ESLint, Jest), no `go generate`, no Python imports, no MSBuild evaluation, analyzers or source generators. Go is read with `go list` and `go/types` offline, Python with `ast`, C# with Roslyn (project files as XML).
 - **Network:** only the `comment` command uses it, to call the GitHub API.
 - **Fail closed:** when something cannot be read, the class is `unknown` or `touches-existing`, never `isolated`.
 - **Shadow mode:** farol informs. Nothing it produces approves or blocks a PR.

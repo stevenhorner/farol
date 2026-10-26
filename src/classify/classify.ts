@@ -214,6 +214,11 @@ export function classify(input: ClassifyInput): ClassifyResult {
       reasons.push(reason('infra-file-changed', `environment, infrastructure or CI file ${file.status}`, file.path))
       continue
     }
+    if (role === 'client') {
+      // Scripts and styles the app serves: no helper reads them, but every page that loads them runs them.
+      reasons.push(file.status === 'added' ? reason('client-file-added', 'new client file (served to browsers)', file.path) : reason('client-file-changed', `existing client file ${file.status} (served to browsers)`, file.path))
+      continue
+    }
     if (role === 'test') {
       if (file.status !== 'added') reasons.push(reason('tests-modified', `existing test ${file.status}, ${file.removed.length} line(s) removed`, file.path))
       continue

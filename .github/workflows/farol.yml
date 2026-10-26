@@ -33,13 +33,17 @@ jobs:
           node-version: 22
           cache: npm
 
-      # The Go and Python helpers and their scenario tests need both toolchains (standard library only).
+      # The Go, Python and C# helpers and their scenario tests need the three toolchains (the C# helper uses the
+      # Roslyn assemblies of the .NET SDK, no NuGet package).
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
 
       - run: npm ci
 

@@ -11,9 +11,10 @@ parameter.
 | [`workflow.yml`](workflow.yml) | GitHub Actions for TypeScript projects (React Router, Next.js, TanStack Router, GraphQL/REST APIs). |
 | [`workflow-go.yml`](workflow-go.yml) | GitHub Actions for Go services. |
 | [`workflow-python.yml`](workflow-python.yml) | GitHub Actions for Python services. |
+| [`workflow-csharp.yml`](workflow-csharp.yml) | GitHub Actions for C#/.NET solutions. |
 
 - [How a setup works](#how-a-setup-works)
-- Stacks: [React Router](#react-router) · [Next.js](#nextjs) · [TanStack Router](#tanstack-router) · [TypeScript API (GraphQL, REST)](#typescript-api-graphql-rest) · [Go](#go) · [Python](#python) · [Monorepos](#monorepos)
+- Stacks: [React Router](#react-router) · [Next.js](#nextjs) · [TanStack Router](#tanstack-router) · [TypeScript API (GraphQL, REST)](#typescript-api-graphql-rest) · [Go](#go) · [Python](#python) · [C#/.NET](#cnet) · [Monorepos](#monorepos)
 - [GitHub Actions](#github-actions)
 - [Datadog traffic and errors](#datadog-traffic-and-errors)
 - [Every configuration key](#every-configuration-key)
@@ -40,7 +41,8 @@ Run farol with `npx @winninjs/farol <command>` (no install), or install it once 
 @winninjs/farol`; the commands in this guide write `farol` for short.
 
 Requirements: Node.js 22+ and git with the full history of both branches (`fetch-depth: 0` in CI). Go projects also
-need `go` and their modules downloaded (`go mod download`); Python projects need `python3` 3.11+.
+need `go` and their modules downloaded (`go mod download`); Python projects need `python3` 3.11+; C# projects need the
+.NET SDK 8+ (`dotnet`).
 
 ---
 
@@ -217,6 +219,46 @@ pip-audit --format json -o reports/pip-audit.json
 With uv: `uv export --format requirements-txt --no-hashes > req.txt && uvx pip-audit -r req.txt --no-deps --disable-pip --format json -o reports/pip-audit.json`.
 
 **CI:** [`workflow-python.yml`](workflow-python.yml) (uses `uv`; swap in your installer).
+
+## C#/.NET
+
+ASP.NET Core MVC and Web API controllers (attribute and conventional routes, areas), minimal APIs (`MapGet`… with
+`MapGroup` prefixes), `BackgroundService`/`IHostedService` classes and programs. Every `.csproj` below the project
+directory is read (test projects are left out); every build configuration is compiled, so code behind `#if` is reached.
+
+**Configuration:**
+
+```json
+{
+  "language": "csharp",
+  "surface": "backend",
+  "csharp": {
+    "configurations": [],
+    "defines": [],
+    "entryCalls": ["MyApp.Jobs.Scheduler.Every"],
+    "viewRoots": ["Features"]
+  }
+}
+```
+
+- `configurations`: leave empty to compile Debug, Release and every configuration your projects declare; list some to
+  go faster on a large solution with many editions.
+- `defines`: symbols your build passes outside the `.csproj` (`-p:DefineConstants=…` in CI).
+- `entryCalls`: methods of your own scheduler whose delegate arguments are background jobs.
+- `viewRoots`: folders holding views by controller name besides `Views/` (a custom view location expander).
+
+**Roles by default:** test projects and `*Tests.cs` are tests; `Directory.Build.props/.targets`, `global.json`,
+`NuGet.config` and `.editorconfig` are global; app settings, `web.config`, publish profiles, solution files and
+**SQL scripts** are infrastructure; **`wwwroot`** is client code (except `wwwroot/lib/` and minified files, excluded).
+
+**Reports:** coverage, lint (SARIF) and `dotnet list package --vulnerable` are not read yet; the report shows them as
+not verified.
+
+**Workflow:** [`workflow-csharp.yml`](workflow-csharp.yml). It installs the SDK with `actions/setup-dotnet` and does not
+restore packages (restore evaluates the PR's project files in a job that can write to the PR).
+
+**Check:** `farol routes` lists every action as `GET /Orders/Details/{id?}`, endpoints as `GET /api/health`, background
+services as `TASK Namespace.Type`; `farol impact <file>` lists the entry points that reach a file.
 
 ## Monorepos
 

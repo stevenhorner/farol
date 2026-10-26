@@ -1,6 +1,6 @@
 # farol
 
-CLI that classifies PRs of React + TypeScript frontends, TypeScript backends (GraphQL/REST), Go backends and Python backends as `global`, `unknown`, `touches-existing` or `isolated`, and reports diff coverage / lint signals. Shadow mode only: it informs, never blocks.
+CLI that classifies PRs of React + TypeScript frontends, TypeScript backends (GraphQL/REST), Go backends, Python backends and C#/.NET backends as `global`, `unknown`, `touches-existing` or `isolated`, and reports diff coverage / lint signals. Shadow mode only: it informs, never blocks.
 
 `docs/SPEC.md` is the source of truth. Progress lives in `docs/PROGRESS.md`, every decision not in the spec goes to `docs/DECISIONS.md` (dated entry), reason codes are documented in `docs/reasons.md`.
 
@@ -14,7 +14,7 @@ Run typecheck, lint and test before every commit. Never commit with failing or s
 
 ## Layout
 
-`src/{cli,config,git,project,routes,backend,decls,golang,python,classify,signals,output,report,github}`; `go-helper/` (Go) and `py-helper/` (Python), both stdlib only, read Go and Python projects for `language: "go"`/`"python"`; `src/decls/` turns their JSON into impacts; tests in `test/` (unit, `test/scenarios/` golden tests on real temp git repos built by `test/helpers/`, fixtures in `test/fixtures/<scenario>/{base,head,deleted.txt,expected.json}`).
+`src/{cli,config,git,project,routes,backend,decls,golang,python,dotnet,classify,signals,output,report,github}`; `go-helper/` (Go) and `py-helper/` (Python), both stdlib only, and `cs-helper/` (C#, Roslyn from the .NET SDK, no NuGet package) read Go, Python and C# projects for `language: "go"`/`"python"`/`"csharp"`; languages are listed in `src/config/languages.ts`; `src/decls/` turns their JSON into impacts; tests in `test/` (unit, `test/scenarios/` golden tests on real temp git repos built by `test/helpers/`, fixtures in `test/fixtures/<scenario>/{base,head,deleted.txt,expected.json}`).
 
 ## Rules
 

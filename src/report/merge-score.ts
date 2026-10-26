@@ -9,7 +9,7 @@ import type { Output } from '../output/schema.js'
  */
 export interface ScoreItem {
   file: string | null
-  kind: 'change' | 'infra' | 'security' | 'lint' | 'suppression' | 'tests' | 'dependency' | 'vulnerability' | 'global' | 'unknown' | 'contract'
+  kind: 'change' | 'infra' | 'client' | 'security' | 'lint' | 'suppression' | 'tests' | 'dependency' | 'vulnerability' | 'global' | 'unknown' | 'contract'
   weight: number
   title: string
   /** Line of a finding (security, lint, suppression). */
@@ -29,6 +29,12 @@ export const MEDIUM_SCORE = 30
 export const GLOBAL_WEIGHT = 0.3
 /** All environment, infrastructure and CI files of a PR together (a deploy-time risk, not a code path). */
 export const INFRA_WEIGHT = 0.12
+/** A modified client script or stylesheet (wwwroot), a deleted one, and all of them together. */
+export const CLIENT_FILE_WEIGHT = 0.05
+export const CLIENT_DELETED_WEIGHT = 0.1
+export const CLIENT_TOTAL_WEIGHT = 0.25
+/** Client files with behavior: scripts, styles and markup (not images or fonts). */
+const CLIENT_CODE = /\.(js|mjs|cjs|ts|jsx|tsx|css|scss|sass|less|html?)$/
 /** Each added file that only declares things (types, re-exports, static constants), and all of them together at most. */
 export const DECLARATIONS_FILE_WEIGHT = 0.01
 export const DECLARATIONS_TOTAL_WEIGHT = 0.05
@@ -132,6 +138,13 @@ export function scoreItems(o: Output): ScoreItem[] {
   // Environment, infrastructure and CI files together weigh at most INFRA_WEIGHT, shared by file (each reviewable).
   const infra = o.files.filter((f) => f.role === 'infra')
   for (const f of infra) add(f.path, 'infra', 1 - (1 - INFRA_WEIGHT) ** (1 / infra.length), `${f.status} environment, infrastructure or CI file: check it per environment`)
+  // Client scripts and styles (wwwroot): each weighs a little, all of them together at most CLIENT_TOTAL_WEIGHT. Images
+  // and fonts have no behavior to weigh.
+  const client = o.files.filter((f) => f.role === 'client' && f.status !== 'added' && CLIENT_CODE.test(f.path))
+  const clientWeight = (f: (typeof client)[number]): number => (f.status === 'deleted' ? CLIENT_DELETED_WEIGHT : CLIENT_FILE_WEIGHT)
+  const clientTotal = 1 - client.reduce((p, f) => p * (1 - clientWeight(f)), 1)
+  const clientShare = clientTotal > CLIENT_TOTAL_WEIGHT ? 1 - (1 - CLIENT_TOTAL_WEIGHT) ** (1 / client.length) : null
+  for (const f of client) add(f.path, 'client', clientShare ?? clientWeight(f), `${f.status} client file: every page that loads it runs it`)
   // Findings in files outside the project belong to another project's review.
   const outside = new Set(o.files.filter((f) => f.role === 'excluded').map((f) => f.path))
   const security = o.signals.security.findings.filter((s) => !outside.has(s.path))

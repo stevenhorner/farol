@@ -15,7 +15,7 @@ export const FileSchema = z
     path,
     oldPath: path.optional(),
     status: z.enum(['added', 'modified', 'deleted', 'renamed']),
-    role: z.enum(['global', 'manifest', 'lockfile', 'routes', 'schema', 'resolvers', 'test', 'story', 'infra', 'barrel', 'i18n', 'source', 'excluded']),
+    role: z.enum(['global', 'manifest', 'lockfile', 'routes', 'schema', 'resolvers', 'test', 'story', 'infra', 'client', 'barrel', 'i18n', 'source', 'excluded']),
     /** Only for modified routes, barrel and i18n files: whether the additive rule holds. */
     additive: z.boolean().optional(),
     linesAdded: count,
@@ -66,7 +66,7 @@ export const LintSignalSchema = z
   })
   .strict()
 
-export const SUPPRESSION_KINDS = ['eslint-disable', 'eslint-disable-line', 'eslint-disable-next-line', 'ts-ignore', 'ts-expect-error', 'ts-nocheck', 'as-any', 'any-annotation', 'nolint', 'lint-ignore', 'nosec', 'noqa', 'type-ignore', 'no-cover', 'pyright-ignore', 'pylint-disable'] as const
+export const SUPPRESSION_KINDS = ['eslint-disable', 'eslint-disable-line', 'eslint-disable-next-line', 'ts-ignore', 'ts-expect-error', 'ts-nocheck', 'as-any', 'any-annotation', 'nolint', 'lint-ignore', 'nosec', 'noqa', 'type-ignore', 'no-cover', 'pyright-ignore', 'pylint-disable', 'pragma-warning-disable', 'nullable-disable', 'resharper-disable'] as const
 
 export const SuppressionsSignalSchema = z
   .object({

@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "surface": "backend",
+  "tool": {
+    "name": "farol",
+    "version": "<version>"
+  },
+  "repo": null,
+  "pr": null,
+  "base": {
+    "ref": "main",
+    "sha": "<base>"
+  },
+  "mergeBase": "<base>",
+  "head": {
+    "ref": "feature",
+    "sha": "<head>"
+  },
+  "analyzedAt": "2026-01-15T12:00:00.000Z",
+  "classification": "global",
+  "reasons": [
+    {
+      "code": "manifest-changed",
+      "file": "src/Shop.Core/Shop.Core.csproj",
+      "detail": "fields changed: property:TargetFramework"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/Shop.Core/Shop.Core.csproj",
+      "status": "modified",
+      "role": "manifest",
+      "linesAdded": 1,
+      "linesRemoved": 1
+    }
+  ],
+  "ignoredFiles": [],
+  "dependencies": {
+    "manifests": [
+      "src/Shop.Core/Shop.Core.csproj"
+    ],
+    "lockfiles": [],
+    "changes": [],
+    "summary": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "patch": 0,
+      "added": 0,
+      "removed": 0
+    }
+  },
+  "risk": {
+    "totalPages": 9,
+    "files": [],
+    "summary": {
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "routes": {
+    "added": [],
+    "affected": [],
+    "disconnectedNewFiles": []
+  },
+  "signals": {
+    "coverage": {
+      "status": "not-provided",
+      "message": "no coverage report given (--coverage or signals.coverage)",
+      "files": [],
+      "total": null,
+      "ignoredFiles": []
+    },
+    "lint": {
+      "status": "not-provided",
+      "message": "no Roslyn analyzers (SARIF) report given (--eslint or signals.eslint)",
+      "changedLines": null,
+      "otherLines": null,
+      "findings": [],
+      "omittedFindings": 0
+    },
+    "security": {
+      "status": "not-provided",
+      "findings": [],
+      "summary": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "message": "C# files are checked by the .NET security analyzers, whose SARIF report farol does not read yet"
+    },
+    "vulnerabilities": {
+      "status": "not-provided",
+      "message": "no audit report given (--audit or signals.audit)",
+      "related": [],
+      "total": null
+    },
+    "suppressions": {
+      "status": "ok",
+      "items": []
+    },
+    "testsModified": {
+      "status": "ok",
+      "files": []
+    }
+  },
+  "diagnostics": {
+    "unresolvedImports": [],
+    "dynamicRoutes": [],
+    "parseErrors": [],
+    "timingsMs": {
+      "diff": 0,
+      "helperSetup": 0,
+      "helperRead": 0,
+      "base": 0,
+      "classify": 0,
+      "signals": 0,
+      "diffs": 0
+    },
+    "error": null
+  },
+  "review": null,
+  "contracts": {
+    "readable": 0,
+    "entries": [],
+    "summary": {
+      "breaking": 0,
+      "dangerous": 0,
+      "safe": 0
+    }
+  }
+}

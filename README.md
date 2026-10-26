@@ -22,7 +22,7 @@
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue"></a>
   <img alt="Node.js 22+" src="https://img.shields.io/badge/node-22%2B-339933">
-  <img alt="TypeScript · Go · Python" src="https://img.shields.io/badge/TypeScript%20·%20Go%20·%20Python-supported-6f42c1">
+  <img alt="TypeScript · Go · Python · C#" src="https://img.shields.io/badge/TypeScript%20·%20Go%20·%20Python%20·%20C%23-supported-6f42c1">
   <img alt="Shadow mode" src="https://img.shields.io/badge/shadow%20mode-never%20blocks-lightgrey">
 </p>
 
@@ -106,7 +106,7 @@ what farol shows.
 - [Live demo](#live-demo)
 - [farol after your AI review](#farol-after-your-ai-review)
 - [Get started](#get-started)
-- [Recipes](#recipes): [React Router](#react-frontend-react-router) · [Next.js](#nextjs) · [TanStack Router](#tanstack-router) · [TypeScript API](#typescript-api-graphql-or-rest) · [Go](#go-service) · [Python](#python-service) · [Datadog](#add-datadog-traffic-and-errors)
+- [Recipes](#recipes): [React Router](#react-frontend-react-router) · [Next.js](#nextjs) · [TanStack Router](#tanstack-router) · [TypeScript API](#typescript-api-graphql-or-rest) · [Go](#go-service) · [Python](#python-service) · [C#/.NET](#cnet-solution) · [Datadog](#add-datadog-traffic-and-errors)
 - [What is supported](#what-is-supported)
 - [Reading the review](#reading-the-review)
 - [How it works](#how-it-works) · [Security](#security-and-privacy) · [Limitations](#limitations) · [FAQ](#faq)
@@ -114,7 +114,7 @@ what farol shows.
 
 ## Get started
 
-You need **Node.js 22+** and **git** (plus `go` for Go projects, `python3` 3.11+ for Python ones). Nothing to
+You need **Node.js 22+** and **git** (plus `go` for Go projects, `python3` 3.11+ for Python ones, the .NET SDK 8+ for C# ones). Nothing to
 install: run farol with `npx @winninjs/farol`.
 
 **1. Describe your project** in a `farol.config.json` at its root. One line is enough to start; pick your stack:
@@ -127,6 +127,7 @@ install: run farol with `npx @winninjs/farol`.
 | TypeScript API (GraphQL, REST) | `{ "surface": "backend" }` | [TypeScript API](#typescript-api-graphql-or-rest) |
 | Go service | `{ "language": "go", "surface": "backend" }` | [Go](#go-service) |
 | Python service (FastAPI, Flask, Django, Celery…) | `{ "language": "python", "surface": "backend" }` | [Python](#python-service) |
+| C#/.NET solution (ASP.NET Core MVC, Web API, minimal APIs) | `{ "language": "csharp", "surface": "backend" }` | [C#/.NET](#cnet-solution) |
 
 **2. Check what farol sees:** the pages, endpoints, jobs and scripts it found.
 
@@ -284,6 +285,26 @@ npx @winninjs/farol analyze --base origin/main --head HEAD \
 
 **CI:** copy [`examples/workflow-python.yml`](examples/workflow-python.yml) (uses `uv`; swap in your installer).
 
+### C#/.NET solution
+
+ASP.NET Core MVC and Web API controllers (conventional and attribute routes, areas), minimal APIs with route groups,
+background services, Razor views by convention, and every build configuration (`#if` editions) at once. Interface calls
+reach their implementations, so dependency injection needs no setup. farol reads your code with the C# compiler of your
+.NET SDK; it never runs MSBuild or your code.
+
+```json
+{ "language": "csharp", "surface": "backend" }
+```
+
+```sh
+npx @winninjs/farol routes      # every action, endpoint and background service farol found
+npx @winninjs/farol analyze --base origin/main --head HEAD --out farol.json
+```
+
+SQL scripts count as infrastructure and `wwwroot` files as client code. Coverage, lint (SARIF) and vulnerability
+reports are not read for C# yet. Background jobs started through your own scheduler: list its methods in
+`csharp.entryCalls`. **CI:** copy [`examples/workflow-csharp.yml`](examples/workflow-csharp.yml).
+
 ### Add Datadog traffic and errors
 
 Optional, and information only: it never changes the score. With it the report shows how much traffic each affected
@@ -311,18 +332,18 @@ matching rules are in the [reference](docs/reference.md#traffic-and-errors-from-
 
 ## What is supported
 
-| | TypeScript / React frontends | TypeScript / JavaScript backends | Go | Python |
-|---|---|---|---|---|
-| **Entry points** | React Router route tables (object and JSX forms, lazy routes, split route modules); Next.js Pages and App Router (pages, API routes, layouts, middleware); TanStack Router file-based routes | GraphQL root operations (schema files and `gql` templates), REST endpoints (Fastify/Express style) and command-line commands (commander, cac, yargs) | chi, gin, echo and net/http routes; gRPC service methods; `main` binaries | FastAPI and Flask routes (routers, blueprints, prefixes); Django URLs; MCP tools, resources and prompts; Celery tasks; Temporal workflows and activities; Prefect flows; `__main__` scripts |
-| **Reach precision** | per declaration (TypeScript type checker) | per module, per resolver for GraphQL | per declaration (`go/types`, interface calls resolved to implementations) | per declaration (Python `ast` with local type inference) |
-| **Contract changes** | — | GraphQL schema (breaking / dangerous / safe) | Handler request and response types (net/http, chi, gin, echo); gRPC messages | FastAPI parameters, body, response and Pydantic models |
-| **Dependencies** | `package.json` + npm/pnpm/yarn/bun lockfiles | same | `go.mod` + `go.sum` | `pyproject.toml` (PEP 621, extras, groups, uv, Poetry), `requirements.txt` + `uv.lock`/`poetry.lock`/`Pipfile.lock` |
-| **Diff coverage** | Istanbul `coverage-final.json` (Vitest, Jest) | same | `go test -coverprofile` | coverage.py JSON (`pytest --cov`) |
-| **Lint** | `eslint -f json` | same | golangci-lint JSON | ruff JSON |
-| **Security** | built-in rules (XSS sinks, `eval`, hard-coded secrets, `javascript:` URLs…) | same | gosec (through golangci-lint) | flake8-bandit (ruff `S` rules) |
-| **Vulnerabilities** | `npm audit --json`, `pnpm audit --json` | same | `govulncheck -json` | `pip-audit --format json` |
-| **Suppressions** | `eslint-disable`, `@ts-ignore`, `@ts-expect-error`, `as any`… | same | `//nolint`, `//lint:ignore`, `#nosec` | `# noqa`, `# type: ignore`, `# nosec`, `# pragma: no cover`… |
-| **Traffic and errors** (optional) | Datadog RUM page views and errors | Datadog APM requests, error spans and callers | same | same |
+| | TypeScript / React frontends | TypeScript / JavaScript backends | Go | Python | C# / .NET |
+|---|---|---|---|---|---|
+| **Entry points** | React Router route tables (object and JSX forms, lazy routes, split route modules); Next.js Pages and App Router (pages, API routes, layouts, middleware); TanStack Router file-based routes | GraphQL root operations (schema files and `gql` templates), REST endpoints (Fastify/Express style) and command-line commands (commander, cac, yargs) | chi, gin, echo and net/http routes; gRPC service methods; `main` binaries | FastAPI and Flask routes (routers, blueprints, prefixes); Django URLs; MCP tools, resources and prompts; Celery tasks; Temporal workflows and activities; Prefect flows; `__main__` scripts | ASP.NET Core controllers (attribute and conventional routes, areas), minimal APIs (route groups), `BackgroundService`/`IHostedService`, configured scheduler calls, programs |
+| **Reach precision** | per declaration (TypeScript type checker) | per module, per resolver for GraphQL | per declaration (`go/types`, interface calls resolved to implementations) | per declaration (Python `ast` with local type inference) | per declaration (Roslyn; interface and virtual calls resolved to implementations; every build configuration; Razor views by convention) |
+| **Contract changes** | — | GraphQL schema (breaking / dangerous / safe) | Handler request and response types (net/http, chi, gin, echo); gRPC messages | FastAPI parameters, body, response and Pydantic models | — |
+| **Dependencies** | `package.json` + npm/pnpm/yarn/bun lockfiles | same | `go.mod` + `go.sum` | `pyproject.toml` (PEP 621, extras, groups, uv, Poetry), `requirements.txt` + `uv.lock`/`poetry.lock`/`Pipfile.lock` | `.csproj` `PackageReference`, `Directory.Packages.props` + `packages.lock.json` |
+| **Diff coverage** | Istanbul `coverage-final.json` (Vitest, Jest) | same | `go test -coverprofile` | coverage.py JSON (`pytest --cov`) | not yet |
+| **Lint** | `eslint -f json` | same | golangci-lint JSON | ruff JSON | not yet (SARIF planned) |
+| **Security** | built-in rules (XSS sinks, `eval`, hard-coded secrets, `javascript:` URLs…) | same | gosec (through golangci-lint) | flake8-bandit (ruff `S` rules) | not yet |
+| **Vulnerabilities** | `npm audit --json`, `pnpm audit --json` | same | `govulncheck -json` | `pip-audit --format json` | not yet |
+| **Suppressions** | `eslint-disable`, `@ts-ignore`, `@ts-expect-error`, `as any`… | same | `//nolint`, `//lint:ignore`, `#nosec` | `# noqa`, `# type: ignore`, `# nosec`, `# pragma: no cover`… | `#pragma warning disable`, `#nullable disable`, `// ReSharper disable` |
+| **Traffic and errors** (optional) | Datadog RUM page views and errors | Datadog APM requests, error spans and callers | same | same | same |
 
 In every language: environment, infrastructure and CI files (`.env*`, Dockerfiles, compose, CI pipelines, helm, k8s,
 terraform…) in a section of their own; incremental analysis since any commit (`--since`); suggested reviewers from

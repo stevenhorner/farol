@@ -157,7 +157,7 @@ function suppressionsAndTests(o: Output, h: Html): string {
 }
 
 function filesSection(o: Output, h: Html): string {
-  const roles = ['global', 'manifest', 'lockfile', 'routes', 'schema', 'resolvers', 'source', 'barrel', 'i18n', 'infra', 'test', 'story', 'excluded'] as const
+  const roles = ['global', 'manifest', 'lockfile', 'routes', 'schema', 'resolvers', 'source', 'barrel', 'i18n', 'client', 'infra', 'test', 'story', 'excluded'] as const
   const groups = roles
     .map((role) => ({ role, files: o.files.filter((f) => f.role === role) }))
     .filter((g) => g.files.length > 0)

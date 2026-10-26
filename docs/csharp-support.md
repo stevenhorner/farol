@@ -1,7 +1,8 @@
 # Adding C#/.NET support — design proposal
 
-Status: **proposal**, nothing implemented; the open questions of the first draft are decided (see
-[Decisions taken](#decisions-taken) and DECISIONS.md, 2026-10-26 (9)). This document explains how farol could analyze C#/.NET backends
+Status: **phase 0 and phase 1 implemented** (see [how-it-works.md](how-it-works.md#cnet) for what farol does today,
+and DECISIONS.md 2026-10-26 (9)–(11) for the choices made while building it); phases 2 and 3 are still proposals. The
+open questions of the first draft are decided (see [Decisions taken](#decisions-taken)). This document explains how farol could analyze C#/.NET backends
 (ASP.NET Core MVC, Web API, minimal APIs, Razor Pages, SignalR, gRPC, worker services) with the same pipeline,
 JSON contract and reports it already uses for Go and Python. Each choice below that is adopted needs its own dated
 entry in [DECISIONS.md](DECISIONS.md) before the code lands, as the project rules require (new top-level module
@@ -655,7 +656,6 @@ Decided on 2026-10-26 (recorded in DECISIONS.md, 2026-10-26 (9)):
 
 Still open, to settle when the code is written:
 
-- **`.editorconfig`:** `global` by default as proposed, or `infra`? It can raise analyzer severities to errors, but
-  most changes are formatting.
+- **`.editorconfig`:** `global` by default for now (DECISIONS (11)); a project can move it with `roles.global`.
 - **SARIF for every language:** worth accepting it for TypeScript, Go and Python at the same time, since it would
   also take CodeQL and Semgrep results?

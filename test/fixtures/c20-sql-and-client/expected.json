@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "surface": "backend",
+  "tool": {
+    "name": "farol",
+    "version": "<version>"
+  },
+  "repo": null,
+  "pr": null,
+  "base": {
+    "ref": "main",
+    "sha": "<base>"
+  },
+  "mergeBase": "<base>",
+  "head": {
+    "ref": "feature",
+    "sha": "<head>"
+  },
+  "analyzedAt": "2026-01-15T12:00:00.000Z",
+  "classification": "touches-existing",
+  "reasons": [
+    {
+      "code": "infra-file-changed",
+      "file": "sql/001_create_orders.sql",
+      "detail": "environment, infrastructure or CI file modified"
+    },
+    {
+      "code": "infra-file-changed",
+      "file": "sql/002_add_customer.sql",
+      "detail": "environment, infrastructure or CI file added"
+    },
+    {
+      "code": "client-file-changed",
+      "file": "src/Shop.Web/wwwroot/js/site.js",
+      "detail": "existing client file modified (served to browsers)"
+    },
+    {
+      "code": "client-file-added",
+      "file": "src/Shop.Web/wwwroot/js/orders.js",
+      "detail": "new client file (served to browsers)"
+    },
+    {
+      "code": "file-excluded",
+      "file": "src/Shop.Web/wwwroot/lib/jquery/jquery.min.js",
+      "detail": "matches \"exclude\" in the configuration"
+    }
+  ],
+  "files": [
+    {
+      "path": "sql/001_create_orders.sql",
+      "status": "modified",
+      "role": "infra",
+      "linesAdded": 1,
+      "linesRemoved": 1
+    },
+    {
+      "path": "sql/002_add_customer.sql",
+      "status": "added",
+      "role": "infra",
+      "linesAdded": 1,
+      "linesRemoved": 0
+    },
+    {
+      "path": "src/Shop.Web/wwwroot/js/orders.js",
+      "status": "added",
+      "role": "client",
+      "linesAdded": 3,
+      "linesRemoved": 0
+    },
+    {
+      "path": "src/Shop.Web/wwwroot/js/site.js",
+      "status": "modified",
+      "role": "client",
+      "linesAdded": 1,
+      "linesRemoved": 1
+    },
+    {
+      "path": "src/Shop.Web/wwwroot/lib/jquery/jquery.min.js",
+      "status": "modified",
+      "role": "excluded",
+      "linesAdded": 1,
+      "linesRemoved": 1
+    }
+  ],
+  "ignoredFiles": [],
+  "dependencies": {
+    "manifests": [],
+    "lockfiles": [],
+    "changes": [],
+    "summary": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "patch": 0,
+      "added": 0,
+      "removed": 0
+    }
+  },
+  "risk": {
+    "totalPages": 9,
+    "files": [],
+    "summary": {
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "routes": {
+    "added": [],
+    "affected": [],
+    "disconnectedNewFiles": []
+  },
+  "signals": {
+    "coverage": {
+      "status": "not-provided",
+      "message": "no coverage report given (--coverage or signals.coverage)",
+      "files": [],
+      "total": null,
+      "ignoredFiles": []
+    },
+    "lint": {
+      "status": "not-provided",
+      "message": "no Roslyn analyzers (SARIF) report given (--eslint or signals.eslint)",
+      "changedLines": null,
+      "otherLines": null,
+      "findings": [],
+      "omittedFindings": 0
+    },
+    "security": {
+      "status": "not-provided",
+      "findings": [],
+      "summary": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "message": "C# files are checked by the .NET security analyzers, whose SARIF report farol does not read yet"
+    },
+    "vulnerabilities": {
+      "status": "not-provided",
+      "message": "no audit report given (--audit or signals.audit)",
+      "related": [],
+      "total": null
+    },
+    "suppressions": {
+      "status": "ok",
+      "items": []
+    },
+    "testsModified": {
+      "status": "ok",
+      "files": []
+    }
+  },
+  "diagnostics": {
+    "unresolvedImports": [],
+    "dynamicRoutes": [],
+    "parseErrors": [],
+    "timingsMs": {
+      "diff": 0,
+      "helperSetup": 0,
+      "helperRead": 0,
+      "base": 0,
+      "classify": 0,
+      "signals": 0,
+      "diffs": 0
+    },
+    "error": null
+  },
+  "review": null,
+  "contracts": {
+    "readable": 0,
+    "entries": [],
+    "summary": {
+      "breaking": 0,
+      "dangerous": 0,
+      "safe": 0
+    }
+  }
+}

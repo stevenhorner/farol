@@ -5,6 +5,7 @@ import type { ChangedFile } from '../git/types.js'
 import type { CoverageSignal, LintSignal, SecurityFinding, SecuritySignal, Signals, VulnerabilitiesSignal } from '../output/schema.js'
 import { compareStrings } from '../output/order.js'
 import { isCoveragePyReport, isPipAuditReport, isRuffReport, parseCoveragePyReport, parsePipAuditReport, parseRuffReport, pythonSuppressions } from '../signals/python.js'
+import { csharpSuppressions } from '../signals/dotnet.js'
 import { goSuppressions, isGolangciReport, isGovulncheckReport, parseGoCoverProfile, parseGolangciReport, parseGovulncheckReport } from '../signals/go.js'
 import { isDeclarationsOnlyModule, isScriptFile } from '../classify/declarations-only.js'
 import { coverageSignal, listsUnloadedFiles, parseCoverageReport, ReportError } from '../signals/coverage.js'
@@ -40,7 +41,7 @@ export interface SignalInputs {
 type HelperComment = { file: string; line: number; text: string }
 
 /** Suppressions each helper language reads from the comments of the changed files. */
-const LANGUAGE_SUPPRESSIONS: Record<HelperLanguage, typeof goSuppressions> = { go: goSuppressions, python: pythonSuppressions }
+const LANGUAGE_SUPPRESSIONS: Record<HelperLanguage, typeof goSuppressions> = { go: goSuppressions, python: pythonSuppressions, csharp: csharpSuppressions }
 
 type Read = { kind: 'missing'; message: string } | { kind: 'error'; message: string } | { kind: 'ok'; text: string }
 

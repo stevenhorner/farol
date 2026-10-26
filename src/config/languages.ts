@@ -3,7 +3,7 @@
  * helper written in that language, which prints the JSON of `src/decls/types.ts`. Tables keyed by `Language` or
  * `HelperLanguage` are exhaustive, so adding a language fails to compile until every table has its entry.
  */
-export const LANGUAGES = ['typescript', 'go', 'python'] as const
+export const LANGUAGES = ['typescript', 'go', 'python', 'csharp'] as const
 
 export type Language = (typeof LANGUAGES)[number]
 
@@ -14,7 +14,7 @@ export interface HelperLanguageInfo {
   /** Name in messages ("a Go project is a backend"). */
   label: string
   /** Directory of the helper, shipped next to dist/ (see `helperDir`). */
-  helper: 'go-helper' | 'py-helper'
+  helper: 'go-helper' | 'py-helper' | 'cs-helper'
   /** Extensions of the source files the helper reads. */
   extensions: readonly string[]
   /** Name of the lint report in messages ("no golangci-lint report given"). */
@@ -37,6 +37,13 @@ export const HELPER_LANGUAGES: Record<HelperLanguage, HelperLanguageInfo> = {
     extensions: ['.py'],
     lintTool: 'ruff',
     securityHint: 'Python files are checked by flake8-bandit: give a ruff JSON report (with the S rules selected) as the lint report',
+  },
+  csharp: {
+    label: 'C#',
+    helper: 'cs-helper',
+    extensions: ['.cs', '.cshtml'],
+    lintTool: 'Roslyn analyzers (SARIF)',
+    securityHint: 'C# files are checked by the .NET security analyzers, whose SARIF report farol does not read yet',
   },
 }
 

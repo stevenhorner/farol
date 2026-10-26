@@ -1,0 +1,7 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shop.Web", "src\Shop.Web\Shop.Web.csproj", "{6A1F0F5E-0001-4C1A-9C7A-000000000001}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shop.Core", "src\Shop.Core\Shop.Core.csproj", "{6A1F0F5E-0001-4C1A-9C7A-000000000002}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shop.Core.Tests", "tests\Shop.Core.Tests\Shop.Core.Tests.csproj", "{6A1F0F5E-0001-4C1A-9C7A-000000000003}"
+EndProject

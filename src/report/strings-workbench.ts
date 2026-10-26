@@ -32,7 +32,7 @@ export function workbenchText(surface: 'frontend' | 'backend') {
     levels: { high: 'High', medium: 'Medium', low: 'Low' },
     verdict: { careful: 'Careful review', quick: 'Quick review', pass: 'Fast track' },
     tiers: { high: 'High risk', medium: 'Medium risk', skim: 'Skim', tests: 'Test files' },
-    kinds: { contract: 'Breaking API change', vulnerability: 'Vulnerable dependency', global: 'Global change', unknown: 'Unknown impact', dependency: 'Dependency', infra: 'Infrastructure', tests: 'Tests' } as Record<string, string>,
+    kinds: { contract: 'Breaking API change', vulnerability: 'Vulnerable dependency', global: 'Global change', unknown: 'Unknown impact', dependency: 'Dependency', infra: 'Infrastructure', client: 'Client code', tests: 'Tests' } as Record<string, string>,
     rail: {
       risk: 'Merge risk',
       was: ' · was {score}',

@@ -1,0 +1,7 @@
+@model IReadOnlyList<Order>
+<ul>
+@foreach (var order in Model)
+{
+    <li><a asp-action="Details" asp-route-id="@order.Id">@order.Sku</a></li>
+}
+</ul>

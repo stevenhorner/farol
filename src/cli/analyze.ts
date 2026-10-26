@@ -15,7 +15,8 @@ import { computeSignals, computeUsage, type SignalInputs } from './signals.js'
 import { backendImpacts } from './backend.js'
 import type { Context } from './context.js'
 import { createDiskFileSystem } from './disk-fs.js'
-import { defaultCacheDir, loadLangWorkspace, readToml } from './lang-workspace.js'
+import { defaultCacheDir, loadLangWorkspace, readCsManifest, readToml } from './lang-workspace.js'
+import { diffNuGet } from '../dotnet/nuget.js'
 import { diffPyproject, diffRequirementsTxt } from '../python/pyproject.js'
 import { UsageError } from '../config/load.js'
 import { isHelperLanguage, isHelperSource } from '../config/languages.js'
@@ -135,6 +136,7 @@ async function manifestDiffs(ctx: Context, files: readonly ChangedFile[], roleOf
       const name = posix.basename(f.path)
       if (name === 'pyproject.toml') return diffPyproject(f.path, before === null ? null : await parseToml(before), after === null ? null : await parseToml(after))
       if (name === 'requirements.txt') return diffRequirementsTxt(f.path, before, after)
+      if (name.endsWith('.csproj') || name === 'Directory.Packages.props') return diffNuGet(f.path, before === null ? null : await parseCsManifest(before), after === null ? null : await parseCsManifest(after))
       return (name === 'go.mod' ? diffGoMod : diffManifest)(f.path, before, after)
     } catch (error) {
       if (error instanceof ManifestParseError) return { manifest: f.path, error: error.message }
@@ -150,6 +152,16 @@ async function parseToml(text: string): Promise<unknown> {
   } catch (error) {
     if (error instanceof UsageError) throw error
     throw new ManifestParseError(`invalid TOML: ${(error instanceof Error ? error.message : String(error)).split('\n').slice(-1)[0] ?? ''}`)
+  }
+}
+
+/** A project file parsed by the C# helper; XML it rejects is a parse error of the manifest. */
+async function parseCsManifest(text: string): Promise<unknown> {
+  try {
+    return await readCsManifest(text)
+  } catch (error) {
+    if (error instanceof UsageError) throw error
+    throw new ManifestParseError((error instanceof Error ? error.message : String(error)).split('\n').slice(-1)[0]?.replace(/^.*cshelper: /, '') ?? 'invalid project file')
   }
 }
 
@@ -288,7 +300,7 @@ export async function runAnalyze(ctx: Context, options: AnalyzeOptions, deps: An
     if (contracts) meta.contracts = contracts
     lap('signals')
     // Inline diffs for the report: code files, riskiest first (the risk table order), then the others.
-    const codeRoles = new Set(['source', 'resolvers', 'schema', 'routes', 'barrel', 'i18n', 'global', 'infra'])
+    const codeRoles = new Set(['source', 'resolvers', 'schema', 'routes', 'barrel', 'i18n', 'global', 'infra', 'client'])
     const shown = result.files.filter((f) => codeRoles.has(f.role) && !files.find((c) => c.path === f.path)?.binary).map((f) => f.path)
     const order = [...result.risk.files.map((f) => f.path).filter((p) => shown.includes(p)), ...shown.filter((p) => !result.risk.files.some((f) => f.path === p))]
     meta.diffs = limitDiffs(await contextDiff(ctx.repoRoot, mb, meta.head.sha, order), order)

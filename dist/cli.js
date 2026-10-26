@@ -213355,7 +213355,7 @@ var require_picomatch2 = __commonJS({
 });
 
 // src/cli/program.ts
-import { existsSync as existsSync6 } from "fs";
+import { existsSync as existsSync7 } from "fs";
 import { dirname as dirname4, resolve as resolve10 } from "path";
 
 // node_modules/commander/lib/error.js
@@ -236448,7 +236448,7 @@ function date4(params) {
 }
 
 // src/config/languages.ts
-var LANGUAGES = ["typescript", "go", "python"];
+var LANGUAGES = ["typescript", "go", "python", "csharp"];
 var HELPER_LANGUAGES = {
   go: {
     label: "Go",
@@ -236463,6 +236463,13 @@ var HELPER_LANGUAGES = {
     extensions: [".py"],
     lintTool: "ruff",
     securityHint: "Python files are checked by flake8-bandit: give a ruff JSON report (with the S rules selected) as the lint report"
+  },
+  csharp: {
+    label: "C#",
+    helper: "cs-helper",
+    extensions: [".cs", ".cshtml"],
+    lintTool: "Roslyn analyzers (SARIF)",
+    securityHint: "C# files are checked by the .NET security analyzers, whose SARIF report farol does not read yet"
   }
 };
 function isHelperLanguage(language) {
@@ -236518,6 +236525,7 @@ var DEFAULT_INFRA = [
   "**/.python-version"
 ];
 var DEFAULT_ROLES = {
+  client: [],
   barrel: ["**/index.ts"],
   i18n: ["src/locales/**/*.json"],
   test: ["**/*.test.ts", "**/*.test.tsx"],
@@ -236525,9 +236533,19 @@ var DEFAULT_ROLES = {
   global: ["src/App.tsx", "src/main.tsx", "package.json", "package-lock.json", "tsconfig*.json", "eslint.config.*", "vite.config.ts"],
   infra: DEFAULT_INFRA
 };
-var GO_DEFAULT_ROLES = { barrel: [], i18n: [], test: ["**/*_test.go"], story: [], global: [], infra: DEFAULT_INFRA };
+var GO_DEFAULT_ROLES = { client: [], barrel: [], i18n: [], test: ["**/*_test.go"], story: [], global: [], infra: DEFAULT_INFRA };
 var GO_DEFAULT_EXCLUDE = ["**/mock/**", "**/mocks/**", "**/*_mock.go", "**/mock_*.go"];
-var PYTHON_DEFAULT_ROLES = { barrel: [], i18n: [], test: ["tests/**", "**/tests/**", "**/test/**", "**/test_*.py", "**/*_test.py", "**/conftest.py"], story: [], global: [], infra: DEFAULT_INFRA };
+var PYTHON_DEFAULT_ROLES = { client: [], barrel: [], i18n: [], test: ["tests/**", "**/tests/**", "**/test/**", "**/test_*.py", "**/*_test.py", "**/conftest.py"], story: [], global: [], infra: DEFAULT_INFRA };
+var CSHARP_DEFAULT_ROLES = {
+  client: ["**/wwwroot/**"],
+  barrel: [],
+  i18n: [],
+  test: ["**/*.Tests/**", "**/*.Test/**", "**/*.UnitTests/**", "**/*.IntegrationTests/**", "**/test/**", "**/tests/**", "**/*Tests.cs", "**/*Test.cs"],
+  story: [],
+  global: ["**/Directory.Build.props", "**/Directory.Build.targets", "**/global.json", "**/NuGet.config", "**/nuget.config", "**/NuGet.Config", "**/.editorconfig"],
+  infra: [...DEFAULT_INFRA, "**/appsettings*.json", "**/web.config", "**/Web.config", "**/launchSettings.json", "**/*.pubxml", "**/*.sql", "**/*.sln", "**/*.slnx"]
+};
+var CSHARP_DEFAULT_EXCLUDE = ["**/bin/**", "**/obj/**", "**/*.g.cs", "**/*.g.i.cs", "**/*.Designer.cs", "**/*.AssemblyInfo.cs", "**/*ModelSnapshot.cs", "**/wwwroot/lib/**", "**/*.min.js", "**/*.min.css", "**/*.map"];
 var DATADOG_SITES = ["datadoghq.com", "us3.datadoghq.com", "us5.datadoghq.com", "datadoghq.eu", "ap1.datadoghq.com", "ap2.datadoghq.com", "ddog-gov.com"];
 var ddName = external_exports.string().regex(/^[A-Za-z0-9_.:\-/]+$/, "only letters, digits and _ . : - / are allowed");
 var DatadogSchema = external_exports.object({
@@ -236545,10 +236563,11 @@ var DatadogSchema = external_exports.object({
    */
   apm: external_exports.object({ service: external_exports.union([ddName, external_exports.array(ddName).min(1)]), operations: external_exports.array(ddName).min(1) }).strict().optional()
 }).strict().refine((d) => d.rum !== void 0 || d.apm !== void 0, { message: "set datadog.rum (pages) or datadog.apm (operations)" });
-var LANGUAGE_ROLES = { typescript: DEFAULT_ROLES, go: GO_DEFAULT_ROLES, python: PYTHON_DEFAULT_ROLES };
-var LANGUAGE_EXCLUDE = { typescript: [], go: GO_DEFAULT_EXCLUDE, python: [] };
+var LANGUAGE_ROLES = { typescript: DEFAULT_ROLES, go: GO_DEFAULT_ROLES, python: PYTHON_DEFAULT_ROLES, csharp: CSHARP_DEFAULT_ROLES };
+var LANGUAGE_EXCLUDE = { typescript: [], go: GO_DEFAULT_EXCLUDE, python: [], csharp: CSHARP_DEFAULT_EXCLUDE };
 function rolesWithDefaults(given, defaults) {
   return {
+    client: given.client ?? defaults.client,
     barrel: given.barrel ?? defaults.barrel,
     i18n: given.i18n ?? defaults.i18n,
     test: given.test ?? defaults.test,
@@ -236566,6 +236585,18 @@ var ConfigSchema = external_exports.object({
   python: external_exports.object({
     /** Import roots, relative to the project: `src` for a src layout (`from orders_api import x` is src/orders_api/x.py). */
     roots: external_exports.array(external_exports.string().min(1)).min(1).default(["src", "."])
+  }).strict().prefault({}),
+  csharp: external_exports.object({
+    /** .csproj globs relative to the project directory; default: every project below it (test projects are left out). */
+    projects: globs.default([]),
+    /** Build configurations to compile (their #if symbols); default: Debug, Release and every one the projects declare. */
+    configurations: external_exports.array(external_exports.string().min(1)).default([]),
+    /** Extra preprocessor symbols for every configuration. */
+    defines: external_exports.array(external_exports.string().regex(/^[A-Za-z_][A-Za-z0-9_]*$/, "a preprocessor symbol is a C# identifier")).default([]),
+    /** Fully qualified methods (Namespace.Type.Method) whose delegate arguments are background entry points (TASK). */
+    entryCalls: external_exports.array(external_exports.string().min(1)).default([]),
+    /** Directories holding views by controller name, besides Views/ and Areas/<area>/Views/ (project-relative). */
+    viewRoots: external_exports.array(external_exports.string().min(1)).default([])
   }).strict().prefault({}),
   /** frontend: React routes are the entry points; backend: GraphQL operations and REST endpoints are. */
   surface: external_exports.enum(["frontend", "backend"]).default("frontend"),
@@ -236613,7 +236644,9 @@ var ConfigSchema = external_exports.object({
     story: globs.optional(),
     global: globs.optional(),
     /** Environment, infrastructure and CI files (repo-relative globs; source code files never match). */
-    infra: globs.optional()
+    infra: globs.optional(),
+    /** Client files the app serves (scripts, styles) that no helper reads: wwwroot of a C# web project. */
+    client: globs.optional()
   }).strict().prefault({}),
   signals: external_exports.object({
     coverage: external_exports.string().min(1).optional(),
@@ -236682,7 +236715,7 @@ function loadConfig(projectDir, configPath) {
 var package_default = {
   name: "@winninjs/farol",
   version: "0.2.1",
-  description: "Tells code reviewers how much attention a pull request needs and where to look first: what the change reaches, a merge risk score and a review plan. TypeScript/React, Go and Python. Shadow mode: never blocks.",
+  description: "Tells code reviewers how much attention a pull request needs and where to look first: what the change reaches, a merge risk score and a review plan. TypeScript/React, Go, Python and C#/.NET. Shadow mode: never blocks.",
   keywords: [
     "code-review",
     "pull-request",
@@ -236693,6 +236726,7 @@ var package_default = {
     "react",
     "go",
     "python",
+    "csharp",
     "diff-coverage"
   ],
   author: "Winnin",
@@ -236713,7 +236747,10 @@ var package_default = {
     "dist",
     "go-helper",
     "py-helper",
-    "!**/__pycache__"
+    "cs-helper",
+    "!**/__pycache__",
+    "!cs-helper/bin",
+    "!cs-helper/obj"
   ],
   engines: {
     node: ">=22"
@@ -237426,6 +237463,7 @@ var REASONS = {
   "existing-file-renamed": "touches-existing",
   "existing-file-deleted": "touches-existing",
   "infra-file-changed": "touches-existing",
+  "client-file-changed": "touches-existing",
   "new-file-reached-by-existing-route": "touches-existing",
   "tests-modified": "info",
   "type-only-change": "info",
@@ -237440,6 +237478,7 @@ var REASONS = {
   "i18n-additive": "info",
   "new-file-in-new-route": "info",
   "new-file-disconnected": "info",
+  "client-file-added": "info",
   "file-excluded": "info",
   "outside-project": "info",
   "no-existing-code-touched": "info"
@@ -237504,13 +237543,20 @@ function computeRisk(input2) {
 // src/classify/dependencies.ts
 import { isDeepStrictEqual as isDeepStrictEqual2 } from "util";
 var DEPENDENCY_SECTIONS = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
-var LOCKFILES = /* @__PURE__ */ new Set(["package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb", "go.sum", "uv.lock", "poetry.lock", "Pipfile.lock", "pdm.lock"]);
-var MANIFESTS = /* @__PURE__ */ new Set(["package.json", "go.mod", "pyproject.toml", "requirements.txt"]);
+var LOCKFILES = /* @__PURE__ */ new Set(["package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb", "go.sum", "uv.lock", "poetry.lock", "Pipfile.lock", "pdm.lock", "packages.lock.json"]);
+var MANIFESTS = /* @__PURE__ */ new Set(["package.json", "go.mod", "pyproject.toml", "requirements.txt", "Directory.Packages.props"]);
+function isManifestName(name) {
+  return MANIFESTS.has(name) || name.endsWith(".csproj");
+}
 var ECOSYSTEM_FILES = {
   typescript: /* @__PURE__ */ new Set(["package.json", "package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb"]),
   go: /* @__PURE__ */ new Set(["go.mod", "go.sum"]),
-  python: /* @__PURE__ */ new Set(["pyproject.toml", "requirements.txt", "uv.lock", "poetry.lock", "Pipfile.lock", "pdm.lock"])
+  python: /* @__PURE__ */ new Set(["pyproject.toml", "requirements.txt", "uv.lock", "poetry.lock", "Pipfile.lock", "pdm.lock"]),
+  csharp: /* @__PURE__ */ new Set(["Directory.Packages.props", "packages.lock.json"])
 };
+function isEcosystemFile(language, name) {
+  return ECOSYSTEM_FILES[language].has(name) || language === "csharp" && name.endsWith(".csproj");
+}
 var ManifestParseError = class extends Error {
 };
 var PROTOCOLS = ["workspace:", "catalog:", "file:", "link:", "portal:", "git", "http:", "https:", "github:"];
@@ -237751,6 +237797,10 @@ function classify(input2) {
     }
     if (role === "infra") {
       reasons.push(reason("infra-file-changed", `environment, infrastructure or CI file ${file2.status}`, file2.path));
+      continue;
+    }
+    if (role === "client") {
+      reasons.push(file2.status === "added" ? reason("client-file-added", "new client file (served to browsers)", file2.path) : reason("client-file-changed", `existing client file ${file2.status} (served to browsers)`, file2.path));
       continue;
     }
     if (role === "test") {
@@ -238174,7 +238224,7 @@ var FileSchema = external_exports.object({
   path: path2,
   oldPath: path2.optional(),
   status: external_exports.enum(["added", "modified", "deleted", "renamed"]),
-  role: external_exports.enum(["global", "manifest", "lockfile", "routes", "schema", "resolvers", "test", "story", "infra", "barrel", "i18n", "source", "excluded"]),
+  role: external_exports.enum(["global", "manifest", "lockfile", "routes", "schema", "resolvers", "test", "story", "infra", "client", "barrel", "i18n", "source", "excluded"]),
   /** Only for modified routes, barrel and i18n files: whether the additive rule holds. */
   additive: external_exports.boolean().optional(),
   linesAdded: count,
@@ -238213,7 +238263,7 @@ var LintSignalSchema = external_exports.object({
   findings: external_exports.array(LintFindingSchema).max(50),
   omittedFindings: count
 }).strict();
-var SUPPRESSION_KINDS = ["eslint-disable", "eslint-disable-line", "eslint-disable-next-line", "ts-ignore", "ts-expect-error", "ts-nocheck", "as-any", "any-annotation", "nolint", "lint-ignore", "nosec", "noqa", "type-ignore", "no-cover", "pyright-ignore", "pylint-disable"];
+var SUPPRESSION_KINDS = ["eslint-disable", "eslint-disable-line", "eslint-disable-next-line", "ts-ignore", "ts-expect-error", "ts-nocheck", "as-any", "any-annotation", "nolint", "lint-ignore", "nosec", "noqa", "type-ignore", "no-cover", "pyright-ignore", "pylint-disable", "pragma-warning-disable", "nullable-disable", "resharper-disable"];
 var SuppressionsSignalSchema = external_exports.object({
   status,
   message: external_exports.string().optional(),
@@ -238783,6 +238833,23 @@ function pythonSuppressions(files, comments) {
   for (const c of comments) {
     if (!added.get(c.file)?.has(c.line)) continue;
     for (const [pattern, kind] of DIRECTIVES) if (pattern.test(c.text)) items.push({ path: c.file, line: c.line, kind, text: c.text.slice(0, 200) });
+  }
+  return items.sort((a, b) => compareStrings(a.path, b.path) || a.line - b.line);
+}
+
+// src/signals/dotnet.ts
+var CSHARP_SUPPRESSIONS = [
+  [/^#\s*pragma\s+warning\s+disable\b/, "pragma-warning-disable"],
+  [/^#\s*nullable\s+disable\b/, "nullable-disable"],
+  [/^\/\/\s*ReSharper\s+disable\b/, "resharper-disable"]
+];
+function csharpSuppressions(files, comments) {
+  const added = new Map(files.map((f) => [f.path, new Set(f.added.map((l) => l.line))]));
+  const items = [];
+  for (const c of comments) {
+    if (!added.get(c.file)?.has(c.line)) continue;
+    const kind = CSHARP_SUPPRESSIONS.find(([pattern]) => pattern.test(c.text))?.[1];
+    if (kind) items.push({ path: c.file, line: c.line, kind, text: c.text.slice(0, 200) });
   }
   return items.sort((a, b) => compareStrings(a.path, b.path) || a.line - b.line);
 }
@@ -239569,7 +239636,7 @@ function usageSignal(file2, input2) {
 }
 
 // src/cli/signals.ts
-var LANGUAGE_SUPPRESSIONS = { go: goSuppressions, python: pythonSuppressions };
+var LANGUAGE_SUPPRESSIONS = { go: goSuppressions, python: pythonSuppressions, csharp: csharpSuppressions };
 function readReport(path3, label2, option) {
   if (path3 === void 0) return { kind: "missing", message: `no ${label2} report given (--${option} or signals.${option})` };
   if (!existsSync2(path3)) return { kind: "missing", message: `${label2} report not found at ${path3}` };
@@ -249067,11 +249134,11 @@ function createDiskFileSystem() {
 }
 
 // src/cli/lang-workspace.ts
-import { execFile as execFile3 } from "child_process";
-import { createHash } from "crypto";
-import { existsSync as existsSync3, mkdirSync as mkdirSync2, mkdtempSync, readdirSync as readdirSync2, readFileSync as readFileSync3, realpathSync as realpathSync4, rmSync as rmSync2, statSync as statSync3, writeFileSync as writeFileSync2 } from "fs";
+import { execFile as execFile4 } from "child_process";
+import { createHash as createHash2 } from "crypto";
+import { existsSync as existsSync4, mkdirSync as mkdirSync3, mkdtempSync, readdirSync as readdirSync2, readFileSync as readFileSync3, realpathSync as realpathSync4, rmSync as rmSync3, statSync as statSync3, writeFileSync as writeFileSync2 } from "fs";
 import { homedir, tmpdir } from "os";
-import { dirname as dirname2, join as join3 } from "path";
+import { dirname as dirname2, join as join4 } from "path";
 import { fileURLToPath } from "url";
 
 // src/decls/impact.ts
@@ -249276,8 +249343,52 @@ var DeclHelperSchema = external_exports.object({
   comments: external_exports.array(external_exports.object({ file: external_exports.string(), line: line2, text: external_exports.string() }))
 });
 
-// src/cli/lang-workspace.ts
+// src/cli/cs-helper.ts
+import { execFile as execFile3 } from "child_process";
+import { createHash } from "crypto";
+import { cpSync, existsSync as existsSync3, mkdirSync as mkdirSync2, rmSync as rmSync2 } from "fs";
+import { join as join3 } from "path";
 var MAX_BUFFER2 = 1024 * 1024 * 1024;
+var MISSING = "the .NET SDK (dotnet) is required to analyze a C# project; install it or put it on PATH";
+function dotnetEnv() {
+  return { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: "1", DOTNET_NOLOGO: "1", DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1", DOTNET_GENERATE_ASPNET_CERTIFICATE: "false", MSBUILDDISABLENODEREUSE: "1", DOTNET_CLI_UI_LANGUAGE: "en" };
+}
+function dotnet(args, cwd, input2) {
+  return new Promise((resolve11, reject) => {
+    const child = execFile3("dotnet", [...args], { cwd, env: dotnetEnv(), maxBuffer: MAX_BUFFER2, encoding: "utf8" }, (error62, stdout, stderr) => {
+      if (error62 && /ENOENT/.test(error62.message)) reject(new UsageError(MISSING));
+      else if (error62) reject(new Error(`dotnet ${args[0] ?? ""} failed: ${stderr.trim() || stdout.trim() || error62.message}`, { cause: error62 }));
+      else resolve11(stdout);
+    });
+    if (input2 !== void 0) child.stdin?.end(input2);
+  });
+}
+async function csHelperAssembly(src, sourceHash2, cacheDir) {
+  const sdk = (await dotnet(["--version"], src)).trim();
+  const key = createHash("sha256").update(`${sourceHash2}
+${sdk}
+${process.platform}-${process.arch}`).digest("hex").slice(0, 24);
+  const dir = join3(cacheDir, "cs-helper", key);
+  const assembly = join3(dir, "bin", "cshelper.dll");
+  if (existsSync3(assembly)) return assembly;
+  rmSync2(dir, { recursive: true, force: true });
+  mkdirSync2(dir, { recursive: true });
+  cpSync(join3(src, "cs-helper.csproj"), join3(dir, "src", "cs-helper.csproj"));
+  cpSync(join3(src, "src"), join3(dir, "src", "src"), { recursive: true });
+  try {
+    await dotnet(["build", join3(dir, "src", "cs-helper.csproj"), "-c", "Release", "-o", join3(dir, "bin"), "-v", "q", "-nologo", "-noAutoResponse", "-p:ImportDirectoryBuildProps=false", "-p:ImportDirectoryBuildTargets=false", "-p:ImportDirectoryPackagesProps=false"], dir);
+  } catch (error62) {
+    rmSync2(dir, { recursive: true, force: true });
+    throw error62;
+  }
+  return assembly;
+}
+function runCsHelper(assembly, args, cwd, input2) {
+  return dotnet([assembly, ...args], cwd, input2);
+}
+
+// src/cli/lang-workspace.ts
+var MAX_BUFFER3 = 1024 * 1024 * 1024;
 function goEnv() {
   const env = { ...process.env, GOPROXY: "off", GOTOOLCHAIN: "local", GOFLAGS: "", CGO_ENABLED: "0", GOWORK: "off" };
   delete env.PWD;
@@ -249288,7 +249399,7 @@ function pythonEnv() {
 }
 function run(command, args, cwd, env, input2) {
   return new Promise((resolve11, reject) => {
-    const child = execFile3(command, [...args], { cwd, env, maxBuffer: MAX_BUFFER2, encoding: "utf8" }, (error62, stdout, stderr) => {
+    const child = execFile4(command, [...args], { cwd, env, maxBuffer: MAX_BUFFER3, encoding: "utf8" }, (error62, stdout, stderr) => {
       if (error62) reject(new Error(`${command} failed: ${stderr.trim() || error62.message}`, { cause: error62 }));
       else resolve11(stdout);
     });
@@ -249302,17 +249413,17 @@ function missingTool(error62, message) {
 function helperDir(name) {
   let dir = dirname2(fileURLToPath(import.meta.url));
   for (let i = 0; i < 5; i++) {
-    if (existsSync3(join3(dir, name))) return join3(dir, name);
+    if (existsSync4(join4(dir, name))) return join4(dir, name);
     dir = dirname2(dir);
   }
   throw new Error(`internal: ${name}/ not found next to farol`);
 }
 function sourceHash(dir) {
-  const hash2 = createHash("sha256");
+  const hash2 = createHash2("sha256");
   const walk = (d) => {
     for (const name of readdirSync2(d).sort()) {
-      if (name === "__pycache__") continue;
-      const full = join3(d, name);
+      if (name === "__pycache__" || name === "bin" || name === "obj") continue;
+      const full = join4(d, name);
       if (statSync3(full).isDirectory()) walk(full);
       else hash2.update(full.slice(dir.length)).update(readFileSync3(full));
     }
@@ -249328,13 +249439,13 @@ async function goHelperBinary() {
   } catch (error62) {
     missingTool(error62, "the Go toolchain (go) is required to analyze a Go project; install it or put it on PATH");
   }
-  const key = createHash("sha256").update(`${sourceHash(src)}
+  const key = createHash2("sha256").update(`${sourceHash(src)}
 ${goVersion}
 ${process.platform}-${process.arch}`).digest("hex").slice(0, 24);
-  const dir = join3(defaultCacheDir(), "go-helper", key);
-  const binary = join3(dir, process.platform === "win32" ? "gohelper.exe" : "gohelper");
-  if (existsSync3(binary)) return binary;
-  mkdirSync2(dir, { recursive: true });
+  const dir = join4(defaultCacheDir(), "go-helper", key);
+  const binary = join4(dir, process.platform === "win32" ? "gohelper.exe" : "gohelper");
+  if (existsSync4(binary)) return binary;
+  mkdirSync3(dir, { recursive: true });
   try {
     await run("go", ["build", "-o", binary, "."], src, { ...goEnv(), GOTOOLCHAIN: "local" });
   } catch (error62) {
@@ -249367,8 +249478,18 @@ var READERS = {
   python: (ctx) => {
     const roots = ctx.config.python.roots.join(",");
     return Promise.resolve({ read: (dir, project, comments) => runPythonHelper(["analyze", "--root", dir, "--project", project, "--roots", roots, "--comments", comments.join(",")], dir) });
+  },
+  csharp: async (ctx) => {
+    const assembly = await csHelperAssembly(helperDir("cs-helper"), sourceHash(helperDir("cs-helper")), defaultCacheDir());
+    const { projects, configurations, defines, entryCalls, viewRoots } = ctx.config.csharp;
+    const lists = Object.entries({ projects, configurations, defines, "entry-calls": entryCalls, "view-roots": viewRoots }).flatMap(([flag, values]) => values.length > 0 ? [`--${flag}`, values.join(",")] : []);
+    return { read: (dir, project, comments) => runCsHelper(assembly, ["analyze", "--root", dir, "--project", project, "--comments", comments.join(","), "--assets-root", ctx.repoRoot, ...lists], dir) };
   }
 };
+async function readCsManifest(text) {
+  const assembly = await csHelperAssembly(helperDir("cs-helper"), sourceHash(helperDir("cs-helper")), defaultCacheDir());
+  return JSON.parse(await runCsHelper(assembly, ["manifest"], tmpdir(), text));
+}
 function helperLanguage(ctx) {
   const { language } = ctx.config;
   if (!isHelperLanguage(language)) throw new Error("internal: a TypeScript project has no language helper");
@@ -249380,38 +249501,38 @@ async function readerFor(ctx) {
   return { label: info.label, version: sourceHash(helperDir(info.helper)), ...await READERS[language](ctx) };
 }
 function defaultCacheDir(env = process.env) {
-  return env.FAROL_CACHE_DIR ?? env.REVSCOPE_CACHE_DIR ?? join3(env.XDG_CACHE_HOME ?? join3(homedir(), ".cache"), "farol");
+  return env.FAROL_CACHE_DIR ?? env.REVSCOPE_CACHE_DIR ?? join4(env.XDG_CACHE_HOME ?? join4(homedir(), ".cache"), "farol");
 }
 var CACHE_ENTRIES = 200;
 function prune(dir) {
-  const entries = readdirSync2(dir).filter((n) => n.endsWith(".json")).map((n) => ({ n, t: statSync3(join3(dir, n)).mtimeMs })).sort((a, b) => b.t - a.t);
-  for (const e of entries.slice(CACHE_ENTRIES)) rmSync2(join3(dir, e.n), { force: true });
+  const entries = readdirSync2(dir).filter((n) => n.endsWith(".json")).map((n) => ({ n, t: statSync3(join4(dir, n)).mtimeMs })).sort((a, b) => b.t - a.t);
+  for (const e of entries.slice(CACHE_ENTRIES)) rmSync3(join4(dir, e.n), { force: true });
 }
 async function readTree(ctx, reader, sha, comments, cache) {
   const project = ctx.projectPrefix === "" ? "." : ctx.projectPrefix;
-  const key = cache === null ? null : createHash("sha256").update(JSON.stringify([TOOL_VERSION, reader.label, reader.version, await treeOf(ctx.repoRoot, sha), project, ctx.config.python.roots, [...comments].sort()])).digest("hex");
-  const file2 = key === null || cache === null ? null : join3(cache, `${key}.json`);
-  if (file2 !== null && existsSync3(file2)) {
+  const key = cache === null ? null : createHash2("sha256").update(JSON.stringify([TOOL_VERSION, reader.label, reader.version, await treeOf(ctx.repoRoot, sha), project, ctx.config.python.roots, ctx.config.csharp, [...comments].sort()])).digest("hex");
+  const file2 = key === null || cache === null ? null : join4(cache, `${key}.json`);
+  if (file2 !== null && existsSync4(file2)) {
     const cached2 = DeclHelperSchema.safeParse(JSON.parse(readFileSync3(file2, "utf8")));
     if (cached2.success) {
       ctx.log(`${reader.label}: ${sha.slice(0, 12)} read from the cache`);
       return cached2.data;
     }
   }
-  const dir = realpathSync4(mkdtempSync(join3(tmpdir(), "farol-tree-")));
+  const dir = realpathSync4(mkdtempSync(join4(tmpdir(), "farol-tree-")));
   try {
     await exportTree(ctx.repoRoot, sha, dir);
     const stdout = await reader.read(dir, project, comments);
     const parsed = DeclHelperSchema.safeParse(JSON.parse(stdout));
     if (!parsed.success) throw new Error(`internal: unexpected ${reader.label} helper output: ${parsed.error.issues[0]?.message ?? ""}`);
     if (file2 !== null && cache !== null) {
-      mkdirSync2(cache, { recursive: true });
+      mkdirSync3(cache, { recursive: true });
       writeFileSync2(file2, stdout);
       prune(cache);
     }
     return parsed.data;
   } finally {
-    rmSync2(dir, { recursive: true, force: true });
+    rmSync3(dir, { recursive: true, force: true });
   }
 }
 async function readLangTree(ctx, ref, cache = null) {
@@ -249443,6 +249564,59 @@ async function loadLangWorkspace(ctx, files, mergeBaseSha, headSha, isSource2, t
     baseRoutes: { ...headRoutes, routes: headRoutes.routes.filter((r) => baseKeys.has(r.key)), dynamic: [] },
     impacts: declImpacts(base, head, files, isSource2)
   };
+}
+
+// src/dotnet/nuget.ts
+var CsManifestSchema = external_exports.object({
+  packages: external_exports.array(external_exports.object({ name: external_exports.string(), version: external_exports.string(), section: external_exports.enum(["dependencies", "devDependencies"]) })),
+  other: external_exports.record(external_exports.string(), external_exports.string())
+});
+var ADDITIVE_ITEMS = ["Compile", "Content", "None", "EmbeddedResource", "Folder", "Using", "ProjectReference"];
+function nugetSpec(version2) {
+  const v = version2.trim();
+  if (v === "" || v.includes("*") || v.includes("$(")) return `unknown:${v}`;
+  if (v.startsWith("[") || v.startsWith("(")) return v.slice(1).split(",")[0]?.trim() || `unknown:${v}`;
+  return v;
+}
+function diffNuGet(manifest, base, head) {
+  const parse4 = (value, label2) => {
+    if (value === null) return { packages: [], other: {} };
+    const parsed = CsManifestSchema.safeParse(value);
+    if (!parsed.success) throw new ManifestParseError(`the ${label2} version could not be read`);
+    return parsed.data;
+  };
+  const before = parse4(base, "base");
+  const after = parse4(head, "head");
+  const key = (p) => p.name.toLowerCase();
+  const beforeByName = new Map(before.packages.map((p) => [key(p), p]));
+  const afterByName = new Map(after.packages.map((p) => [key(p), p]));
+  const changes = [];
+  for (const [name, b] of beforeByName) {
+    const a = afterByName.get(name);
+    if (!a) {
+      changes.push({ manifest, name: b.name, section: b.section, change: "removed", from: b.version, to: null, bump: null, direction: null, critical: true });
+      continue;
+    }
+    if (a.section !== b.section) {
+      changes.push({ manifest, name: a.name, section: a.section, change: "moved", from: b.version, to: a.version, fromSection: b.section, bump: null, direction: null, critical: b.section === "dependencies" });
+      continue;
+    }
+    if (a.version === b.version) continue;
+    const from = nugetSpec(b.version);
+    const to = nugetSpec(a.version);
+    changes.push({ manifest, name: a.name, section: a.section, change: "updated", from: b.version, to: a.version, ...compareSpecs(from, to), ...from.startsWith("unknown:") || to.startsWith("unknown:") ? { note: "floating or computed version: compare the resolved packages" } : {} });
+  }
+  for (const [name, a] of afterByName) {
+    if (!beforeByName.has(name)) changes.push({ manifest, name: a.name, section: a.section, change: "added", from: null, to: a.version, bump: null, direction: null, critical: false });
+  }
+  const otherFields = /* @__PURE__ */ new Set();
+  for (const [k, v] of Object.entries(before.other)) if (after.other[k] !== v) otherFields.add(k);
+  for (const k of Object.keys(after.other)) {
+    if (k in before.other) continue;
+    const item = /^item:([^:]+):Include=/.exec(k)?.[1];
+    if (item === void 0 || !ADDITIVE_ITEMS.includes(item)) otherFields.add(k);
+  }
+  return { manifest, changes: sortChanges(changes), otherFields: [...otherFields].sort(compareStrings) };
 }
 
 // src/python/pyproject.ts
@@ -249727,7 +249901,7 @@ function globalUses(project, globals, rel, isProjectFile) {
 
 // src/classify/roles.ts
 var import_picomatch3 = __toESM(require_picomatch2(), 1);
-var SOURCE_CODE = /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs|go|py|graphql|gql)$/;
+var SOURCE_CODE = /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs|go|py|cs|cshtml|graphql|gql)$/;
 function createInfraMatcher(config2) {
   const match = matcher(config2.roles.infra);
   return (repoPath) => !SOURCE_CODE.test(repoPath) && match(repoPath);
@@ -249742,6 +249916,7 @@ function createRoleMatcher(config2) {
   const isStory = matcher(config2.roles.story);
   const isBarrel = matcher(config2.roles.barrel);
   const isI18n = matcher(config2.roles.i18n);
+  const isClient = matcher(config2.roles.client);
   const isExcluded = matcher(config2.exclude);
   const routesFile = normalizeProjectPath(config2.routes.file);
   const isExtraRoutes = matcher(config2.routes.extraFiles);
@@ -249751,6 +249926,7 @@ function createRoleMatcher(config2) {
     if (isTest(path3)) return "test";
     if (isStory(path3)) return "story";
     if (isExcluded(path3)) return "excluded";
+    if (isClient(path3)) return "client";
     if (isBarrel(path3)) return "barrel";
     if (isI18n(path3)) return "i18n";
     return "source";
@@ -250895,8 +251071,9 @@ function createAnalysisRoleOf(ctx, graphNodes, backend) {
     const dir = posix12.dirname(repoPath) === "." ? "" : posix12.dirname(repoPath);
     const inside = prefix === "" || dir === prefix || dir.startsWith(`${prefix}/`);
     const aboveOrSelf = dir === "" || dir === prefix || prefix.startsWith(`${dir}/`);
-    const ours = inside || ECOSYSTEM_FILES[ctx.config.language].has(name);
-    if (MANIFESTS.has(name) && ours && (aboveOrSelf || inside || nodeDirs.has(dir))) return "manifest";
+    const ours = inside || isEcosystemFile(ctx.config.language, name);
+    if (name.endsWith(".csproj") && config2(repoPath) === "test") return "test";
+    if (isManifestName(name) && ours && (aboveOrSelf || inside || nodeDirs.has(dir))) return "manifest";
     if (LOCKFILES.has(name) && ours && (aboveOrSelf || inside)) return "lockfile";
     return base(repoPath);
   };
@@ -251276,12 +251453,12 @@ function diffGoMod(manifest, baseText, headText) {
 
 // src/project/decls.ts
 var import_typescript21 = __toESM(require_typescript(), 1);
-import { createHash as createHash2 } from "crypto";
+import { createHash as createHash3 } from "crypto";
 import { posix as posix13 } from "path";
 function tokenHash(sf, node2) {
   const text = sf.text.slice(node2.getStart(sf), node2.end);
   const scanner = import_typescript21.default.createScanner(import_typescript21.default.ScriptTarget.Latest, true, sf.languageVariant, text);
-  const hash2 = createHash2("sha1");
+  const hash2 = createHash3("sha1");
   for (let kind = scanner.scan(); kind !== import_typescript21.default.SyntaxKind.EndOfFileToken; kind = scanner.scan()) hash2.update(`${kind}:${scanner.getTokenText()}\0`);
   return hash2.digest("hex").slice(0, 16);
 }
@@ -251322,13 +251499,13 @@ function declHash(sf, d) {
   if (d.kind !== "module") {
     if (import_typescript21.default.isClassDeclaration(d.node)) {
       const parts = [d.node.name?.text ?? "", ...(d.node.heritageClauses ?? []).map((h) => tokenHash(sf, h)), ...d.node.members.filter((m) => !import_typescript21.default.isMethodDeclaration(m) && !import_typescript21.default.isConstructorDeclaration(m) && !import_typescript21.default.isGetAccessor(m) && !import_typescript21.default.isSetAccessor(m)).map((m) => tokenHash(sf, m))];
-      return createHash2("sha1").update(parts.join("\0")).digest("hex").slice(0, 16);
+      return createHash3("sha1").update(parts.join("\0")).digest("hex").slice(0, 16);
     }
     return tokenHash(sf, import_typescript21.default.isVariableDeclaration(d.node) ? d.node.parent.parent : d.node).concat(import_typescript21.default.isVariableDeclaration(d.node) ? `:${d.node.name.getText(sf)}` : "");
   }
   const names = new Set(moduleDecls(sf).filter((x) => x.kind !== "module").map((x) => import_typescript21.default.isVariableDeclaration(x.node) ? x.node.parent.parent : x.node));
   const code2 = sf.statements.filter((s) => !names.has(s) && !import_typescript21.default.isImportDeclaration(s) && !(import_typescript21.default.isExportDeclaration(s) && s.moduleSpecifier !== void 0));
-  return createHash2("sha1").update(code2.map((s) => tokenHash(sf, s)).join("\0")).digest("hex").slice(0, 16);
+  return createHash3("sha1").update(code2.map((s) => tokenHash(sf, s)).join("\0")).digest("hex").slice(0, 16);
 }
 function toDecl(sf, file2, d) {
   const start = sf.getLineAndCharacterOfPosition(d.node.getStart(sf)).line + 1;
@@ -251484,6 +251661,7 @@ async function manifestDiffs(ctx, files, roleOf, baseSha, headSha) {
       const name = posix14.basename(f.path);
       if (name === "pyproject.toml") return diffPyproject(f.path, before === null ? null : await parseToml(before), after === null ? null : await parseToml(after));
       if (name === "requirements.txt") return diffRequirementsTxt(f.path, before, after);
+      if (name.endsWith(".csproj") || name === "Directory.Packages.props") return diffNuGet(f.path, before === null ? null : await parseCsManifest(before), after === null ? null : await parseCsManifest(after));
       return (name === "go.mod" ? diffGoMod : diffManifest)(f.path, before, after);
     } catch (error62) {
       if (error62 instanceof ManifestParseError) return { manifest: f.path, error: error62.message };
@@ -251497,6 +251675,14 @@ async function parseToml(text) {
   } catch (error62) {
     if (error62 instanceof UsageError) throw error62;
     throw new ManifestParseError(`invalid TOML: ${(error62 instanceof Error ? error62.message : String(error62)).split("\n").slice(-1)[0] ?? ""}`);
+  }
+}
+async function parseCsManifest(text) {
+  try {
+    return await readCsManifest(text);
+  } catch (error62) {
+    if (error62 instanceof UsageError) throw error62;
+    throw new ManifestParseError((error62 instanceof Error ? error62.message : String(error62)).split("\n").slice(-1)[0]?.replace(/^.*cshelper: /, "") ?? "invalid project file");
   }
 }
 function reportPath(ctx, flag, configured) {
@@ -251626,7 +251812,7 @@ async function runAnalyze(ctx, options, deps) {
     if (usage) meta3.usage = usage;
     if (contracts) meta3.contracts = contracts;
     lap("signals");
-    const codeRoles = /* @__PURE__ */ new Set(["source", "resolvers", "schema", "routes", "barrel", "i18n", "global", "infra"]);
+    const codeRoles = /* @__PURE__ */ new Set(["source", "resolvers", "schema", "routes", "barrel", "i18n", "global", "infra", "client"]);
     const shown = result.files.filter((f) => codeRoles.has(f.role) && !files.find((c) => c.path === f.path)?.binary).map((f) => f.path);
     const order = [...result.risk.files.map((f) => f.path).filter((p) => shown.includes(p)), ...shown.filter((p) => !result.risk.files.some((f) => f.path === p))];
     meta3.diffs = limitDiffs(await contextDiff(ctx.repoRoot, mb, meta3.head.sha, order), order);
@@ -251654,14 +251840,18 @@ async function analyzeCommand(ctx, options, deps = realDeps()) {
 }
 
 // src/cli/calibrate.ts
-import { existsSync as existsSync4, readFileSync as readFileSync5 } from "fs";
-import { join as join4, resolve as resolve4 } from "path";
+import { existsSync as existsSync5, readFileSync as readFileSync5 } from "fs";
+import { join as join5, resolve as resolve4 } from "path";
 
 // src/report/merge-score.ts
 var HIGH_SCORE = 60;
 var MEDIUM_SCORE = 30;
 var GLOBAL_WEIGHT = 0.3;
 var INFRA_WEIGHT = 0.12;
+var CLIENT_FILE_WEIGHT = 0.05;
+var CLIENT_DELETED_WEIGHT = 0.1;
+var CLIENT_TOTAL_WEIGHT = 0.25;
+var CLIENT_CODE = /\.(js|mjs|cjs|ts|jsx|tsx|css|scss|sass|less|html?)$/;
 var DECLARATIONS_FILE_WEIGHT = 0.01;
 var DECLARATIONS_TOTAL_WEIGHT = 0.05;
 var CONTRACT_WEIGHT = { breaking: 0.4, dangerous: 0.1 };
@@ -251724,6 +251914,11 @@ function scoreItems(o) {
   }
   const infra = o.files.filter((f) => f.role === "infra");
   for (const f of infra) add(f.path, "infra", 1 - (1 - INFRA_WEIGHT) ** (1 / infra.length), `${f.status} environment, infrastructure or CI file: check it per environment`);
+  const client = o.files.filter((f) => f.role === "client" && f.status !== "added" && CLIENT_CODE.test(f.path));
+  const clientWeight = (f) => f.status === "deleted" ? CLIENT_DELETED_WEIGHT : CLIENT_FILE_WEIGHT;
+  const clientTotal = 1 - client.reduce((p, f) => p * (1 - clientWeight(f)), 1);
+  const clientShare = clientTotal > CLIENT_TOTAL_WEIGHT ? 1 - (1 - CLIENT_TOTAL_WEIGHT) ** (1 / client.length) : null;
+  for (const f of client) add(f.path, "client", clientShare ?? clientWeight(f), `${f.status} client file: every page that loads it runs it`);
   const outside = new Set(o.files.filter((f) => f.role === "excluded").map((f) => f.path));
   const security = o.signals.security.findings.filter((s) => !outside.has(s.path));
   for (const s of security) add(s.path, "security", SECURITY_WEIGHT[s.severity], `${s.severity} ${s.rule} at line ${s.line}`, s.line);
@@ -251974,11 +252169,11 @@ function calibrate(points) {
 // src/cli/calibrate.ts
 var CODE_ROLES2 = /* @__PURE__ */ new Set(["source", "resolvers", "schema", "routes", "barrel", "i18n", "global"]);
 function historyPoints(dir, windowDays) {
-  const summaryPath = join4(dir, "summary.json");
-  if (!existsSync4(summaryPath)) throw new UsageError(`${summaryPath} not found: run "farol history --out ${dir}" first`);
+  const summaryPath = join5(dir, "summary.json");
+  if (!existsSync5(summaryPath)) throw new UsageError(`${summaryPath} not found: run "farol history --out ${dir}" first`);
   const summary = JSON.parse(readFileSync5(summaryPath, "utf8"));
   const outputs = summary.merges.flatMap((m) => {
-    const parsed = OutputSchema.safeParse(JSON.parse(readFileSync5(join4(dir, m.file), "utf8")));
+    const parsed = OutputSchema.safeParse(JSON.parse(readFileSync5(join5(dir, m.file), "utf8")));
     return parsed.success && m.error === null ? [{ m, o: parsed.data }] : [];
   });
   const commits = outputs.map(({ m, o }) => ({ sha: m.sha, date: m.date, subject: m.subject, files: o.files.filter((f) => CODE_ROLES2.has(f.role)).map((f) => f.path) }));
@@ -252328,6 +252523,7 @@ var REASON_TEXT = {
   "existing-file-unreachable": "existing file modified, no route reaches it",
   "existing-file-renamed": "existing file renamed",
   "infra-file-changed": "environment, infrastructure or CI file changed",
+  "client-file-changed": "client file served to browsers changed",
   "existing-file-deleted": "existing file deleted",
   "new-file-reached-by-existing-route": "new file reached by an existing route",
   "tests-modified": "existing test modified",
@@ -252343,6 +252539,7 @@ var REASON_TEXT = {
   "i18n-additive": "translations only gained keys",
   "new-file-in-new-route": "new file used only by new routes",
   "new-file-disconnected": "new file no route reaches",
+  "client-file-added": "new client file served to browsers",
   "file-excluded": "file excluded from the analysis",
   "outside-project": "file outside the project",
   "no-existing-code-touched": "no existing code touched"
@@ -252481,7 +252678,7 @@ var HTML_TEXT = {
   filesTitle: "Changed files",
   filesCols: ["File", "Status", "+", "\u2212", "Additive rule"],
   ignoredTitle: 'Ignored files (configuration "ignore" or --ignore)',
-  roleNames: { global: "Global", manifest: "Package manifests", lockfile: "Lockfiles", routes: "Routes", schema: "GraphQL schema", resolvers: "Resolvers and endpoints", test: "Tests", story: "Stories", infra: "Environment, infrastructure and CI", barrel: "Barrels", i18n: "Translations", source: "Source", excluded: "Excluded" },
+  roleNames: { global: "Global", manifest: "Package manifests", lockfile: "Lockfiles", routes: "Routes", schema: "GraphQL schema", resolvers: "Resolvers and endpoints", test: "Tests", story: "Stories", infra: "Environment, infrastructure and CI", client: "Client files (served to browsers)", barrel: "Barrels", i18n: "Translations", source: "Source", excluded: "Excluded" },
   statusNames: { added: "added", modified: "modified", deleted: "deleted", renamed: "renamed" },
   additiveYes: "additive",
   additiveNo: "not additive",
@@ -252659,7 +252856,7 @@ function workbenchText(surface) {
     levels: { high: "High", medium: "Medium", low: "Low" },
     verdict: { careful: "Careful review", quick: "Quick review", pass: "Fast track" },
     tiers: { high: "High risk", medium: "Medium risk", skim: "Skim", tests: "Test files" },
-    kinds: { contract: "Breaking API change", vulnerability: "Vulnerable dependency", global: "Global change", unknown: "Unknown impact", dependency: "Dependency", infra: "Infrastructure", tests: "Tests" },
+    kinds: { contract: "Breaking API change", vulnerability: "Vulnerable dependency", global: "Global change", unknown: "Unknown impact", dependency: "Dependency", infra: "Infrastructure", client: "Client code", tests: "Tests" },
     rail: {
       risk: "Merge risk",
       was: " \xB7 was {score}",
@@ -254331,7 +254528,7 @@ function suppressionsAndTests(o, h) {
   return `<div class="grid2"><div id="suppressions"><h3>${HTML_TEXT.suppressionsTitle}</h3>${sup}</div><div id="tests"><h3>${HTML_TEXT.testsTitle}</h3>${tests}</div></div>`;
 }
 function filesSection(o, h) {
-  const roles = ["global", "manifest", "lockfile", "routes", "schema", "resolvers", "source", "barrel", "i18n", "infra", "test", "story", "excluded"];
+  const roles = ["global", "manifest", "lockfile", "routes", "schema", "resolvers", "source", "barrel", "i18n", "client", "infra", "test", "story", "excluded"];
   const groups = roles.map((role) => ({ role, files: o.files.filter((f) => f.role === role) })).filter((g) => g.files.length > 0).map(({ role, files }) => {
     const table3 = h.table(HTML_TEXT.filesCols, files, (f) => {
       const additive = f.additive === void 0 ? "" : `<span class="tag ${f.additive ? "yes" : "no"}">${f.additive ? HTML_TEXT.additiveYes : HTML_TEXT.additiveNo}</span>`;
@@ -254463,10 +254660,10 @@ ${FULLSCREEN_SCRIPT}
 }
 
 // src/report/links.ts
-import { createHash as createHash3 } from "crypto";
+import { createHash as createHash4 } from "crypto";
 var NO_LINKS3 = { file: () => null, lines: () => null };
 function diffAnchor(path3) {
-  return `diff-${createHash3("sha256").update(path3).digest("hex")}`;
+  return `diff-${createHash4("sha256").update(path3).digest("hex")}`;
 }
 function createLinker(output2, target) {
   if (target.repo === null || !target.repo.includes("/")) return NO_LINKS3;
@@ -254559,8 +254756,8 @@ async function commentCommand(options, env = process.env, fetchImpl) {
 }
 
 // src/cli/farol-file.ts
-import { existsSync as existsSync5, readFileSync as readFileSync7 } from "fs";
-import { dirname as dirname3, isAbsolute as isAbsolute4, join as join5, resolve as resolve6 } from "path";
+import { existsSync as existsSync6, readFileSync as readFileSync7 } from "fs";
+import { dirname as dirname3, isAbsolute as isAbsolute4, join as join6, resolve as resolve6 } from "path";
 var FAROL_FILE = ".farol.json";
 var str = external_exports.string().min(1);
 var globs2 = external_exports.array(str);
@@ -254597,10 +254794,10 @@ var PATH_KEYS = {
 function findFarolFile(start) {
   let dir = resolve6(start);
   for (; ; ) {
-    const candidate = join5(dir, FAROL_FILE);
-    if (existsSync5(candidate)) return candidate;
+    const candidate = join6(dir, FAROL_FILE);
+    if (existsSync6(candidate)) return candidate;
     const parent = dirname3(dir);
-    if (existsSync5(join5(dir, ".git")) || parent === dir) return void 0;
+    if (existsSync6(join6(dir, ".git")) || parent === dir) return void 0;
     dir = parent;
   }
 }
@@ -254639,7 +254836,7 @@ function required2(value, flag, command) {
 }
 
 // src/cli/history.ts
-import { join as join6, resolve as resolve7 } from "path";
+import { join as join7, resolve as resolve7 } from "path";
 async function runHistory(ctx, options, deps, progress) {
   const mode = options.firstParent === true ? "first-parent" : "merges";
   const merges = await listMerges(ctx.repoRoot, options.branch, options.since, mode === "first-parent");
@@ -254649,13 +254846,13 @@ async function runHistory(ctx, options, deps, progress) {
   for (const [i, merge2] of merges.entries()) {
     const { output: output2, failed } = await runAnalyze(ctx, { base: merge2.firstParent, head: merge2.sha, ...options.ignore ? { ignore: options.ignore } : {} }, deps);
     const file2 = `${merge2.sha}.json`;
-    writeTextFile(join6(outDir, file2), serializeOutput(output2));
+    writeTextFile(join7(outDir, file2), serializeOutput(output2));
     byClass[output2.classification]++;
     if (failed) summary.failed++;
     summary.merges.push({ sha: merge2.sha, firstParent: merge2.firstParent, date: merge2.date, subject: merge2.subject, classification: output2.classification, file: file2, error: output2.diagnostics.error });
     progress(`[${i + 1}/${merges.length}] ${merge2.sha.slice(0, 12)} ${output2.classification}${failed ? " (analysis failed)" : ""} ${merge2.subject.slice(0, 80)}`);
   }
-  writeTextFile(join6(outDir, "summary.json"), `${JSON.stringify(summary, null, 2)}
+  writeTextFile(join7(outDir, "summary.json"), `${JSON.stringify(summary, null, 2)}
 `);
   return summary;
 }
@@ -254975,7 +255172,7 @@ async function runUsage(ctx, options, env, now, fetchImpl) {
     });
   }
   await mapLimit(tasks, DATADOG_CONCURRENCY, (task) => task());
-  for (const join7 of after) join7();
+  for (const join8 of after) join8();
   if (dd.errors) ctx.log(`Error Tracking: ${issues.length} issue(s) with a file`);
   const sortedIssues = issues.sort((a, b) => compareStrings(a.file, b.file) || compareStrings(a.type, b.type) || b.count - a.count);
   const sortedCallers = callers.filter((c) => c.name !== "" && c.service !== "").sort((a, b) => compareStrings(a.service, b.service) || compareStrings(a.name, b.name));
@@ -255156,7 +255353,7 @@ function buildProgram() {
   const loadedFarolFile = () => {
     if (farolFile !== void 0) return farolFile;
     const explicit = program3.opts().farolFile;
-    if (explicit !== void 0 && !existsSync6(resolve10(explicit))) throw new UsageError(`--farol-file ${resolve10(explicit)} does not exist`);
+    if (explicit !== void 0 && !existsSync7(resolve10(explicit))) throw new UsageError(`--farol-file ${resolve10(explicit)} does not exist`);
     const path3 = explicit !== void 0 ? resolve10(explicit) : findFarolFile(process.cwd());
     farolFile = path3 === void 0 ? null : loadFarolFile(path3);
     return farolFile;
