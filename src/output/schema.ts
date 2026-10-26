@@ -47,7 +47,7 @@ export const CoverageSignalSchema = z
     ignoredFiles: z.array(path),
     /**
      * Changed source files the project's own coverage settings leave out: the report lists files no test loaded, so
-     * a file missing from it was excluded on purpose (coverage.py omit/source, Vitest/Jest coverage include/exclude).
+     * a file missing from it was excluded on purpose (coverage.py omit/source, Vitest coverage include/exclude, Jest collectCoverageFrom; see listsUnloadedFiles).
      */
     excludedByProject: z.array(path).optional(),
   })

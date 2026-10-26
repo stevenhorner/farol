@@ -78,6 +78,13 @@ describe('coverage', () => {
       '',
     )
     expect(parsed.get('src/b.ts')?.map((x) => x.onLoad ?? false)).toEqual([true, false])
+    // Jest marks nothing: a never-loaded file of functions only cannot be told from a loaded one, so it is no proof.
+    const jest = parseCoverageReport(
+      JSON.stringify({ '/repo/src/e.ts': { path: '/repo/src/e.ts', statementMap: { '0': { start: { line: 2 }, end: { line: 2 } } }, s: { '0': 0 }, fnMap: { '0': { name: 'f', loc: { start: { line: 1 }, end: { line: 3 } } } } } }),
+      '/repo',
+      '',
+    )
+    expect(listsUnloadedFiles(jest)).toBe(false)
     // Without fnMap nothing is known to run on load.
     const bare = parseCoverageReport(JSON.stringify({ '/repo/src/d.ts': { path: '/repo/src/d.ts', statementMap: { '0': { start: { line: 1 }, end: { line: 1 } } }, s: { '0': 0 } } }), '/repo', '')
     expect(listsUnloadedFiles(bare)).toBe(false)

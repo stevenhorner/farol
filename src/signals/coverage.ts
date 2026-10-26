@@ -53,9 +53,11 @@ export function parseCoverageReport(text: string, repoRoot: string, projectPrefi
 
 /**
  * Whether a report lists files no test loaded: a file where nothing ran, not even a statement that runs when the module
- * loads. Then the coverage tool was told which files to measure (Vitest/Jest coverage.include, coverage.py source), and
- * a changed file missing from it was left out by the project's settings rather than never loaded. A module that loaded
- * but whose functions never ran is no proof. Not for Go profiles: a package without tests is missing from them, untested.
+ * loads. Then the coverage tool was told which files to measure, and a changed file missing from it was left out by the
+ * project's settings rather than never loaded. Vitest (coverage.include) marks such files ("(empty-report)"),
+ * coverage.py (source) lists them with no line run; Jest (collectCoverageFrom) marks nothing, so one of them needs
+ * top-level code: a file of functions only is no proof, loaded or not. Without proof missing files stay untested.
+ * Not for Go profiles: a package without tests is missing from them, untested.
  */
 export function listsUnloadedFiles(report: Map<string, Statements>): boolean {
   return [...report.values()].some((statements) => statements.some((s) => s.onLoad === true) && statements.every((s) => s.count === 0))

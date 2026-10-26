@@ -238171,7 +238171,7 @@ var CoverageSignalSchema = external_exports.object({
   ignoredFiles: external_exports.array(path2),
   /**
    * Changed source files the project's own coverage settings leave out: the report lists files no test loaded, so
-   * a file missing from it was excluded on purpose (coverage.py omit/source, Vitest/Jest coverage include/exclude).
+   * a file missing from it was excluded on purpose (coverage.py omit/source, Vitest coverage include/exclude, Jest collectCoverageFrom; see listsUnloadedFiles).
    */
   excludedByProject: external_exports.array(path2).optional()
 }).strict();

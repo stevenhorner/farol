@@ -388,9 +388,12 @@ On the summary, collapsed: the share of changed executable lines that ran in you
 that never ran. A changed file missing from the coverage report counts as untested, except:
 
 - a file that only declares things (types, static constants): nothing for a test to run;
-- a file your coverage settings leave out: when the report also lists files no test loaded (Vitest/Jest
-  `coverage.include`, coverage.py `source`), a file missing from it was excluded on purpose (migrations, generated
-  code, config). Go profiles leave out packages without tests, so there a missing file stays untested;
+- a file your coverage settings leave out: when the report shows that it lists files no test loaded, a file missing
+  from it was excluded on purpose (migrations, generated code, config). farol sees that in Vitest reports with
+  `coverage.include` (they mark such files), in coverage.py reports with `source`, and in Jest/Istanbul reports with
+  `collectCoverageFrom` when one of the unloaded files has code that runs on load (a top-level statement; a file of
+  functions only proves nothing). Without that proof, and always for Go profiles (they leave out packages without
+  tests), a missing file stays untested;
 - a file in `signals.coverageIgnore`.
 
 The last two are listed as *left out of coverage on purpose*: neither tested nor untested, they keep half of their
