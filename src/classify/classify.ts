@@ -137,8 +137,9 @@ export function classify(input: ClassifyInput): ClassifyResult {
   // a changed file, may take the URL of an existing route. Unchanged ones stay readable entry points.
   for (const r of headRoutes.routes) {
     const parts = r.computed ?? []
-    // A new route reports where its path is computed; an existing one, the changed files that compute it.
-    const shown = baseKeys.has(r.key) ? parts.filter((c) => changed.has(c.file)) : parts.slice(0, 1)
+    // Where the change is: the changed files that compute the path; a new route with none of them, its first part.
+    const inChanged = parts.filter((c) => changed.has(c.file))
+    const shown = inChanged.length > 0 || baseKeys.has(r.key) ? inChanged : parts.slice(0, 1)
     for (const c of shown) {
       dynamicRoutes.push(c)
       reasons.push(reason('dynamic-route', `line ${c.line}: ${c.detail}`, c.file))

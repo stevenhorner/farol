@@ -237656,7 +237656,8 @@ function classify(input2) {
   const removed = input2.files.flatMap((f) => f.status === "deleted" ? [f.path] : f.status === "renamed" && f.oldPath !== void 0 ? [f.oldPath] : []);
   for (const r of headRoutes.routes) {
     const parts = r.computed ?? [];
-    const shown = baseKeys.has(r.key) ? parts.filter((c) => changed.has(c.file)) : parts.slice(0, 1);
+    const inChanged = parts.filter((c) => changed.has(c.file));
+    const shown = inChanged.length > 0 || baseKeys.has(r.key) ? inChanged : parts.slice(0, 1);
     for (const c of shown) {
       dynamicRoutes.push(c);
       reasons.push(reason("dynamic-route", `line ${c.line}: ${c.detail}`, c.file));
@@ -249647,7 +249648,8 @@ function buildBackendTable(input2) {
       const file2 = rel(sf.fileName);
       resolverFiles.add(file2);
       const line3 = sf.getLineAndCharacterOfPosition(node2.getStart(sf)).line + 1;
-      const entry = anchors.get(key) ?? { file: file2, modules: /* @__PURE__ */ new Set(), ...computed ? { computed: [{ file: file2, line: line3, detail: `${key}: path computed at run time` }] } : {} };
+      const entry = anchors.get(key) ?? { file: file2, modules: /* @__PURE__ */ new Set() };
+      if (computed) entry.computed = [...entry.computed ?? [], { file: file2, line: line3, detail: `${key}: path computed at run time` }];
       for (const m of resolverAnchors(value, checker, isProjectFile, rel, globals, contextOf)) if (m !== file2) entry.modules.add(m);
       anchors.set(key, entry);
     }
