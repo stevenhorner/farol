@@ -58,7 +58,7 @@
         "level": "medium",
         "directImporters": 1,
         "transitiveDependents": 14,
-        "centrality": 0.341,
+        "centrality": 0.333,
         "pagesReached": 5,
         "routesReached": 5,
         "why": "used by 5 of 20 existing operations"

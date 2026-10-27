@@ -191,6 +191,8 @@ const SCENARIOS: Record<string, { classification: Output['classification']; affe
   // A Hangfire recurring job's code and a Quartz IJob: each is an entry point of its own.
   'c40-hangfire-job-code': { classification: 'touches-existing', affected: ['TASK AddOrUpdate nightly-report'] },
   'c41-quartz-job-changed': { classification: 'touches-existing', affected: ['TASK Shop.Web.Jobs.ReindexJob'] },
+  // row.Label() on a dynamic value cannot run a static method named Label.
+  'c42-static-not-fallback': { classification: 'touches-existing', affected: [], check: (o) => { expect(codes(o, 'existing-file-unreachable')).toEqual(['src/Shop.Core/Reports/ReportLabels.cs']); } },
   // A new package and a new content item: dependency information, no build setting changed.
   'c22-package-added': {
     classification: 'isolated',

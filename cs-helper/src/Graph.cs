@@ -102,7 +102,10 @@ public sealed class SetIndex
         if (f.SymbolKey is null) return;
         if (!BySymbol.TryGetValue(f.SymbolKey, out var list)) BySymbol[f.SymbolKey] = list = [];
         list.Add(f.Decl.Id);
-        if (f.Decl.Kind is "method" or "property" && !(f.Decl.Kind == "method" && f.Type is not null && IsControllerType(f.Type)))
+        // Fallback candidates are members a value can run: not static ones (C# never calls them through an instance) and
+        // not controller actions.
+        var instanceOnly = f.Member is { IsStatic: false } or IMethodSymbol { IsExtensionMethod: true };
+        if (f.Decl.Kind is "method" or "property" && instanceOnly && !(f.Decl.Kind == "method" && f.Type is not null && IsControllerType(f.Type)))
         {
             var name = f.SymbolKey[2..].Split('(')[0].Split('.')[^1];
             var map = f.Decl.Kind == "method" ? MethodsByName : PropertiesByName;
@@ -236,7 +239,8 @@ public sealed class SetIndex
     /// An unresolved member of a value farol cannot type. A value of a known type from a package that was not restored
     /// (`conn.Execute(…)` on a SqlConnection) can only run a project extension method on that type name; a value of
     /// unknown type (`dynamic`, an unresolved call's result) can run any project method of that name whose parameters
-    /// fit the arguments, or any property of that name (conservative).
+    /// fit the arguments, or any property of that name (conservative). Static members are never candidates: a member
+    /// access on a value cannot reach them, and a type name that does not resolve is a package type.
     /// </summary>
     IEnumerable<string> Fallback(MemberAccessExpressionSyntax access, string name, Found f)
     {

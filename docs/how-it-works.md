@@ -252,7 +252,7 @@ directives count, so a change in another edition's code is a change):
 - an unresolved member: on a value of a type from a package that was not restored (`connection.Execute(…)` on a
   `SqlConnection`), only a project extension method on that type name; on a value of unknown type (`dynamic`, an
   unresolved call's result), any project method of that name whose parameters fit the arguments, or any property of
-  that name (never controller actions).
+  that name (never controller actions, never static members: a value cannot run them).
 
 **Entry points:**
 

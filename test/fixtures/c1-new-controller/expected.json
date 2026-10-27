@@ -114,7 +114,7 @@
         "level": "low",
         "directImporters": 2,
         "transitiveDependents": 2,
-        "centrality": 0.044,
+        "centrality": 0.043,
         "pagesReached": 0,
         "routesReached": 0,
         "why": "new code not used by existing operations"

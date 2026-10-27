@@ -70,7 +70,7 @@
         "level": "medium",
         "directImporters": 1,
         "transitiveDependents": 1,
-        "centrality": 0.024,
+        "centrality": 0.023,
         "pagesReached": 1,
         "routesReached": 1,
         "why": "new code already used by 1 existing operation"
