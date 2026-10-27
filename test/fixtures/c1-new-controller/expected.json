@@ -106,7 +106,7 @@
     }
   },
   "risk": {
-    "totalPages": 14,
+    "totalPages": 20,
     "files": [
       {
         "path": "src/Shop.Core/Shipping/IShippingQuotes.cs",
@@ -114,7 +114,7 @@
         "level": "low",
         "directImporters": 2,
         "transitiveDependents": 2,
-        "centrality": 0.051,
+        "centrality": 0.044,
         "pagesReached": 0,
         "routesReached": 0,
         "why": "new code not used by existing operations"
@@ -125,7 +125,7 @@
         "level": "low",
         "directImporters": 1,
         "transitiveDependents": 1,
-        "centrality": 0.026,
+        "centrality": 0.022,
         "pagesReached": 0,
         "routesReached": 0,
         "why": "new code not used by existing operations"
@@ -136,7 +136,7 @@
         "level": "low",
         "directImporters": 1,
         "transitiveDependents": 1,
-        "centrality": 0.026,
+        "centrality": 0.022,
         "pagesReached": 0,
         "routesReached": 0,
         "why": "new code not used by existing operations"
@@ -240,7 +240,7 @@
   },
   "review": null,
   "contracts": {
-    "readable": 0,
+    "readable": 7,
     "entries": [],
     "summary": {
       "breaking": 0,

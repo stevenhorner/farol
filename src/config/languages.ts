@@ -41,7 +41,7 @@ export const HELPER_LANGUAGES: Record<HelperLanguage, HelperLanguageInfo> = {
   csharp: {
     label: 'C#',
     helper: 'cs-helper',
-    extensions: ['.cs', '.cshtml'],
+    extensions: ['.cs', '.cshtml', '.proto'],
     lintTool: 'SARIF',
     securityHint: 'C# files are checked by the .NET security analyzers (CA2100, CA3xxx, CA5xxx) or Security Code Scan: give their SARIF report as the lint report',
   },

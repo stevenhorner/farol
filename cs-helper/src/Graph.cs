@@ -34,6 +34,7 @@ public sealed class Graph
             mine.Anchors.UnionWith(e.Anchors);
             mine.Inline.UnionWith(e.Inline);
             mine.Computed.AddRange(e.Computed);
+            mine.Contract ??= e.Contract;
         }
         Problems.AddRange(other.Problems);
     }
@@ -54,6 +55,8 @@ public sealed class EntryBuilder(string key, string file, int line, string kind)
     public SortedSet<string> Anchors { get; } = new(StringComparer.Ordinal);
     public SortedSet<string> Inline { get; } = new(StringComparer.Ordinal);
     public List<Computed> Computed { get; } = [];
+    /// <summary>What the endpoint receives and returns, when it is a JSON endpoint whose types the helper can read.</summary>
+    public ContractOut? Contract { get; set; }
 }
 
 /// <summary>Lookups of one compilation set: symbol → declarations, interface and virtual dispatch, members by name.</summary>
@@ -70,6 +73,21 @@ public sealed class SetIndex
     public List<string> Startup { get; } = [];
     /// <summary>csharp.entryCalls: methods whose delegate arguments are entry points of their own (TASK).</summary>
     public HashSet<string> EntryCalls { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// A call whose delegate arguments run later as jobs of their own: a method of csharp.entryCalls, or Hangfire's
+    /// Enqueue/Schedule/AddOrUpdate/ContinueJobWith (found by name when Hangfire was not restored).
+    /// </summary>
+    public bool IsEntryCall(InvocationExpressionSyntax call, SemanticModel model, out string method)
+    {
+        method = call.Expression switch { MemberAccessExpressionSyntax m => m.Name.Identifier.ValueText, SimpleNameSyntax n => n.Identifier.ValueText, _ => "" };
+        if (Jobs.IsHangfire(call, model, out _)) return true;
+        if (EntryCalls.Count == 0 || !EntryCallNames.Contains(method)) return false;
+        return model.GetSymbolInfo(call).Symbol is IMethodSymbol target && EntryCalls.Contains(EntryCallName(target));
+    }
+
+    HashSet<string> EntryCallNames => entryCallNames ??= EntryCalls.Select(c => c.Split('.')[^1]).ToHashSet(StringComparer.Ordinal);
+    HashSet<string>? entryCallNames;
 
     /// <summary>Namespace.Type.Method of a method, as csharp.entryCalls names it.</summary>
     public static string EntryCallName(IMethodSymbol m)
@@ -196,16 +214,11 @@ public sealed class SetIndex
         // Route registrations belong to their entry points (handlers and filters are anchors), not to the startup code.
         // Delegates handed to an entry call (a scheduler) run as their own TASK entry points, not as part of this code.
         var delegated = new List<TextSpan>();
-        if (EntryCalls.Count > 0)
+        foreach (var call in f.Node.DescendantNodes(span).OfType<InvocationExpressionSyntax>())
         {
-            var names = EntryCalls.Select(c => c.Split('.')[^1]).ToHashSet(StringComparer.Ordinal);
-            foreach (var call in f.Node.DescendantNodes(span).OfType<InvocationExpressionSyntax>())
-            {
-                var name = call.Expression switch { MemberAccessExpressionSyntax m => m.Name.Identifier.ValueText, SimpleNameSyntax n => n.Identifier.ValueText, _ => "" };
-                if (!names.Contains(name) || f.Model.GetSymbolInfo(call).Symbol is not IMethodSymbol target || !EntryCalls.Contains(EntryCallName(target))) continue;
-                foreach (var arg in call.ArgumentList.Arguments)
-                    if (arg.Expression is AnonymousFunctionExpressionSyntax || f.Model.GetSymbolInfo(arg.Expression).Symbol is IMethodSymbol) delegated.Add(arg.Span);
-            }
+            if (!IsEntryCall(call, f.Model, out _)) continue;
+            foreach (var arg in call.ArgumentList.Arguments)
+                if (arg.Expression is AnonymousFunctionExpressionSyntax || f.Model.GetSymbolInfo(arg.Expression).Symbol is IMethodSymbol) delegated.Add(arg.Span);
         }
         var skip = new SpanSet(registration ? f.Skip : [.. f.Skip, .. Decls.RouteStatements(f.Node, span, f.Skip), .. delegated]);
         foreach (var node in f.Node.DescendantNodesAndSelf(span, n => !skip.Covers(n.Span) || n.FullSpan.Contains(span)))

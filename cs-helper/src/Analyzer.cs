@@ -36,7 +36,11 @@ public static class Analyzer
         Lap("parse");
         ws.Notes.Add($"{sets.Count} configuration set(s): {string.Join(" | ", sets.Select(s => string.Join(", ", s.Configurations)))}");
         var runs = sets.Select(s => new SetRun(s)).ToArray();
-        foreach (var run in runs) run.Index.EntryCalls.UnionWith(o.EntryCalls);
+        foreach (var run in runs)
+        {
+            run.Index.EntryCalls.UnionWith(o.EntryCalls);
+            Grpc.AddDecls(ws, run.Graph);
+        }
         // A file without #if has the same declarations in every configuration: the other configurations reuse the first
         // one's (their syntax and hashes are equal).
         Collect(runs[0], o, null);
@@ -63,6 +67,7 @@ public static class Analyzer
         if (runs.Length > 1) ws.Notes.Add($"other configurations bound {rebound} of {runs.Skip(1).Sum(r => r.Index.Found.Count)} declarations again");
         ws.Notes.Add($"timings: {string.Join(", ", timings)}");
         var graph = new Graph();
+        Grpc.AddDecls(ws, graph);
         // Projects whose views the Razor generator compiled in every configuration get their layouts and partials from the
         // generated code; the others keep the conventions (every partial in scope).
         var compiled = ws.Projects.Where(p => runs.All(r => r.Set.Views.ContainsKey(p.File.Path))).Select(p => p.File.Path).ToHashSet(StringComparer.Ordinal);
@@ -83,7 +88,11 @@ public static class Analyzer
 
     static void References(SetRun run, IEnumerable<Found> found, ParallelOptions parallelism)
     {
-        foreach (var compilation in run.Set.Compilations.Values) run.Index.Link(compilation, run.Graph);
+        foreach (var compilation in run.Set.Compilations.Values)
+        {
+            run.Index.Link(compilation, run.Graph);
+            Jobs.MediatR(compilation, run.Index, run.Graph);
+        }
         var edges = new ConcurrentBag<List<(string, string)>>();
         Parallel.ForEach(found, parallelism, f => edges.Add(run.Index.EdgesOf(f)));
         foreach (var list in edges) foreach (var (from, to) in list) run.Graph.Edge(from, to);
@@ -143,7 +152,7 @@ public static class Analyzer
         var mvc = run.Set.Compilations.Values.Any(c => c.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.ControllerBase") is not null);
         Views.AddEdges(ws, run.Index, run.Graph, o.ViewRoots, t => Routes.IsController(t, mvc));
         RazorEdges.Add(ws, run.Set, run.Index, run.Graph, run.Models, o.ViewRoots);
-        new Entries(ws, run.Set, run.Index, run.Graph, run.Models, o.EntryCalls).Find();
+        new Entries(ws, run.Set, run.Index, run.Graph, run.Models).Find();
         // A member nothing in the project calls is called by a library or by convention (middleware InvokeAsync, view
         // component Invoke): it depends on its type. Members that are entry points of their own (controller actions,
         // page handlers, hub methods) do not: the type does not run them.
@@ -204,7 +213,8 @@ public static class Analyzer
             e.Key, e.File, e.Line, e.Kind,
             e.Anchors.Where(at.ContainsKey).Select(a => at[a]).Distinct().Order().ToArray(),
             string.Join(",", e.Inline),
-            e.Computed.Count == 0 ? null : e.Computed.Distinct().OrderBy(c => c.File, StringComparer.Ordinal).ThenBy(c => c.Line).ToArray())).ToArray();
+            e.Computed.Count == 0 ? null : e.Computed.Distinct().OrderBy(c => c.File, StringComparer.Ordinal).ThenBy(c => c.Line).ToArray(),
+            e.Contract)).ToArray();
         var files = ws.Projects.SelectMany(p => p.Sources.Concat(p.Views)).Select(f => Paths.Rel(ws.Root, f)).Distinct().Order(StringComparer.Ordinal).ToArray();
         var problems = graph.Problems.Distinct().OrderBy(p => p.File, StringComparer.Ordinal).ThenBy(p => p.Line).ThenBy(p => p.Detail, StringComparer.Ordinal).ToArray();
         var sortedComments = comments.OrderBy(c => c.File, StringComparer.Ordinal).ThenBy(c => c.Line).ToArray();

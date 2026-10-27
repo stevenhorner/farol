@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Farol.CsHelper;
 
 /// <summary>Entry points of one compilation set: controllers, minimal APIs, hosted services, configured entry calls and programs.</summary>
-public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, Graph graph, Dictionary<SyntaxTree, SemanticModel> models, IReadOnlyList<string> entryCalls)
+public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, Graph graph, Dictionary<SyntaxTree, SemanticModel> models)
 {
     static readonly Dictionary<string, string> MapVerbs = new() { ["MapGet"] = "GET", ["MapPost"] = "POST", ["MapPut"] = "PUT", ["MapDelete"] = "DELETE", ["MapPatch"] = "PATCH", ["Map"] = "ANY", ["MapMethods"] = "" };
 
@@ -40,11 +40,18 @@ public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, 
         Controllers();
         RazorPages();
         Hubs();
+        GrpcServices();
         MinimalApis();
         HostedServices();
         EntryCalls();
         Programs();
     }
+
+    /// <summary>Route parameter names of an entry key: `GET /orders/{id:int}/{*rest}` → id, rest.</summary>
+    static HashSet<string> PathNames(string key) =>
+        key.Split('/').Where(s => s.StartsWith('{') && s.EndsWith('}')).Select(s => s.Trim('{', '}', '*').Split(':', '=', '?')[0]).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    static bool BodyAllowed(string key) => key.Split(' ')[0] is "POST" or "PUT" or "PATCH" or "ANY";
 
     void Anchor(EntryBuilder e, IEnumerable<string> ids)
     {
@@ -74,8 +81,14 @@ public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, 
                     var own = SymbolEqualityComparer.Default.Equals(action.ContainingType, type);
                     var location = own ? action.Locations.First(l => l.IsInSource) : typeLocation;
                     var line = location.GetLineSpan().StartLinePosition.Line + 1;
+                    var api = Routes.IsApiController(type);
                     foreach (var (key, _) in Routes.Keys(type, action, conventions))
-                        Anchor(graph.Entry(key, Rel(location.SourceTree!), line, "http"), [.. typeDecls, .. index.Targets(action)]);
+                    {
+                        var e = graph.Entry(key, Rel(location.SourceTree!), line, "http");
+                        // JSON endpoints only: an MVC action rendering a view has no contract.
+                        if (api) e.Contract ??= Contracts.For(action, PathNames(key), BodyAllowed(key), Contracts.Produces(action));
+                        Anchor(e, [.. typeDecls, .. index.Targets(action)]);
+                    }
                 }
             }
         }
@@ -97,6 +110,7 @@ public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, 
             else if (args.Count >= 3 && Constants(args[1].Expression, model) is { } list) verbs.AddRange(list.Select(v => v.ToUpperInvariant()));
             else { graph.Problems.Add(new Problem(file, Line(call), "dynamic-route", $"HTTP methods that are not constants: {Decls.Collapse(call.ToString())}")); continue; }
             var handler = args[^1].Expression;
+            var handlerMethod = (handler is AnonymousFunctionExpressionSyntax ? model.GetSymbolInfo(handler).Symbol : model.GetSymbolInfo(handler).Symbol ?? model.GetSymbolInfo(handler).CandidateSymbols.FirstOrDefault()) as IMethodSymbol;
             var anchors = new List<string>();
             string inline = "";
             if (handler is AnonymousFunctionExpressionSyntax lambda)
@@ -112,6 +126,7 @@ public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, 
                 foreach (var v in verbs)
                 {
                     var e = graph.Entry($"{v} {Routes.Clean(prefix + "/" + path)}", file, Line(call), "http");
+                    if (handlerMethod is not null) e.Contract ??= Contracts.For(handlerMethod, PathNames(e.Key), BodyAllowed(e.Key), null);
                     if (inline != "") e.Inline.Add(inline);
                     foreach (var c in prefixComputed.Concat(computed ? [new Computed(file, Line(call))] : [])) e.Computed.Add(c);
                     Anchor(e, anchors);
@@ -250,6 +265,33 @@ public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, 
         }
     }
 
+    /// <summary>
+    /// gRPC: `MapGrpcService&lt;T&gt;()` makes each method T overrides an entry point `RPC package.Service/Method`, anchored on
+    /// it and the .proto that defines the service (its generated base class is not in git), with the messages as contract.
+    /// </summary>
+    void GrpcServices()
+    {
+        foreach (var (call, model) in Invocations())
+        {
+            if (call.Expression is not MemberAccessExpressionSyntax { Name: GenericNameSyntax { Identifier.ValueText: "MapGrpcService", TypeArgumentList.Arguments: [var argument] } }) continue;
+            if (model.GetSymbolInfo(argument).Symbol is not INamedTypeSymbol impl || !SetIndex.IsSource(impl) || Grpc.ServiceName(impl) is not { } service) continue;
+            var typeDecls = index.BySymbol.GetValueOrDefault(Decls.Key(impl)) ?? [];
+            var proto = ws.Protos.FirstOrDefault(p => p.Services.ContainsKey(service));
+            if (proto is not null) foreach (var t in typeDecls) graph.Edge(t, proto.Path);
+            var qualified = proto is null || proto.Package == "" ? service : $"{proto.Package}.{service}";
+            foreach (var m in impl.GetMembers().OfType<IMethodSymbol>().Where(m => m.IsOverride && m.DeclaredAccessibility == Accessibility.Public))
+            {
+                var e = graph.Entry($"RPC {qualified}/{m.Name}", Rel(call.SyntaxTree), Line(call), "rpc");
+                if (proto is not null && proto.Services[service].TryGetValue(m.Name, out var rpc))
+                {
+                    Dictionary<string, object?> Stream(Dictionary<string, object?> s, bool stream) => stream ? new() { ["k"] = "list", ["of"] = s } : s;
+                    e.Contract ??= new ContractOut([], Contracts.Field(Stream(Grpc.Shape(ws.Protos, proto, rpc.Request, []), rpc.RequestStream), true, false), Stream(Grpc.Shape(ws.Protos, proto, rpc.Response, []), rpc.ResponseStream));
+                }
+                Anchor(e, [.. typeDecls, .. index.Targets(m), .. proto is null ? [] : new[] { proto.Path }]);
+            }
+        }
+    }
+
     /// <summary>BackgroundService and IHostedService implementations: TASK entries anchored on the type (its overrides run).</summary>
     void HostedServices()
     {
@@ -259,23 +301,20 @@ public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, 
                 if (type.TypeKind != TypeKind.Class || type.IsAbstract || !index.BySymbol.TryGetValue(Decls.Key(type), out var decls)) continue;
                 var hosted = type.AllInterfaces.Any(i => i.Name == "IHostedService" && !SetIndex.IsSource(i));
                 for (var t = type.BaseType; t is not null && !hosted; t = t.BaseType) hosted = t.Name == "BackgroundService" && !SetIndex.IsSource(t);
+                hosted |= Jobs.IsQuartzJob(type, compilation);
                 if (!hosted) continue;
                 var location = type.Locations.Where(l => l.IsInSource).OrderBy(l => l.SourceTree!.FilePath, StringComparer.Ordinal).First();
                 Anchor(graph.Entry($"TASK {type.ToDisplayString()}", Rel(location.SourceTree!), location.GetLineSpan().StartLinePosition.Line + 1, "task"), decls);
             }
     }
 
-    /// <summary>csharp.entryCalls: delegates passed to these methods (schedulers, job registries) are TASK entries.</summary>
+    /// <summary>csharp.entryCalls and Hangfire: delegates passed to these methods (schedulers, job registries) are TASK entries.</summary>
     void EntryCalls()
     {
-        if (entryCalls.Count == 0) return;
         var ordinal = new Dictionary<string, int>();
-        var names = entryCalls.Select(c => c.Split('.')[^1]).ToHashSet(StringComparer.Ordinal);
         foreach (var (call, model) in Invocations())
         {
-            if (CalledName(call) is not { } called || !names.Contains(called) || model.GetSymbolInfo(call).Symbol is not IMethodSymbol m) continue;
-            m = m.ReducedFrom ?? m;
-            if (!entryCalls.Contains(SetIndex.EntryCallName(m))) continue;
+            if (!index.IsEntryCall(call, model, out var method)) continue;
             var file = Rel(call.SyntaxTree);
             var label = call.ArgumentList.Arguments.Select(a => model.GetConstantValue(a.Expression)).Where(c => c.HasValue && c.Value is string).Select(c => (string)c.Value!).FirstOrDefault();
             foreach (var arg in call.ArgumentList.Arguments.Select(a => a.Expression))
@@ -287,6 +326,7 @@ public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, 
                 {
                     inline = Decls.Hash(lambda, lambda.Span, []);
                     anchors.AddRange(index.RefsIn(lambda, model));
+                    name = Jobs.DelegateLabel(lambda, model);
                 }
                 else if (model.GetSymbolInfo(arg).Symbol is IMethodSymbol group && model.GetTypeInfo(arg).Type is null)
                 {
@@ -295,7 +335,7 @@ public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, 
                 }
                 else continue;
                 ordinal[file] = ordinal.GetValueOrDefault(file) + 1;
-                var e = graph.Entry($"TASK {m.Name} {label ?? name ?? $"{file}#{ordinal[file]}"}", file, Line(call), "task");
+                var e = graph.Entry($"TASK {method} {label ?? name ?? $"{file}#{ordinal[file]}"}", file, Line(call), "task");
                 if (inline != "") e.Inline.Add(inline);
                 Anchor(e, anchors);
             }

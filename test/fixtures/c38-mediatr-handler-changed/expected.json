@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "surface": "backend",
+  "tool": {
+    "name": "farol",
+    "version": "<version>"
+  },
+  "repo": null,
+  "pr": null,
+  "base": {
+    "ref": "main",
+    "sha": "<base>"
+  },
+  "mergeBase": "<base>",
+  "head": {
+    "ref": "feature",
+    "sha": "<head>"
+  },
+  "analyzedAt": "2026-01-15T12:00:00.000Z",
+  "classification": "touches-existing",
+  "reasons": [
+    {
+      "code": "existing-file-modified",
+      "file": "src/Shop.Core/Orders/Commands/ArchiveOrder.cs",
+      "detail": "method Shop.Core.Orders.Commands.ArchiveOrderHandler.Handle(Shop.Core.Orders.Commands.ArchiveOrder,System.Threading.CancellationToken) changed: reached by 1 existing entry point(s): POST /api/Archive/{id}"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/Shop.Core/Orders/Commands/ArchiveOrder.cs",
+      "status": "modified",
+      "role": "source",
+      "linesAdded": 1,
+      "linesRemoved": 1,
+      "additive": false
+    }
+  ],
+  "ignoredFiles": [],
+  "dependencies": {
+    "manifests": [],
+    "lockfiles": [],
+    "changes": [],
+    "summary": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "patch": 0,
+      "added": 0,
+      "removed": 0
+    }
+  },
+  "risk": {
+    "totalPages": 20,
+    "files": [
+      {
+        "path": "src/Shop.Core/Orders/Commands/ArchiveOrder.cs",
+        "change": "modified",
+        "level": "medium",
+        "directImporters": 1,
+        "transitiveDependents": 1,
+        "centrality": 0.024,
+        "pagesReached": 1,
+        "routesReached": 1,
+        "why": "used by 1 of 20 existing operations"
+      }
+    ],
+    "summary": {
+      "high": 0,
+      "medium": 1,
+      "low": 0
+    }
+  },
+  "routes": {
+    "added": [],
+    "affected": [
+      {
+        "key": "POST /api/Archive/{id}",
+        "path": "POST /api/Archive/{id}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Core/Orders/Commands/ArchiveOrder.cs",
+            "chain": [
+              "src/Shop.Web/Controllers/Api/ArchiveController.cs",
+              "src/Shop.Core/Orders/Commands/ArchiveOrder.cs"
+            ]
+          }
+        ]
+      }
+    ],
+    "disconnectedNewFiles": []
+  },
+  "signals": {
+    "coverage": {
+      "status": "not-provided",
+      "message": "no coverage report given (--coverage or signals.coverage)",
+      "files": [],
+      "total": null,
+      "ignoredFiles": []
+    },
+    "lint": {
+      "status": "not-provided",
+      "message": "no SARIF report given (--eslint or signals.eslint)",
+      "changedLines": null,
+      "otherLines": null,
+      "findings": [],
+      "omittedFindings": 0
+    },
+    "security": {
+      "status": "not-provided",
+      "findings": [],
+      "summary": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "message": "C# files are checked by the .NET security analyzers (CA2100, CA3xxx, CA5xxx) or Security Code Scan: give their SARIF report as the lint report"
+    },
+    "vulnerabilities": {
+      "status": "not-provided",
+      "message": "no audit report given (--audit or signals.audit)",
+      "related": [],
+      "total": null
+    },
+    "suppressions": {
+      "status": "ok",
+      "items": []
+    },
+    "testsModified": {
+      "status": "ok",
+      "files": []
+    }
+  },
+  "diagnostics": {
+    "unresolvedImports": [],
+    "dynamicRoutes": [],
+    "parseErrors": [],
+    "timingsMs": {
+      "diff": 0,
+      "helperSetup": 0,
+      "helperRead": 0,
+      "base": 0,
+      "classify": 0,
+      "signals": 0,
+      "diffs": 0
+    },
+    "error": null
+  },
+  "review": null,
+  "contracts": {
+    "readable": 7,
+    "entries": [],
+    "summary": {
+      "breaking": 0,
+      "dangerous": 0,
+      "safe": 0
+    }
+  }
+}

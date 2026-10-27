@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Farol.CsHelper;
 
 /// <summary>A project of the solution with its source files (absolute paths) and views.</summary>
-public sealed record Project(ProjectFile File, List<string> Sources, List<string> Views);
+public sealed record Project(ProjectFile File, List<string> Sources, List<string> Views, List<string> Protos);
 
 /// <summary>One compilation of every project with the symbols of one build configuration (or several sharing them).</summary>
 public sealed record ConfigurationSet(string[] Configurations, Dictionary<string, Compilation> Compilations)
@@ -29,6 +29,8 @@ public sealed class Workspace
     public required List<Project> Projects { get; init; }
     public List<Problem> Problems { get; } = [];
     public List<string> Notes { get; } = [];
+    /// <summary>The .proto files of the projects (gRPC services and messages), parsed once.</summary>
+    public List<ProtoFile> Protos { get; } = [];
 
     static readonly string[] SkippedDirs = ["bin", "obj", "node_modules", ".git", ".vs"];
 
@@ -51,9 +53,11 @@ public sealed class Workspace
             foreach (var glob in p.CompileInclude) foreach (var f in all) if (f.EndsWith(".cs", StringComparison.Ordinal) && Paths.Matches(glob, f)) sources.Add(f);
             sources.RemoveWhere(f => p.CompileRemove.Any(g => Paths.Matches(g, f)));
             var views = all.Where(f => f.EndsWith(".cshtml", StringComparison.Ordinal) && OwnerOf(f) == p).OrderBy(f => f, StringComparer.Ordinal).ToList();
-            projects.Add(new Project(p, [.. sources], views));
+            var protos = all.Where(f => f.EndsWith(".proto", StringComparison.Ordinal) && OwnerOf(f) == p).OrderBy(f => f, StringComparer.Ordinal).ToList();
+            projects.Add(new Project(p, [.. sources], views, protos));
         }
         var ws = new Workspace { Root = root, Projects = projects };
+        ws.Protos.AddRange(projects.SelectMany(p => p.Protos).Select(f => Grpc.Parse(Paths.Rel(root, f), File.ReadAllText(f))));
         foreach (var p in files) foreach (var ignored in p.Ignored.Distinct()) ws.Notes.Add($"{p.Path}: {ignored} not evaluated");
         return ws;
     }

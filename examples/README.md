@@ -223,7 +223,9 @@ With uv: `uv export --format requirements-txt --no-hashes > req.txt && uvx pip-a
 ## C#/.NET
 
 ASP.NET Core MVC and Web API controllers (attribute and conventional routes, areas), Razor Pages handlers, minimal APIs
-(`MapGet`… with `MapGroup` prefixes), SignalR hub methods, `BackgroundService`/`IHostedService` classes and programs. Every `.csproj` below the project
+(`MapGet`… with `MapGroup` prefixes), SignalR hub methods, gRPC services (from their `.proto` files),
+`BackgroundService`/`IHostedService` classes, Quartz jobs, Hangfire delegate jobs and programs; MediatR requests reach
+their handlers and pipeline behaviors. JSON endpoints (`[ApiController]`, minimal APIs) and gRPC methods get contracts. Every `.csproj` below the project
 directory is read (test projects are left out); every build configuration is compiled, so code behind `#if` is reached.
 
 **Configuration:**
@@ -260,7 +262,7 @@ token; the `farol` job installs the SDK with `actions/setup-dotnet` and does not
 PR's project files, and that job can write to the PR).
 
 **Check:** `farol routes` lists every action as `GET /Orders/Details/{id?}`, endpoints as `GET /api/health`, background
-services as `TASK Namespace.Type`; `farol impact <file>` lists the entry points that reach a file.
+services as `TASK Namespace.Type`, gRPC methods as `RPC package.Service/Method`; `farol impact <file>` lists the entry points that reach a file.
 
 ## Monorepos
 

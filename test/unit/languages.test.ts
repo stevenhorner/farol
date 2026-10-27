@@ -19,8 +19,8 @@ describe('language table', () => {
   it('keeps helper extensions apart from each other and from TypeScript', () => {
     const all = [...SCRIPT_EXTENSIONS, ...HELPER_EXTENSIONS]
     expect(new Set(all).size).toBe(all.length)
-    // Razor views are code, but coverage tools report the classes they compile to, never their own lines.
-    for (const ext of all) expect(isCodeFile(`src/a${ext}`)).toBe(ext !== '.cshtml')
+    // Razor views and .proto files are code, but coverage tools report the classes they compile to, never their own lines.
+    for (const ext of all) expect(isCodeFile(`src/a${ext}`)).toBe(ext !== '.cshtml' && ext !== '.proto')
   })
 
   it('tells which files a helper reads', () => {

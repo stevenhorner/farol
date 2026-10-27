@@ -95,7 +95,7 @@ what farol shows.
 
 - **Review attention goes where the risk is.** A 40-file PR usually has two or three files that can actually hurt. farol ranks them, so the reviewer reads those closely and skims the rest with a clear conscience.
 - **It follows the code, not the file names.** farol builds a declaration graph with the real compilers (the TypeScript type checker, `go/types`, Python's `ast`). A change to `formatPrice` lists the twelve pages that render it, not "1 file changed".
-- **Contract breaks are caught before clients are.** Removed response fields, new required parameters, changed types in GraphQL, FastAPI, Go handlers and gRPC, with the services that call each endpoint.
+- **Contract breaks are caught before clients are.** Removed response fields, new required parameters, changed types in GraphQL, FastAPI, Go handlers, ASP.NET Core APIs and gRPC, with the services that call each endpoint.
 - **Review the whole PR, or just what changed since your last look.** Every push gets two reports: the full pull request, and only the commits since the previous push. After a round of fixes, the reviewer checks the new commits instead of starting over.
 - **It uses what your CI already has.** Coverage, lint, security and audit reports become diff coverage and findings on the changed lines. Nothing runs twice.
 - **Fail closed.** When farol cannot read part of a change, it says so (`unknown`) and asks for a careful review. It never calls something safe because it did not understand it.
@@ -288,7 +288,8 @@ npx @winninjs/farol analyze --base origin/main --head HEAD \
 ### C#/.NET solution
 
 ASP.NET Core MVC and Web API controllers (conventional and attribute routes, areas), Razor Pages, minimal APIs with
-route groups, SignalR hubs, background services, and every build configuration (`#if` editions) at once. Interface calls
+route groups, SignalR hubs, gRPC services, background services (hosted services, Hangfire, Quartz), MediatR handlers,
+and every build configuration (`#if` editions) at once. Interface calls
 reach their implementations, so dependency injection needs no setup; views are compiled with the SDK's Razor generator,
 so a changed partial, view component or script reaches exactly the pages that render it. farol reads your code with the
 C# compiler of your .NET SDK; it never runs MSBuild or your code.
@@ -340,9 +341,9 @@ matching rules are in the [reference](docs/reference.md#traffic-and-errors-from-
 
 | | TypeScript / React frontends | TypeScript / JavaScript backends | Go | Python | C# / .NET |
 |---|---|---|---|---|---|
-| **Entry points** | React Router route tables (object and JSX forms, lazy routes, split route modules); Next.js Pages and App Router (pages, API routes, layouts, middleware); TanStack Router file-based routes | GraphQL root operations (schema files and `gql` templates), REST endpoints (Fastify/Express style) and command-line commands (commander, cac, yargs) | chi, gin, echo and net/http routes; gRPC service methods; `main` binaries | FastAPI and Flask routes (routers, blueprints, prefixes); Django URLs; MCP tools, resources and prompts; Celery tasks; Temporal workflows and activities; Prefect flows; `__main__` scripts | ASP.NET Core controllers (attribute and conventional routes, areas), Razor Pages handlers, minimal APIs (route groups), SignalR hub methods, `BackgroundService`/`IHostedService`, configured scheduler calls, programs |
+| **Entry points** | React Router route tables (object and JSX forms, lazy routes, split route modules); Next.js Pages and App Router (pages, API routes, layouts, middleware); TanStack Router file-based routes | GraphQL root operations (schema files and `gql` templates), REST endpoints (Fastify/Express style) and command-line commands (commander, cac, yargs) | chi, gin, echo and net/http routes; gRPC service methods; `main` binaries | FastAPI and Flask routes (routers, blueprints, prefixes); Django URLs; MCP tools, resources and prompts; Celery tasks; Temporal workflows and activities; Prefect flows; `__main__` scripts | ASP.NET Core controllers (attribute and conventional routes, areas), Razor Pages handlers, minimal APIs (route groups), SignalR hub methods, gRPC service methods, `BackgroundService`/`IHostedService`, Hangfire and Quartz jobs, configured scheduler calls, programs; MediatR requests reach their handlers |
 | **Reach precision** | per declaration (TypeScript type checker) | per module, per resolver for GraphQL | per declaration (`go/types`, interface calls resolved to implementations) | per declaration (Python `ast` with local type inference) | per declaration (Roslyn; interface and virtual calls resolved to implementations; every build configuration; Razor views compiled with the SDK's generator, with their layouts, partials, view components and scripts) |
-| **Contract changes** | — | GraphQL schema (breaking / dangerous / safe) | Handler request and response types (net/http, chi, gin, echo); gRPC messages | FastAPI parameters, body, response and Pydantic models | — |
+| **Contract changes** | — | GraphQL schema (breaking / dangerous / safe) | Handler request and response types (net/http, chi, gin, echo); gRPC messages | FastAPI parameters, body, response and Pydantic models | `[ApiController]` actions and minimal APIs (System.Text.Json shapes); gRPC messages from `.proto` |
 | **Dependencies** | `package.json` + npm/pnpm/yarn/bun lockfiles | same | `go.mod` + `go.sum` | `pyproject.toml` (PEP 621, extras, groups, uv, Poetry), `requirements.txt` + `uv.lock`/`poetry.lock`/`Pipfile.lock` | `.csproj` `PackageReference`, `Directory.Packages.props` + `packages.lock.json` |
 | **Diff coverage** | Istanbul `coverage-final.json` (Vitest, Jest) | same | `go test -coverprofile` | coverage.py JSON (`pytest --cov`) | Cobertura XML or coverlet JSON |
 | **Lint** | `eslint -f json` | same | golangci-lint JSON | ruff JSON | SARIF (Roslyn analyzers) |

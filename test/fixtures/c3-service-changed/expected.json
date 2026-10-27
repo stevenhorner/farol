@@ -50,18 +50,18 @@
     }
   },
   "risk": {
-    "totalPages": 14,
+    "totalPages": 20,
     "files": [
       {
         "path": "src/Shop.Core/Orders/OrderService.cs",
         "change": "modified",
         "level": "medium",
-        "directImporters": 5,
-        "transitiveDependents": 18,
-        "centrality": 0.514,
+        "directImporters": 6,
+        "transitiveDependents": 20,
+        "centrality": 0.488,
         "pagesReached": 1,
         "routesReached": 1,
-        "why": "used by 1 of 14 existing operations"
+        "why": "used by 1 of 20 existing operations"
       }
     ],
     "summary": {
@@ -148,7 +148,7 @@
   },
   "review": null,
   "contracts": {
-    "readable": 0,
+    "readable": 7,
     "entries": [],
     "summary": {
       "breaking": 0,

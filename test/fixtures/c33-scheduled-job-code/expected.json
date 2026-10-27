@@ -50,7 +50,7 @@
     }
   },
   "risk": {
-    "totalPages": 14,
+    "totalPages": 20,
     "files": [
       {
         "path": "src/Shop.Core/Orders/OrderArchive.cs",
@@ -58,10 +58,10 @@
         "level": "medium",
         "directImporters": 1,
         "transitiveDependents": 1,
-        "centrality": 0.029,
+        "centrality": 0.024,
         "pagesReached": 2,
         "routesReached": 2,
-        "why": "used by 2 of 14 existing operations"
+        "why": "used by 2 of 20 existing operations"
       }
     ],
     "summary": {
@@ -161,7 +161,7 @@
   },
   "review": null,
   "contracts": {
-    "readable": 0,
+    "readable": 7,
     "entries": [],
     "summary": {
       "breaking": 0,

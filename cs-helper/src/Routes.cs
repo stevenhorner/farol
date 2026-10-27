@@ -32,6 +32,18 @@ public static class Routes
         return mvcReferenced && type.Name.EndsWith("Controller", StringComparison.Ordinal);
     }
 
+    /// <summary>A JSON API controller: [ApiController], or derived from ControllerBase without Controller's view support.</summary>
+    public static bool IsApiController(INamedTypeSymbol type)
+    {
+        if (Chain(type).Any(a => Named(a, "ApiController"))) return true;
+        for (var t = type.BaseType; t is not null; t = t.BaseType)
+        {
+            if (!SetIndex.IsSource(t) && t.Name == "Controller") return false;
+            if (!SetIndex.IsSource(t) && t.Name == "ControllerBase") return true;
+        }
+        return false;
+    }
+
     public static string ControllerName(INamedTypeSymbol type) => type.Name.EndsWith("Controller", StringComparison.Ordinal) && type.Name.Length > "Controller".Length ? type.Name[..^"Controller".Length] : type.Name;
 
     public static string? Area(INamedTypeSymbol type) => Chain(type).Where(a => Named(a, "Area")).Select(a => a.ConstructorArguments.FirstOrDefault().Value as string).FirstOrDefault(s => s is not null);

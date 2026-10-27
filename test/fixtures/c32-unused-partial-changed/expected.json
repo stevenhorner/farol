@@ -50,7 +50,7 @@
     }
   },
   "risk": {
-    "totalPages": 14,
+    "totalPages": 20,
     "files": [
       {
         "path": "src/Shop.Web/Views/Shared/_Unused.cshtml",
@@ -133,7 +133,7 @@
   },
   "review": null,
   "contracts": {
-    "readable": 0,
+    "readable": 7,
     "entries": [],
     "summary": {
       "breaking": 0,

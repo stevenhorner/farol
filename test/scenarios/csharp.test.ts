@@ -21,7 +21,13 @@ const ALL = [
   'GET /api/health',
   'GET /api/prices/{sku}',
   'POST /Account/Profile/{id:int?}?handler=Save',
+  'POST /api/Archive/{id}',
+  'POST /api/Products/quote',
+  'RPC shop.catalog.Catalog/GetProduct',
+  'RPC shop.catalog.Catalog/ListProducts',
+  'TASK AddOrUpdate nightly-report',
   'TASK Every purge',
+  'TASK Shop.Web.Jobs.ReindexJob',
   'TASK Shop.Web.Workers.CleanupWorker',
   'WS /hubs/orders#OpenOrders',
   'WS /hubs/orders#Subscribe',
@@ -167,6 +173,24 @@ const SCENARIOS: Record<string, { classification: Output['classification']; affe
   'c33-scheduled-job-code': { classification: 'touches-existing', affected: ['TASK Every purge', 'TASK Shop.Web.Workers.CleanupWorker'] },
   // connection.Execute(…) on a SqlConnection from a package that was not restored is not ReportRunner.Execute.
   'c34-package-receiver': { classification: 'touches-existing', affected: [], check: (o) => { expect(codes(o, 'existing-file-unreachable')).toEqual(['src/Shop.Core/Reports/ReportRunner.cs']); } },
+  // ProductQuote.Price renamed (response) and a required field added to QuoteRequest (body): both break clients.
+  'c35-contract-breaking': { classification: 'touches-existing', affected: ['POST /api/Products/quote'], check: (o) => {
+      expect(o.contracts?.summary).toEqual({ breaking: 1, dangerous: 0, safe: 0 })
+      expect(o.contracts?.entries[0]?.changes.map((x) => `${x.level} ${x.where}: ${x.detail}`)).toEqual(['breaking body.country: new required field', 'breaking response.price: field removed', 'safe response.amount: field added'])
+    } },
+  // A gRPC method's code: only its RPC (the service is mapped with MapGrpcService).
+  'c36-grpc-method-changed': { classification: 'touches-existing', affected: ['RPC shop.catalog.Catalog/GetProduct'] },
+  // A field removed from a .proto message: every RPC of the service, and the contract of the one that returns it.
+  'c37-proto-field-removed': { classification: 'touches-existing', affected: ['RPC shop.catalog.Catalog/GetProduct', 'RPC shop.catalog.Catalog/ListProducts'], check: (o) => {
+      expect(codes(o, 'existing-file-modified')).toEqual(['src/Shop.Web/Protos/catalog.proto'])
+      expect(o.contracts?.entries.map((e) => `${e.key} ${e.changes.map((x) => `${x.level} ${x.where}`).join()}`)).toEqual(['RPC shop.catalog.Catalog/GetProduct breaking response.tags', 'RPC shop.catalog.Catalog/ListProducts breaking response[].tags'])
+    } },
+  // A MediatR handler runs for the endpoint that sends its request, and a pipeline behavior for every request.
+  'c38-mediatr-handler-changed': { classification: 'touches-existing', affected: ['POST /api/Archive/{id}'] },
+  'c39-pipeline-behavior-changed': { classification: 'touches-existing', affected: ['POST /api/Archive/{id}'] },
+  // A Hangfire recurring job's code and a Quartz IJob: each is an entry point of its own.
+  'c40-hangfire-job-code': { classification: 'touches-existing', affected: ['TASK AddOrUpdate nightly-report'] },
+  'c41-quartz-job-changed': { classification: 'touches-existing', affected: ['TASK Shop.Web.Jobs.ReindexJob'] },
   // A new package and a new content item: dependency information, no build setting changed.
   'c22-package-added': {
     classification: 'isolated',
@@ -232,7 +256,8 @@ describe('C# scenarios', () => {
     const impact = runCli(['--cwd', s.repo.dir, 'impact', 'src/Shop.Core/Pricing/StandardPriceCalculator.cs', '--ref', s.base])
     expect(impact.code).toBe(0)
     // Orders/Index.cshtml injects IPriceCalculator (the view's code is compiled with the Razor generator); Cancel
-    // redirects to nameof(Index).
-    expect((JSON.parse(impact.stdout) as { routes: { key: string }[] }).routes.map((r) => r.key)).toEqual(['GET /Orders/Index/{id?}', 'GET /api/Products/{sku}', 'GET /api/prices/{sku}', 'POST /Orders/Cancel/{id?}'])
+    // redirects to nameof(Index). The quote action and the gRPC GetProduct
+    // method price products too.
+    expect((JSON.parse(impact.stdout) as { routes: { key: string }[] }).routes.map((r) => r.key)).toEqual(['GET /Orders/Index/{id?}', 'GET /api/Products/{sku}', 'GET /api/prices/{sku}', 'POST /Orders/Cancel/{id?}', 'POST /api/Products/quote', 'RPC shop.catalog.Catalog/GetProduct'])
   }, 120_000)
 })

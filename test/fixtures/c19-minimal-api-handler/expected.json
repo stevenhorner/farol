@@ -50,7 +50,7 @@
     }
   },
   "risk": {
-    "totalPages": 14,
+    "totalPages": 20,
     "files": [
       {
         "path": "src/Shop.Web/Program.cs",
@@ -61,7 +61,7 @@
         "centrality": 0,
         "pagesReached": 1,
         "routesReached": 1,
-        "why": "used by 1 of 14 existing operations"
+        "why": "used by 1 of 20 existing operations"
       }
     ],
     "summary": {
@@ -147,11 +147,24 @@
   },
   "review": null,
   "contracts": {
-    "readable": 0,
-    "entries": [],
+    "readable": 7,
+    "entries": [
+      {
+        "key": "GET /api/prices/{sku}",
+        "level": "dangerous",
+        "changes": [
+          {
+            "level": "dangerous",
+            "where": "response",
+            "detail": "response no longer readable: check by hand"
+          }
+        ],
+        "omitted": 0
+      }
+    ],
     "summary": {
       "breaking": 0,
-      "dangerous": 0,
+      "dangerous": 1,
       "safe": 0
     }
   }

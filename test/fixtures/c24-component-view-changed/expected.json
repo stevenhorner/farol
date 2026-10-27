@@ -50,7 +50,7 @@
     }
   },
   "risk": {
-    "totalPages": 14,
+    "totalPages": 20,
     "files": [
       {
         "path": "src/Shop.Web/Views/Shared/Components/Basket/Default.cshtml",
@@ -58,10 +58,10 @@
         "level": "medium",
         "directImporters": 1,
         "transitiveDependents": 14,
-        "centrality": 0.4,
+        "centrality": 0.341,
         "pagesReached": 5,
         "routesReached": 5,
-        "why": "used by 5 of 14 existing operations"
+        "why": "used by 5 of 20 existing operations"
       }
     ],
     "summary": {
@@ -224,7 +224,7 @@
   },
   "review": null,
   "contracts": {
-    "readable": 0,
+    "readable": 7,
     "entries": [],
     "summary": {
       "breaking": 0,

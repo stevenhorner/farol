@@ -228,6 +228,7 @@ directives count, so a change in another edition's code is a change):
   change (a changed registration reads as the old one removed);
 - each Razor view (`.cshtml`) and each script or stylesheet a view links (`wwwroot`), on their text (views without
   `@* *@` comments);
+- each `.proto` file, on its tokens without comments;
 - the `core` hash leaves out route registrations (`app.MapGet(...)`, `MapControllerRoute(...)`, `MapGroup(...)`),
   compared entry point by entry point.
 
@@ -273,8 +274,17 @@ directives count, so a change in another edition's code is a change):
   template; each handler of its page model (`OnGet`, `OnPostSaveAsync`…) is an entry point (`POST /Account/Profile?handler=Save`),
   anchored on the handler, the page model and the page.
 - **SignalR:** `MapHub<THub>("/path")` makes each public method of the hub an entry point (`WS /path#Method`).
-- **Background services:** classes deriving from `BackgroundService` or implementing `IHostedService` (`TASK <type>`),
-  and the delegates passed to the methods listed in `csharp.entryCalls` (`TASK <method> <first string argument>`).
+- **gRPC:** `MapGrpcService<TService>()` makes each method the service overrides an entry point
+  (`RPC <package>.<Service>/<Method>`). The base class is generated from the `.proto` at build time, so the helper reads
+  the project's `.proto` files (package, services, messages, enums): each is a declaration the service depends on, so a
+  changed message reaches every method of the services built from that file.
+- **Background services:** classes deriving from `BackgroundService` or implementing `IHostedService`, and Quartz jobs
+  (classes implementing `IJob`) (`TASK <type>`); delegates passed to Hangfire (`BackgroundJob.Enqueue`/`Schedule`,
+  `RecurringJob.AddOrUpdate`, the client interfaces) and to the methods listed in `csharp.entryCalls`
+  (`TASK <method> <first string argument, else the method the delegate calls>`).
+- **MediatR:** a request type (`IRequest<T>`, `INotification`…) reaches its handlers (`IRequestHandler<TRequest, …>`,
+  `INotificationHandler<T>`, pre/post processors), and every request reaches the open pipeline behaviors
+  (`IPipelineBehavior<TRequest, TResponse>`): the endpoint that sends a request reaches the code that handles it.
 - **Programs:** an executable project that registers no endpoint is `RUN <dir>`.
 
 **Views.** The SDK's Razor source generator compiles every view into C#, run through Roslyn's generator driver as the
@@ -380,6 +390,7 @@ never change the class.
   - `unknown` on either side, or a side that is no longer readable, is dangerous ("check by hand").
 - **GraphQL:** base schema = the head schema with every changed SDL file in its base version. graphql-js lists breaking and dangerous changes; each is attributed to the root field it names, or to every operation that returns (fields, unions, implementations) or takes (input objects) the changed type.
 - **FastAPI:** parameters by source (`Query`, `Path`, `Header`, `Cookie`, `Body`, `Form`/`File`, `Depends` skipped; a model-typed parameter is the body), required unless it has a default; Pydantic fields from annotations, `Field(...)` defaults and aliases, project base classes; enums from `Enum` subclasses and `Literal`; type aliases followed.
+- **C#:** `[ApiController]` actions and minimal API handlers. Parameters by binding source (`[FromBody]`, `[FromQuery]`, `[FromRoute]`, `[FromHeader]`, `[FromForm]`; services, `[FromServices]` and `CancellationToken` skipped; a simple type is a path parameter when the route names it, a query one otherwise; a complex type is the body), required when not nullable and without default. The response is the type the action declares (`ActionResult<T>`, `Task<T>`, `Ok<T>`, `Results<Ok<T>, NotFound>`, `[ProducesResponseType]`); `IActionResult` and `IResult` are not readable. Shapes follow System.Text.Json: public properties, camelCase or `[JsonPropertyName]`, `[JsonIgnore]` skipped, nullable annotations for `null`; in a request a field is required only when declared `required` or `[Required]`. gRPC: the request and response messages of the `.proto` (a streamed response is a list).
 - **Go:** request types from `json.Decoder.Decode`, `json.Unmarshal`, gin/echo `Bind…`/`ShouldBind…`; response types from `json.Encoder.Encode`, `json.Marshal`, gin/echo `JSON`, chi `render.JSON`; project functions that pass a parameter to those count at their call sites (two levels). Untyped maps (error bodies) are dropped when a typed value exists; several types become a union. gRPC: the method's request and response messages.
 - **Removed endpoints** (HTTP, WebSocket, gRPC) are breaking.
 - **Callers:** `farol usage` aggregates indexed client spans with `@peer.service:<service>` by calling `service`, `@http.method` and `@http.url_details.path` (client span resources hold only the method); rows are matched to entry points like traffic. Counts are of indexed spans: a sample, good for comparing callers.

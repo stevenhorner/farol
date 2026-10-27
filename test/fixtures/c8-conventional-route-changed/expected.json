@@ -90,7 +90,7 @@
     }
   },
   "risk": {
-    "totalPages": 9,
+    "totalPages": 15,
     "files": [
       {
         "path": "src/Shop.Web/Program.cs",
@@ -204,7 +204,7 @@
   },
   "review": null,
   "contracts": {
-    "readable": 0,
+    "readable": 7,
     "entries": [
       {
         "key": "ANY /Home/About/{id?}",

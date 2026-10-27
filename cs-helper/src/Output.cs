@@ -7,7 +7,7 @@ namespace Farol.CsHelper;
 public sealed record Decl(string Id, string File, int Line, int End, string Kind, string Hash, string Core);
 
 /// <summary>An entry point: an HTTP endpoint, a background task or a program.</summary>
-public sealed record Entry(string Key, string File, int Line, string Kind, int[] Anchors, string Inline, Computed[]? Computed);
+public sealed record Entry(string Key, string File, int Line, string Kind, int[] Anchors, string Inline, Computed[]? Computed, ContractOut? Contract);
 
 public sealed record Computed(string File, int Line);
 

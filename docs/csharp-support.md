@@ -1,8 +1,7 @@
 # Adding C#/.NET support — design proposal
 
-Status: **phases 0, 1 and 2 implemented** (see [how-it-works.md](how-it-works.md#cnet) for what farol does today,
-and DECISIONS.md 2026-10-26 (9)–(11) and 2026-10-27 for the choices made while building it); phase 3 is still a
-proposal. Phase 2 runs the SDK's Razor *source generator* through Roslyn's generator driver instead of the Razor
+Status: **phases 0 to 3 implemented** (see [how-it-works.md](how-it-works.md#cnet) for what farol does today,
+and DECISIONS.md 2026-10-26 (9)–(11), 2026-10-27 and 2026-10-27 (2) for the choices made while building it). Phase 2 runs the SDK's Razor *source generator* through Roslyn's generator driver instead of the Razor
 compiler API this document describes (that API changes between SDK versions). The
 open questions of the first draft are decided (see [Decisions taken](#decisions-taken)). This document explains how farol could analyze C#/.NET backends
 (ASP.NET Core MVC, Web API, minimal APIs, Razor Pages, SignalR, gRPC, worker services) with the same pipeline,
@@ -317,7 +316,8 @@ the hub type. Strongly typed client interfaces (`Hub<IClient>`) are uses of the 
 `MapGrpcService<TService>()`: each overridden method of the generated base class becomes
 `RPC <package>.<Service>/<Method>`. The generated base comes from `.proto` files through a source generator the
 helper does not run, so the helper reads the `.proto` files listed in `<Protobuf Include>` instead (or treats each
-`override` of the service class as a method). Phase 3.
+`override` of the service class as a method). Done in phase 3: the `.proto` files of each project are read (they
+need not be listed in `<Protobuf Include>`).
 
 ### Background work
 
@@ -481,7 +481,8 @@ For JSON APIs (`[ApiController]`, minimal APIs), the helper can describe each en
   `JsonStringEnumConverter` is registered, numbers otherwise: when unknown, the comparison says "dangerous").
 - MVC actions that return views have no contract.
 
-This is phase 3; the comparison code in `src/contracts/compare.ts` is reused unchanged.
+Done in phase 3; the comparison code in `src/contracts/compare.ts` is reused unchanged. Enums are compared by member
+name whatever the converter.
 
 ## Changes on the TypeScript side
 

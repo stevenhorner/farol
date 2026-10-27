@@ -236467,7 +236467,7 @@ var HELPER_LANGUAGES = {
   csharp: {
     label: "C#",
     helper: "cs-helper",
-    extensions: [".cs", ".cshtml"],
+    extensions: [".cs", ".cshtml", ".proto"],
     lintTool: "SARIF",
     securityHint: "C# files are checked by the .NET security analyzers (CA2100, CA3xxx, CA5xxx) or Security Code Scan: give their SARIF report as the lint report"
   }
@@ -238641,7 +238641,7 @@ import { isAbsolute as isAbsolute3 } from "path";
 
 // src/signals/paths.ts
 import { isAbsolute as isAbsolute2, posix as posix5 } from "path";
-var CODE_EXTENSIONS = new Set([...SCRIPT_EXTENSIONS, ...HELPER_EXTENSIONS].filter((e) => e !== ".cshtml"));
+var CODE_EXTENSIONS = new Set([...SCRIPT_EXTENSIONS, ...HELPER_EXTENSIONS].filter((e) => e !== ".cshtml" && e !== ".proto"));
 function isCodeFile(path3) {
   return CODE_EXTENSIONS.has(posix5.extname(path3)) && !path3.endsWith(".d.ts");
 }

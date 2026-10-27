@@ -54,15 +54,15 @@
     }
   },
   "risk": {
-    "totalPages": 14,
+    "totalPages": 20,
     "files": [
       {
         "path": "src/Shop.Core/Orders/OrderService.cs",
         "change": "additive",
         "level": "low",
-        "directImporters": 5,
-        "transitiveDependents": 18,
-        "centrality": 0.514,
+        "directImporters": 6,
+        "transitiveDependents": 20,
+        "centrality": 0.488,
         "pagesReached": 0,
         "routesReached": 0,
         "why": "additive change: nothing that existed changed"
@@ -137,7 +137,7 @@
   },
   "review": null,
   "contracts": {
-    "readable": 0,
+    "readable": 7,
     "entries": [],
     "summary": {
       "breaking": 0,

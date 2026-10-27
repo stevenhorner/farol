@@ -22,7 +22,7 @@
     {
       "code": "dynamic-route",
       "file": "src/Shop.Web/Program.cs",
-      "detail": "line 28: GET /api/{Routes.Path(\"stock\")}: path computed at run time"
+      "detail": "line 33: GET /api/{Routes.Path(\"stock\")}: path computed at run time"
     },
     {
       "code": "declarations-additive",
@@ -59,7 +59,7 @@
     }
   },
   "risk": {
-    "totalPages": 14,
+    "totalPages": 20,
     "files": [
       {
         "path": "src/Shop.Web/Program.cs",
@@ -137,7 +137,7 @@
     "dynamicRoutes": [
       {
         "file": "src/Shop.Web/Program.cs",
-        "line": 28,
+        "line": 33,
         "detail": "GET /api/{Routes.Path(\"stock\")}: path computed at run time"
       }
     ],
@@ -155,7 +155,7 @@
   },
   "review": null,
   "contracts": {
-    "readable": 0,
+    "readable": 8,
     "entries": [],
     "summary": {
       "breaking": 0,
