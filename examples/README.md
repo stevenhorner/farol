@@ -249,8 +249,8 @@ directory is read (test projects are left out); every build configuration is com
 - `entryCalls`: methods of your own scheduler whose delegate arguments are background jobs.
 - `viewRoots`: folders holding views by controller name besides `Views/` (a custom view location expander).
 
-**Roles by default:** `.resx` files follow the i18n rule; test projects and `*Tests.cs` are tests; `Directory.Build.props/.targets`, `global.json`,
-`NuGet.config` and `.editorconfig` are global; app settings, `web.config`, publish profiles, solution files and
+**Roles by default:** `.resx` files follow the i18n rule; test projects and `*Tests.cs` are tests; `Directory.Build.props/.targets` (unless only test
+projects are below them: then tests), `global.json`, `NuGet.config` and `.editorconfig` are global; app settings, `web.config`, publish profiles, solution files and
 **SQL scripts** are infrastructure; **`wwwroot`** is client code (except `wwwroot/lib/` and minified files, excluded).
 
 **Reports:** Cobertura XML (`dotnet test --collect "XPlat Code Coverage"`, merged with ReportGenerator) or coverlet

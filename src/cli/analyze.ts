@@ -16,7 +16,7 @@ import { backendImpacts } from './backend.js'
 import type { Context } from './context.js'
 import { createDiskFileSystem } from './disk-fs.js'
 import { defaultCacheDir, loadLangWorkspace, readCsXml, readToml } from './lang-workspace.js'
-import { coberturaAsJson, resxAsJson } from './csharp-inputs.js'
+import { coberturaAsJson, resxAsJson, testOnlyBuildFiles } from './csharp-inputs.js'
 import { diffNuGet } from '../dotnet/nuget.js'
 import { diffPyproject, diffRequirementsTxt } from '../python/pyproject.js'
 import { UsageError } from '../config/load.js'
@@ -226,6 +226,12 @@ export async function runAnalyze(ctx: Context, options: AnalyzeOptions, deps: An
       Object.assign(timings, wsTimings)
       t = deps.clock()
       roleOf = createAnalysisRoleOf(ctx, langWs.graph.nodes)
+      if (language === 'csharp') {
+        // MSBuild settings that only test projects import are test files, like a test project's .csproj.
+        const testOnly = await testOnlyBuildFiles(ctx, files, roleOf, mb, meta.head.sha)
+        const repoRole = roleOf
+        roleOf = (path) => (testOnly.has(path) ? 'test' : repoRole(path))
+      }
       const manifests = await manifestDiffs(ctx, files, roleOf, mb, meta.head.sha)
       const headContents = await readFiles(ctx.repoRoot, meta.head.sha, files.filter((f) => f.status !== 'deleted').map((f) => f.path))
       readHead = (path) => headContents.get(path)

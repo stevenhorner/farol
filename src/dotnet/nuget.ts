@@ -10,6 +10,16 @@ export const CsManifestSchema = z.object({
 
 export type CsManifest = z.infer<typeof CsManifestSchema>
 
+/** Packages that make a project a test project (the C# helper's rule, Projects.cs). */
+const TEST_PACKAGES = new Set(['Microsoft.NET.Test.Sdk', 'xunit', 'xunit.v3', 'NUnit', 'MSTest.TestFramework', 'MSTest'])
+
+/** A test project: `<IsTestProject>true</IsTestProject>` (unconditional) or a reference to a test SDK or framework. */
+export function isTestProject(manifest: unknown): boolean {
+  const parsed = CsManifestSchema.safeParse(manifest)
+  if (!parsed.success) return false
+  return parsed.data.other['property:IsTestProject']?.toLowerCase() === 'true' || parsed.data.packages.some((p) => TEST_PACKAGES.has(p.name))
+}
+
 /**
  * Items whose addition changes no build setting: a new file to compile or copy, a global using, a reference to another
  * project of the repository. Changing or removing an existing one is still a manifest change.

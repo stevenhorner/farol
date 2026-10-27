@@ -3,7 +3,7 @@ import { ManifestParseError } from '../../src/classify/dependencies.js'
 import { parseConfig } from '../../src/config/load.js'
 import { CSHARP_DEFAULT_EXCLUDE, CSHARP_DEFAULT_ROLES } from '../../src/config/schema.js'
 import { createRoleMatcher } from '../../src/classify/roles.js'
-import { diffNuGet, nugetSpec } from '../../src/dotnet/nuget.js'
+import { diffNuGet, isTestProject, nugetSpec } from '../../src/dotnet/nuget.js'
 import { csharpSuppressions, parseCoverletReport, parseSarifReport } from '../../src/signals/dotnet.js'
 import type { ChangedFile } from '../../src/git/types.js'
 
@@ -13,6 +13,16 @@ const manifest = (packages: [string, string, ('dependencies' | 'devDependencies'
 })
 
 describe('NuGet versions', () => {
+  it('tells test projects by IsTestProject or a test framework reference, as the C# helper does', () => {
+    const pkg = (name: string) => ({ name, version: '1.0.0', section: 'dependencies' as const })
+    expect(isTestProject({ packages: [pkg('xunit')], other: {} })).toBe(true)
+    expect(isTestProject({ packages: [], other: { 'property:IsTestProject': 'True' } })).toBe(true)
+    // A conditional IsTestProject, a package that only mentions tests, and an unreadable project are not test projects.
+    expect(isTestProject({ packages: [], other: { "property:IsTestProject['$(Configuration)'=='Debug']": 'true' } })).toBe(false)
+    expect(isTestProject({ packages: [pkg('Testcontainers')], other: {} })).toBe(false)
+    expect(isTestProject(null)).toBe(false)
+  })
+
   it('compares a range by its lowest version and cannot compare floating or computed versions', () => {
     expect(nugetSpec('1.2.3')).toBe('1.2.3')
     expect(nugetSpec('[1.0,2.0)')).toBe('1.0')

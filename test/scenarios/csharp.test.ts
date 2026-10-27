@@ -193,6 +193,11 @@ const SCENARIOS: Record<string, { classification: Output['classification']; affe
   'c41-quartz-job-changed': { classification: 'touches-existing', affected: ['TASK Shop.Web.Jobs.ReindexJob'] },
   // row.Label() on a dynamic value cannot run a static method named Label.
   'c42-static-not-fallback': { classification: 'touches-existing', affected: [], check: (o) => { expect(codes(o, 'existing-file-unreachable')).toEqual(['src/Shop.Core/Reports/ReportLabels.cs']); } },
+  // MSBuild settings imported only by test projects (by path, or by content: IsTestProject) are test files; settings
+  // an app project imports stay global.
+  'c43-test-build-props': { classification: 'isolated', affected: [], check: (o) => { expect(o.files.map((f) => `${f.path} ${f.role}`)).toEqual(['tests/Directory.Build.props test']); } },
+  'c44-specs-build-props': { classification: 'isolated', affected: [], check: (o) => { expect(o.files.map((f) => `${f.path} ${f.role}`)).toEqual(['qa/Directory.Build.props test']); } },
+  'c45-app-build-props': { classification: 'global', affected: [], check: (o) => { expect(codes(o, 'global-file-changed')).toEqual(['src/Shop.Web/Directory.Build.props']); } },
   // A new package and a new content item: dependency information, no build setting changed.
   'c22-package-added': {
     classification: 'isolated',

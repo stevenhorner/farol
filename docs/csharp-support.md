@@ -380,7 +380,7 @@ Proposed `CSHARP_DEFAULT_ROLES` in `src/config/schema.ts`, overridable key by ke
 | Role | Default globs | Why |
 |---|---|---|
 | `test` | `**/*.Tests/**`, `**/*.Test/**`, `**/*.UnitTests/**`, `**/*.IntegrationTests/**`, `**/test/**`, `**/tests/**`, `**/*Tests.cs`, `**/*Test.cs` | test projects and files; also any project whose `.csproj` references `Microsoft.NET.Test.Sdk` (the helper reports those directories in its output so the role can be assigned without a glob) |
-| `global` | `**/Directory.Build.props`, `**/Directory.Build.targets`, `**/global.json`, `**/NuGet.config`, `**/nuget.config`, `**/.editorconfig`* | they change how every project builds (MSBuild code, SDK version, package sources, analyzer severities) |
+| `global` | `**/Directory.Build.props`, `**/Directory.Build.targets`, `**/global.json`, `**/NuGet.config`, `**/nuget.config`, `**/.editorconfig`* | they change how every project builds (MSBuild code, SDK version, package sources, analyzer severities); a `Directory.Build.*` with only test projects below it is a test file (implemented after phase 3) |
 | `i18n` | `**/*.resx` (not `*.Designer.cs`) | resource strings: additive when only keys are added, via `cshelper resx` + the existing deep comparison |
 | `infra` | the existing `DEFAULT_INFRA` plus `**/appsettings*.json`, `**/web.config`, `**/launchSettings.json`, `**/*.pubxml`, **`**/*.sql`** | configuration, deployment and database scripts |
 | `client` (new role) | **`**/wwwroot/**`** minus vendored and built files (see below) | browser code and styles served by the app |
