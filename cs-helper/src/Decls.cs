@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace Farol.CsHelper;
 
 /// <summary>A declaration found in one compilation, with the syntax it covers (skip: spans that are other declarations).</summary>
-public sealed record Found(Decl Decl, SyntaxNode Node, SemanticModel Model, List<TextSpan> Skip, INamedTypeSymbol? Type, string? SymbolKey);
+public sealed record Found(Decl Decl, SyntaxNode Node, SemanticModel Model, List<TextSpan> Skip, INamedTypeSymbol? Type, string? SymbolKey, ISymbol? Member = null);
 
 /// <summary>
 /// Collects the declarations of a syntax tree: each type part (header: modifiers, attributes, base list, fields,
@@ -52,7 +52,7 @@ public static class Decls
                     var memberId = IdOf(memberKey);
                     var registrations = IsRegistrationContainer(member, memberSymbol) && Body(member) is BlockSyntax block ? Registrations(block.Statements, model, memberId, file, found) : [];
                     var kind = member is BasePropertyDeclarationSyntax ? "property" : "method";
-                    found.Add(Make(memberId, file, member, member.Span, kind, model, registrations, symbol, memberKey));
+                    found.Add(Make(memberId, file, member, member.Span, kind, model, registrations, symbol, memberKey, memberSymbol));
                 }
             }
             found.Add(Make(partial ? $"{IdOf(key)} @ {file}" : IdOf(key), file, type, type.Span, "type", model, skip, symbol, key));
@@ -61,13 +61,13 @@ public static class Decls
     }
 
     /// <summary>`hash` leaves out the spans of sub-declarations (members of a type, registrations); `core` also leaves out route registrations.</summary>
-    static Found Make(string id, string file, SyntaxNode node, TextSpan span, string kind, SemanticModel model, List<TextSpan> skip, INamedTypeSymbol? type, string? key)
+    static Found Make(string id, string file, SyntaxNode node, TextSpan span, string kind, SemanticModel model, List<TextSpan> skip, INamedTypeSymbol? type, string? key, ISymbol? member = null)
     {
         var lines = node.SyntaxTree.GetLineSpan(span);
         var routes = RouteStatements(node, span, skip);
         var hash = Hash(node, span, skip);
         var core = routes.Count == 0 ? hash : Hash(node, span, [.. skip, .. routes]);
-        return new Found(new Decl(id, file, lines.StartLinePosition.Line + 1, lines.EndLinePosition.Line + 1, kind, hash, core), node, model, skip, type, key);
+        return new Found(new Decl(id, file, lines.StartLinePosition.Line + 1, lines.EndLinePosition.Line + 1, kind, hash, core), node, model, skip, type, key, member);
     }
 
     /// <summary>Members that are declarations of their own: they have code (a body or an expression body).</summary>

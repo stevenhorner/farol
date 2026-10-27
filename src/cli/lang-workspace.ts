@@ -139,10 +139,13 @@ const READERS: Record<HelperLanguage, (ctx: Context) => Promise<Omit<Reader, 'la
   },
 }
 
-/** A .csproj or Directory.Packages.props as JSON (packages and other fields), read by the C# helper's XML reader. */
-export async function readCsManifest(text: string): Promise<unknown> {
+/**
+ * XML read by the C# helper (Node has no XML parser), as JSON: a project file (`manifest`: packages and other fields),
+ * a .resx file (`resx`: name → value) or a Cobertura coverage report (`cobertura`: lines per file).
+ */
+export async function readCsXml(command: 'manifest' | 'resx' | 'cobertura', text: string): Promise<unknown> {
   const assembly = await csHelperAssembly(helperDir('cs-helper'), sourceHash(helperDir('cs-helper')), defaultCacheDir())
-  return JSON.parse(await runCsHelper(assembly, ['manifest'], tmpdir(), text)) as unknown
+  return JSON.parse(await runCsHelper(assembly, [command], tmpdir(), text)) as unknown
 }
 
 function helperLanguage(ctx: Context): HelperLanguage {

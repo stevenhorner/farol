@@ -193,8 +193,9 @@ files (`ast`, `tokenize`, `tomllib`): nothing of the project is imported or exec
 ## C#/.NET
 
 A helper in `cs-helper/` (C#) is built once per version with the installed .NET SDK and reads each tree with **Roslyn**,
-the C# compiler of that SDK. It references the compiler assemblies the SDK ships: nothing is downloaded. MSBuild never
-evaluates your projects, and no analyzer or source generator of your repository or its packages runs.
+the C# compiler of that SDK. It references the compiler assemblies the SDK ships: nothing is downloaded. Razor views are
+compiled with the SDK's own Razor source generator. MSBuild never evaluates your projects, and no analyzer or source
+generator of your repository or its packages runs.
 
 **Projects and compilations:**
 
@@ -225,7 +226,8 @@ directives count, so a change in another edition's code is a change):
 - each service registration of startup code (`services.AddX(...)` in top-level statements, `ConfigureServices` and
   `IServiceCollection` extension methods) on its own: a new registration is additive, a changed or removed one is a
   change (a changed registration reads as the old one removed);
-- each Razor view (`.cshtml`), on its text without `@* *@` comments;
+- each Razor view (`.cshtml`) and each script or stylesheet a view links (`wwwroot`), on their text (views without
+  `@* *@` comments);
 - the `core` hash leaves out route registrations (`app.MapGet(...)`, `MapControllerRoute(...)`, `MapGroup(...)`),
   compared entry point by entry point.
 
@@ -241,8 +243,15 @@ directives count, so a change in another edition's code is a change):
 - reading a field of the member's own type is not a use of the type;
 - the types a registration names (`AddScoped<IFoo, Foo>()`) are not uses: whoever calls `IFoo` reaches `Foo`; code in
   its configuration lambdas (filters, options) is;
-- a member of a value whose type is unknown (`dynamic`, a package that was not restored) reaches every project method
-  (when called) or property (when read) with that name, except controller actions.
+- references that run nothing of what they name create no edges: anything inside `nameof(…)`, and a type in `typeof`,
+  an `is`/`as` test, a type pattern, a cast or as the qualifier of a static member (`OrdersController.ResetCache()` runs
+  `ResetCache`, not the controller's overrides);
+- a delegate passed to a method of `csharp.entryCalls` belongs to its `TASK` entry point, not to the code that
+  registers it;
+- an unresolved member: on a value of a type from a package that was not restored (`connection.Execute(…)` on a
+  `SqlConnection`), only a project extension method on that type name; on a value of unknown type (`dynamic`, an
+  unresolved call's result), any project method of that name whose parameters fit the arguments, or any property of
+  that name (never controller actions).
 
 **Entry points:**
 
@@ -260,19 +269,34 @@ directives count, so a change in another edition's code is a change):
 - **Minimal APIs:** `MapGet`/`MapPost`/`MapPut`/`MapDelete`/`MapPatch`/`Map`/`MapMethods`, with `MapGroup` prefixes
   through local variables, chains and the callers of methods that receive a route builder. Inline handlers are compared
   by hash; `AddEndpointFilter` filters are anchors. A path that is not a constant is kept in braces (`GET {expr}`).
+- **Razor Pages:** each page under `Pages/` (or `Areas/<area>/Pages/`) is a route from its path and its `@page`
+  template; each handler of its page model (`OnGet`, `OnPostSaveAsync`…) is an entry point (`POST /Account/Profile?handler=Save`),
+  anchored on the handler, the page model and the page.
+- **SignalR:** `MapHub<THub>("/path")` makes each public method of the hub an entry point (`WS /path#Method`).
 - **Background services:** classes deriving from `BackgroundService` or implementing `IHostedService` (`TASK <type>`),
   and the delegates passed to the methods listed in `csharp.entryCalls` (`TASK <method> <first string argument>`).
 - **Programs:** an executable project that registers no endpoint is `RUN <dir>`.
 
-**Views (by convention).** `View()`/`PartialView()` in a controller reaches the files the view engine would look up
-(`Views/<Controller>/<name>.cshtml`, `Views/Shared/`, `Areas/<area>/Views/…`, `csharp.viewRoots`); a name computed at
-run time reaches every view of the controller and every shared view. Every view depends on the `_`-prefixed files of
-its folder and the folders above (layouts, `_ViewStart`, `_ViewImports`, partials) and on every file under a `Shared`
-folder: a layout change reaches every action that renders a view. Code inside views is not read yet: a method only a
-view calls depends on its type.
+**Views.** The SDK's Razor source generator compiles every view into C#, run through Roslyn's generator driver as the
+SDK's build does (once per project; the other configurations parse its output again). The generated class is the view's
+declaration: its model, `@inject` services, tag helpers and code are its edges. Besides code, a view reaches:
 
-**Problems.** Syntax errors in a changed file make the PR `unknown`. Type errors do not: without restored packages most
-files have some, and the edges between project declarations do not depend on them.
+- its `_ViewStart` and `_ViewImports` (its folder and the folders above), and the layout `_ViewStart` or the view names;
+- the partials it names (`<partial name="…">`, `Html.PartialAsync("…")`), looked up from its folder, the `Shared` folders
+  above it and `Views/Shared`; a name computed at run time reaches every partial in scope;
+- view components (`Component.InvokeAsync("Basket")`, `<vc:basket>`), whose `View()` renders
+  `Components/<Name>/<view>.cshtml`;
+- the scripts and stylesheets it links (`~/js/site.js`, `href="/css/site.css"`), as client declarations: a changed script
+  reaches every entry point that renders a view loading it.
+
+`View()`/`PartialView()` in a controller reaches the files the view engine would look up (`Views/<Controller>/<name>.cshtml`,
+`Views/Shared/`, `Areas/<area>/Views/…`, `csharp.viewRoots`); a name computed at run time reaches every view of the
+controller and every shared view. When the generator cannot run (an SDK without it), views are read by convention:
+every view depends on every `_` file above it and every `Shared` file.
+
+**Problems.** Syntax errors in a changed file, and Razor errors in a changed view, make the PR `unknown`. Type errors do
+not: without restored packages most files have some, and the edges between project declarations do not depend on them.
+Changed `.resx` files follow the i18n rule (only new keys are additive).
 
 **Dependencies:** `.csproj` and `Directory.Packages.props` (see [Dependencies](#dependencies)); `packages.lock.json` is
 the lockfile. A test project's `.csproj` is a test file.
@@ -319,13 +343,13 @@ never change the class.
 - **Diff coverage:**
   - Changed lines are the added lines of changed code files. A changed line is *executable* when it intersects a statement, and *covered* when every statement intersecting it ran.
   - A changed file missing from the report counts as fully uncovered.
-  - Formats: Istanbul JSON, Go coverprofile (blocks of several test binaries merged), coverage.py JSON. C# coverage (coverlet) is not read yet: it shows as not verified.
+  - Formats: Istanbul JSON, Go coverprofile (blocks of several test binaries merged), coverage.py JSON, coverlet JSON and Cobertura XML (C#; Razor views are left out, coverage tools report their generated classes).
 - **Lint on changed lines:**
   - Findings on changed lines count; findings elsewhere are context. At most 50 are kept.
-  - Formats: ESLint JSON, golangci-lint JSON, ruff JSON. SARIF (C# analyzers) is not read yet.
+  - Formats: ESLint JSON, golangci-lint JSON, ruff JSON, SARIF 2.1 and 1.0 (Roslyn analyzers' `ErrorLog`, CodeQL, Semgrep).
 - **Added suppressions:**
   - TypeScript: computed with the scanner and the AST (`eslint-disable*`, `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`, `as any`, `: any`), so the same text in strings is ignored.
-  - Go, Python and C#: read from comments and directives (`//nolint`, `//lint:ignore`, `#nosec`; `# noqa`, `# type: ignore`, `# nosec`, `# pragma: no cover`, `# pyright: ignore`, `# pylint: disable`; `#pragma warning disable`, `#nullable disable`, `// ReSharper disable`).
+  - Go, Python and C#: read from comments and directives (`//nolint`, `//lint:ignore`, `#nosec`; `# noqa`, `# type: ignore`, `# nosec`, `# pragma: no cover`, `# pyright: ignore`, `# pylint: disable`; `#pragma warning disable`, `#nullable disable`, `// ReSharper disable`), and for C# from code: `[SuppressMessage]`, `[ExcludeFromCodeCoverage]` and the null-forgiving `!`.
 - **Modified tests:** existing test files modified, deleted or renamed, with removed line counts.
 - **Security (added lines):**
   - TypeScript built-in rules:
@@ -334,9 +358,11 @@ never change the class.
     - low: `target="_blank"` without `rel`, plain-HTTP URLs.
   - Go: gosec issues from the golangci-lint report.
   - Python: ruff `S` (flake8-bandit) findings.
+  - C#: .NET security analyzer results from the SARIF report (`CA2100`, `CA3xxx`, `CA23xx` and `CA5xxx`, Security Code Scan `SCS*`): injection and deserialization rules are high, the others medium.
+  - SQL (any language): destructive statements on added lines of `.sql` files, read with a SQL tokenizer (comments and strings never count): `DROP TABLE/DATABASE/SCHEMA`, `TRUNCATE`, `ALTER TABLE … DROP COLUMN`, `DELETE`/`UPDATE` without `WHERE` are high; other `DROP`s, `ALTER COLUMN`, `DROP CONSTRAINT` and `sp_rename` medium.
 - **Vulnerabilities:**
   - Advisories on dependencies the PR added or changed (direct), or on packages they bring in (transitive); the rest of the report is context.
-  - Formats: npm/pnpm audit, govulncheck (called code is high, imported packages moderate, required-only modules low), pip-audit.
+  - Formats: npm/pnpm audit, govulncheck (called code is high, imported packages moderate, required-only modules low), pip-audit, `dotnet list package --vulnerable --include-transitive --format json` (no dependency paths: transitive advisories only count in the totals unless the PR changed that package).
 
 - **Traffic (optional, `--usage`):**
   - Reads a usage report written by `farol usage`: Datadog RUM page views by `@view.url_path_group` (frontends) and the APM metric `trace.<operation>.hits` by `resource_name` (backends).

@@ -11,7 +11,12 @@ namespace Farol.CsHelper;
 public sealed record Project(ProjectFile File, List<string> Sources, List<string> Views);
 
 /// <summary>One compilation of every project with the symbols of one build configuration (or several sharing them).</summary>
-public sealed record ConfigurationSet(string[] Configurations, Dictionary<string, Compilation> Compilations);
+public sealed record ConfigurationSet(string[] Configurations, Dictionary<string, Compilation> Compilations)
+{
+    /// <summary>Views compiled by the Razor generator, per project; a project missing here reads its views by convention.</summary>
+    public Dictionary<string, List<GeneratedView>> Views { get; } = [];
+    public List<(string File, int Line, string Message)> RazorErrors { get; } = [];
+}
 
 /// <summary>
 /// Finds the projects under the analyzed directory and compiles them with Roslyn, without MSBuild: sources from the
@@ -88,11 +93,14 @@ public sealed class Workspace
             else group.Names.Add(name);
         }
         var framework = new Dictionary<string, List<MetadataReference>>();
+        var generatedOnce = new Dictionary<string, List<GeneratedView>>();
         var trees = new Dictionary<string, SyntaxTree>();
         var result = new List<ConfigurationSet>();
         foreach (var group in groups)
         {
             var compilations = new Dictionary<string, Compilation>();
+            var views = new Dictionary<string, List<GeneratedView>>();
+            var errors = new List<(string, int, string)>();
             foreach (var project in Ordered())
             {
                 var file = project.File;
@@ -104,9 +112,27 @@ public sealed class Workspace
                 var projectRefs = file.ProjectReferences.Select(r => Projects.FirstOrDefault(p => Paths.Normalize(Path.Combine(Root, p.File.Path)) == Paths.Normalize(r)))
                     .Where(p => p is not null && compilations.ContainsKey(p.File.Path)).Select(p => compilations[p!.File.Path].ToMetadataReference());
                 var compilationOptions = new CSharpCompilationOptions(file.IsExe ? OutputKind.ConsoleApplication : OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true, nullableContextOptions: file.Nullable ? NullableContextOptions.Enable : NullableContextOptions.Disable);
-                compilations[file.Path] = CSharpCompilation.Create(Path.GetFileNameWithoutExtension(file.Path), projectTrees, [.. refs, .. projectRefs], compilationOptions);
+                Compilation compilation = CSharpCompilation.Create(Path.GetFileNameWithoutExtension(file.Path), projectTrees, [.. refs, .. projectRefs], compilationOptions);
+                // The generated code of a view does not depend on the configuration (markup and the project's tag
+                // helpers): the generator runs once per project and the other configurations parse its output again.
+                if (generatedOnce.TryGetValue(file.Path, out var once))
+                {
+                    var reparsed = once.Select(v => v with { Tree = CSharpSyntaxTree.ParseText(v.Tree.GetText(), options, v.Tree.FilePath) }).ToList();
+                    compilation = compilation.AddSyntaxTrees(reparsed.Select(v => v.Tree));
+                    views[file.Path] = reparsed;
+                }
+                else if (file.AspNet && project.Views.Count > 0 && Razor.Generate(compilation, file, project.Views, Root, Notes) is { } razor)
+                {
+                    compilation = razor.Compilation;
+                    views[file.Path] = generatedOnce[file.Path] = razor.Views;
+                    errors.AddRange(razor.Errors);
+                }
+                compilations[file.Path] = compilation;
             }
-            result.Add(new ConfigurationSet([.. group.Names], compilations));
+            var compiled = new ConfigurationSet([.. group.Names], compilations);
+            foreach (var (k, v) in views) compiled.Views[k] = v;
+            compiled.RazorErrors.AddRange(errors);
+            result.Add(compiled);
         }
         return result;
     }

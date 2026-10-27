@@ -134,11 +134,11 @@ Milestones from `docs/SPEC.md`. Each one is done only when its acceptance criter
 ### Traffic from Datadog — done (first version, information only)
 - `farol usage` (RUM page views by `@view.url_path_group`, APM `trace.<op>.hits` by `resource_name`) writes `usage.json`; `analyze --usage` adds an optional `usage` section; comment line, HTML fact, per-route chips (busiest first) and per-file pills. Name formats checked against real Datadog data (RUM path groups, normalized metric tags). GraphQL operations are not matched.
 
-### C#/.NET projects — phase 1 done ([design](csharp-support.md))
-- [x] Design document and decisions (DECISIONS 2026-10-26 (9), (10) and (11)).
+### C#/.NET projects — phases 1 and 2 done ([design](csharp-support.md))
+- [x] Design document and decisions (DECISIONS 2026-10-26 (9), (10), (11) and 2026-10-27).
 - [x] Phase 0: one language table (`src/config/languages.ts`) instead of Go/Python ternaries; no behavior change.
 - [x] Phase 1: `cs-helper/` (Roslyn from the .NET SDK): projects, declarations, edges, controller/minimal API/hosted service entry points, views by convention, every build configuration; roles (SQL as `infra`, new `client` role for `wwwroot`); NuGet dependencies. Scenarios c1–c23. Checked on a large real-world ASP.NET Core MVC solution: well under a minute per tree with every configuration, and a real PR classified as expected (the pages it changes, its new endpoints).
-- [ ] Phase 2: Razor compiler, Razor Pages, SignalR, `.resx`, coverlet/Cobertura, SARIF, `dotnet list package`, suppressions, view → client file edges, destructive SQL findings.
+- [x] Phase 2: views compiled with the SDK's Razor source generator (layouts, partials, view components, linked scripts), Razor Pages, SignalR, `.resx`, coverlet/Cobertura, SARIF, `dotnet list package`, code suppressions, destructive SQL findings, C# highlighting. Scenarios c24–c34. Real-world check: views compile without errors; reach rules fixed for type tests, static qualifiers, scheduled jobs and unrestored package types (a site-wide stylesheet now reaches the pages that render the layout, not API endpoints or jobs).
 - [ ] Phase 3: contracts, gRPC, MediatR/Hangfire/Quartz, `history`/`calibrate` on real C# history.
 
 ### Python projects — done (first version)

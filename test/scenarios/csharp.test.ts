@@ -1,4 +1,5 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import type { Output } from '../../src/output/schema.js'
@@ -13,7 +14,18 @@ afterAll(() => {
 
 /** Every MVC action of the base solution (HomeController and OrdersController derive from BaseController). */
 const MVC = ['ANY /Home/About/{id?}', 'ANY /Home/Index/{id?}', 'GET /Orders/Details/{id?}', 'GET /Orders/Index/{id?}', 'POST /Orders/Cancel/{id?}']
-const ALL = [...MVC.slice(0, 4), 'GET /api/Products/{sku}', 'GET /api/health', 'GET /api/prices/{sku}', MVC[4] as string, 'TASK Shop.Web.Workers.CleanupWorker'].sort()
+const ALL = [
+  ...MVC,
+  'GET /Account/Profile/{id:int?}',
+  'GET /api/Products/{sku}',
+  'GET /api/health',
+  'GET /api/prices/{sku}',
+  'POST /Account/Profile/{id:int?}?handler=Save',
+  'TASK Every purge',
+  'TASK Shop.Web.Workers.CleanupWorker',
+  'WS /hubs/orders#OpenOrders',
+  'WS /hubs/orders#Subscribe',
+].sort()
 const codes = (o: Output, code: string): string[] => o.reasons.filter((r) => r.code === code).map((r) => r.file ?? '')
 
 /** Expected class and affected entry points per C# scenario (ASP.NET Core, no NuGet restore); full output is golden. */
@@ -39,7 +51,8 @@ const SCENARIOS: Record<string, { classification: Output['classification']; affe
   // OrderService.Cancel runs behind IOrderService.Cancel (interface dispatch): only the action that cancels.
   'c3-service-changed': { classification: 'touches-existing', affected: ['POST /Orders/Cancel/{id?}'] },
   // A framework override of the base controller runs for every action of the controllers deriving from it; the API
-  // controller derives from ControllerBase and is not affected.
+  // controller derives from ControllerBase and is not affected. The worker calls HomeController.ResetCache (a static
+  // method) and the middleware compares a type with typeof(OrdersController): neither runs a controller's overrides.
   'c4-base-controller-changed': { classification: 'touches-existing', affected: MVC },
   // The [AuditLog] attribute decorates Cancel only.
   'c5-filter-changed': { classification: 'touches-existing', affected: ['POST /Orders/Cancel/{id?}'] },
@@ -96,10 +109,11 @@ const SCENARIOS: Record<string, { classification: Output['classification']; affe
   'c18-hosted-service': { classification: 'touches-existing', affected: ['TASK Shop.Web.Workers.CleanupWorker'] },
   // An inline minimal API handler is compared endpoint by endpoint.
   'c19-minimal-api-handler': { classification: 'touches-existing', affected: ['GET /api/prices/{sku}'] },
-  // SQL scripts are infrastructure; wwwroot files are client code; vendored libraries are excluded.
+  // SQL scripts are infrastructure; wwwroot files are client code (site.js is linked by the layout); vendored
+  // libraries are excluded.
   'c20-sql-and-client': {
     classification: 'touches-existing',
-    affected: [],
+    affected: MVC,
     check: (o) => {
       expect(codes(o, 'infra-file-changed')).toEqual(['sql/001_create_orders.sql', 'sql/002_add_customer.sql'])
       expect(codes(o, 'client-file-changed')).toEqual(['src/Shop.Web/wwwroot/js/site.js'])
@@ -118,6 +132,41 @@ const SCENARIOS: Record<string, { classification: Output['classification']; affe
       expect(o.dependencies.changes).toEqual([])
     },
   },
+  // Phase 2: views compiled with the SDK's Razor generator. The layout renders the Basket view component, whose view
+  // is Components/Basket/Default.cshtml: every action that renders a view with the layout.
+  'c24-component-view-changed': { classification: 'touches-existing', affected: MVC },
+  // A Razor Page handler: only its own entry point (the page's GET handler does not run it).
+  'c25-page-handler-changed': { classification: 'touches-existing', affected: ['POST /Account/Profile/{id:int?}?handler=Save'] },
+  // A SignalR hub method: only its own entry point.
+  'c26-hub-method-changed': { classification: 'touches-existing', affected: ['WS /hubs/orders#OpenOrders'] },
+  // A script the layout links: every action that renders a view with the layout loads it.
+  'c27-client-from-layout': {
+    classification: 'touches-existing',
+    affected: MVC,
+    check: (o) => {
+      expect(o.reasons.find((r) => r.code === 'client-file-changed')?.detail).toContain('loaded by 5 existing entry point(s)')
+    },
+  },
+  // Razor cannot parse the view (an unclosed code block): farol cannot say what it does.
+  'c28-razor-error': { classification: 'unknown', affected: ['GET /Orders/Details/{id?}'], check: (o) => { expect(codes(o, 'parse-error')).toContain('src/Shop.Web/Views/Orders/Details.cshtml'); } },
+  // .resx files follow the i18n rule: a new key is additive, a changed value is not.
+  'c29-resx-key-added': { classification: 'isolated', affected: [], check: (o) => { expect(codes(o, 'i18n-additive')).toEqual(['src/Shop.Web/Resources/Strings.resx']); } },
+  'c30-resx-value-changed': { classification: 'touches-existing', affected: [], check: (o) => { expect(codes(o, 'i18n-not-additive')).toEqual(['src/Shop.Web/Resources/Strings.resx']); } },
+  // Destructive SQL on added lines; commented-out statements and string literals never count.
+  'c31-sql-destructive': {
+    classification: 'touches-existing',
+    affected: [],
+    check: (o) => {
+      expect(o.signals.security.findings.map((f) => `${f.line} ${f.rule} ${f.severity}`)).toEqual(['2 sql-destructive high', '4 sql-destructive high', '5 sql-destructive high'])
+    },
+  },
+  // No view names _Unused: with the views compiled, changing it reaches nothing (by convention it reached every view).
+  'c32-unused-partial-changed': { classification: 'touches-existing', affected: [], check: (o) => { expect(codes(o, 'existing-file-unreachable')).toEqual(['src/Shop.Web/Views/Shared/_Unused.cshtml']); } },
+  // Code of a job registered with the project's scheduler (csharp.entryCalls): the job and the worker run it, not the
+  // startup code of every endpoint that registers the job.
+  'c33-scheduled-job-code': { classification: 'touches-existing', affected: ['TASK Every purge', 'TASK Shop.Web.Workers.CleanupWorker'] },
+  // connection.Execute(…) on a SqlConnection from a package that was not restored is not ReportRunner.Execute.
+  'c34-package-receiver': { classification: 'touches-existing', affected: [], check: (o) => { expect(codes(o, 'existing-file-unreachable')).toEqual(['src/Shop.Core/Reports/ReportRunner.cs']); } },
   // A new package and a new content item: dependency information, no build setting changed.
   'c22-package-added': {
     classification: 'isolated',
@@ -145,6 +194,33 @@ describe('C# scenarios', () => {
     }, 120_000)
   }
 
+  it('reads coverlet JSON, Cobertura XML, SARIF and dotnet list package reports', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'farol-cs-reports-'))
+    cleanups.push(() => {
+      rmSync(dir, { recursive: true, force: true })
+    })
+    const file = 'src/Shop.Core/Orders/OrderService.cs'
+    // c3 adds lines 14 and 15 of OrderService.Cancel: the throw ran, the assignment did not.
+    writeFileSync(join(dir, 'coverage.json'), JSON.stringify({ 'Shop.Core.dll': { [file]: { 'Shop.Core.Orders.OrderService': { 'System.Void Shop.Core.Orders.OrderService::Cancel(System.Int32)': { Lines: { 13: 1, 14: 1, 15: 0 }, Branches: [] } } } } }))
+    writeFileSync(join(dir, 'coverage.cobertura.xml'), `<?xml version="1.0"?><coverage><sources><source>.</source></sources><packages><package><classes><class name="OrderService" filename="${file}"><lines><line number="13" hits="1"/><line number="14" hits="1"/><line number="15" hits="0"/></lines></class></classes></package></packages></coverage>`)
+    writeFileSync(join(dir, 'lint.sarif'), JSON.stringify({ version: '2.1.0', runs: [{ results: [
+      { ruleId: 'CA2100', level: 'warning', message: { text: 'Review SQL queries for security vulnerabilities' }, locations: [{ physicalLocation: { artifactLocation: { uri: file }, region: { startLine: 14 } } }] },
+      { ruleId: 'IDE0005', level: 'note', message: { text: 'Using directive is unnecessary' }, locations: [{ physicalLocation: { artifactLocation: { uri: file }, region: { startLine: 1 } } }] },
+    ] }] }))
+    for (const coverage of ['coverage.json', 'coverage.cobertura.xml']) {
+      const { output, cleanup } = await analyzeScenario('c3-service-changed', { coverage: join(dir, coverage), eslint: join(dir, 'lint.sarif') })
+      cleanups.push(cleanup)
+      expect(output.signals.coverage.status).toBe('ok')
+      expect(output.signals.coverage.files.map((f) => `${f.path} ${f.coveredLines}/${f.changedExecutableLines}`)).toEqual([`${file} 1/2`])
+      expect(output.signals.lint.changedLines).toEqual({ errors: 0, warnings: 1 })
+      expect(output.signals.security.findings.map((f) => `${f.line} ${f.rule} ${f.severity}`)).toEqual(['14 dotnet-analyzer high'])
+    }
+    writeFileSync(join(dir, 'audit.json'), JSON.stringify({ version: 1, projects: [{ path: 'src/Shop.Core/Shop.Core.csproj', frameworks: [{ framework: 'net10.0', topLevelPackages: [{ id: 'Humanizer.Core', requestedVersion: '3.0.1', resolvedVersion: '3.0.1', vulnerabilities: [{ severity: 'High', advisoryurl: 'https://github.com/advisories/GHSA-xxxx-yyyy-zzzz' }] }] }] }] }))
+    const { output, cleanup } = await analyzeScenario('c15-package-major', { audit: join(dir, 'audit.json') })
+    cleanups.push(cleanup)
+    expect(output.signals.vulnerabilities.related.map((v) => `${v.package} ${v.severity} ${v.kind} ${v.id}`)).toEqual(['Humanizer.Core high direct GHSA-xxxx-yyyy-zzzz'])
+  }, 120_000)
+
   it('lists the entry points with routes and what reaches a file with impact', () => {
     const s = createScenarioRepo('c3-service-changed')
     cleanups.push(() => {
@@ -155,6 +231,8 @@ describe('C# scenarios', () => {
     expect((JSON.parse(routes.stdout) as { routes: { key: string }[] }).routes.map((r) => r.key)).toEqual(ALL)
     const impact = runCli(['--cwd', s.repo.dir, 'impact', 'src/Shop.Core/Pricing/StandardPriceCalculator.cs', '--ref', s.base])
     expect(impact.code).toBe(0)
-    expect((JSON.parse(impact.stdout) as { routes: { key: string }[] }).routes.map((r) => r.key)).toEqual(['GET /api/Products/{sku}', 'GET /api/prices/{sku}'])
+    // Orders/Index.cshtml injects IPriceCalculator (the view's code is compiled with the Razor generator); Cancel
+    // redirects to nameof(Index).
+    expect((JSON.parse(impact.stdout) as { routes: { key: string }[] }).routes.map((r) => r.key)).toEqual(['GET /Orders/Index/{id?}', 'GET /api/Products/{sku}', 'GET /api/prices/{sku}', 'POST /Orders/Cancel/{id?}'])
   }, 120_000)
 })

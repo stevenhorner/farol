@@ -19,5 +19,7 @@
     <Compile Include="src/**/*.cs" />
     <Reference Include="Microsoft.CodeAnalysis"><HintPath>$(RoslynDir)/Microsoft.CodeAnalysis.dll</HintPath></Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp"><HintPath>$(RoslynDir)/Microsoft.CodeAnalysis.CSharp.dll</HintPath></Reference>
+    <!-- The Razor source generator of the same SDK (loaded at run time, never referenced): it compiles .cshtml views. -->
+    <AssemblyMetadata Include="RazorDir" Value="$(MSBuildToolsPath)/Sdks/Microsoft.NET.Sdk.Razor/source-generators" />
   </ItemGroup>
 </Project>

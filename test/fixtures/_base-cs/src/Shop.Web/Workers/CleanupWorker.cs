@@ -11,6 +11,7 @@ public class CleanupWorker(IOrderService orders) : BackgroundService
         {
             OrderArchive.Purge(orders.List());
             RowReader.Count(orders.List());
+            Shop.Web.Infrastructure.CacheTools.Reset();
             await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
         }
     }

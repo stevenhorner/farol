@@ -222,8 +222,8 @@ With uv: `uv export --format requirements-txt --no-hashes > req.txt && uvx pip-a
 
 ## C#/.NET
 
-ASP.NET Core MVC and Web API controllers (attribute and conventional routes, areas), minimal APIs (`MapGet`… with
-`MapGroup` prefixes), `BackgroundService`/`IHostedService` classes and programs. Every `.csproj` below the project
+ASP.NET Core MVC and Web API controllers (attribute and conventional routes, areas), Razor Pages handlers, minimal APIs
+(`MapGet`… with `MapGroup` prefixes), SignalR hub methods, `BackgroundService`/`IHostedService` classes and programs. Every `.csproj` below the project
 directory is read (test projects are left out); every build configuration is compiled, so code behind `#if` is reached.
 
 **Configuration:**
@@ -247,15 +247,17 @@ directory is read (test projects are left out); every build configuration is com
 - `entryCalls`: methods of your own scheduler whose delegate arguments are background jobs.
 - `viewRoots`: folders holding views by controller name besides `Views/` (a custom view location expander).
 
-**Roles by default:** test projects and `*Tests.cs` are tests; `Directory.Build.props/.targets`, `global.json`,
+**Roles by default:** `.resx` files follow the i18n rule; test projects and `*Tests.cs` are tests; `Directory.Build.props/.targets`, `global.json`,
 `NuGet.config` and `.editorconfig` are global; app settings, `web.config`, publish profiles, solution files and
 **SQL scripts** are infrastructure; **`wwwroot`** is client code (except `wwwroot/lib/` and minified files, excluded).
 
-**Reports:** coverage, lint (SARIF) and `dotnet list package --vulnerable` are not read yet; the report shows them as
-not verified.
+**Reports:** Cobertura XML (`dotnet test --collect "XPlat Code Coverage"`, merged with ReportGenerator) or coverlet
+JSON for coverage; SARIF from the build (`-p:ErrorLog=…%2Cversion=2.1`, one file per project merged with `jq`) for lint
+and the .NET security rules; `dotnet list package --vulnerable --include-transitive --format json` for vulnerabilities.
 
-**Workflow:** [`workflow-csharp.yml`](workflow-csharp.yml). It installs the SDK with `actions/setup-dotnet` and does not
-restore packages (restore evaluates the PR's project files in a job that can write to the PR).
+**Workflow:** [`workflow-csharp.yml`](workflow-csharp.yml). Its `tests` job restores, builds and tests with a read-only
+token; the `farol` job installs the SDK with `actions/setup-dotnet` and does not restore packages (restore evaluates the
+PR's project files, and that job can write to the PR).
 
 **Check:** `farol routes` lists every action as `GET /Orders/Details/{id?}`, endpoints as `GET /api/health`, background
 services as `TASK Namespace.Type`; `farol impact <file>` lists the entry points that reach a file.

@@ -34,7 +34,7 @@ https://github.com/winnin/farol.git && node farol/dist/cli.js --help` works too.
 - **TypeScript:** the project's `node_modules` only matter for packages its `tsconfig` extends and for workspace packages. farol installs nothing.
 - **Go:** `go` on the `PATH`, and the module's dependencies in the module cache (`go mod download`). farol builds a small helper (standard library only) on first use and reads modules **offline**: nothing is downloaded during the analysis.
 - **Python:** `python3` 3.11 or later. farol's helper uses only the standard library and only **parses** your code; it never imports it.
-- **C#/.NET:** the .NET SDK (`dotnet`, 8 or later; the one that builds your solution is best) on the `PATH`. farol builds a small helper on first use against the Roslyn compiler assemblies of that SDK (no NuGet download) and reads your projects with it; MSBuild never evaluates them. Restored packages (`obj/project.assets.json` in the checkout) are optional: they make calls on package types precise.
+- **C#/.NET:** the .NET SDK (`dotnet`, 8 or later; the one that builds your solution is best) on the `PATH`. farol builds a small helper on first use against the Roslyn compiler assemblies of that SDK (no NuGet download), reads your projects with it and compiles your Razor views with the SDK's Razor generator; MSBuild never evaluates them. Restored packages (`obj/project.assets.json` in the checkout) are optional: they make calls on package types precise.
 
 ## Commands
 
@@ -96,7 +96,7 @@ A complete example is in [examples/.farol.json](../examples/.farol.json).
 | `csharp.projects` | `[]` (every project) | C#: `.csproj` globs relative to the project directory. Test projects are always left out. |
 | `csharp.configurations` | `[]` (all) | C#: build configurations to compile, each with its `#if` symbols; by default Debug, Release and every configuration the projects declare. Edges are the union, so code one edition compiles is still reached. |
 | `csharp.defines` | `[]` | C#: extra preprocessor symbols for every configuration (symbols your build sets outside the `.csproj`). |
-| `csharp.entryCalls` | `[]` | C#: fully qualified methods (`Namespace.Type.Method`) whose delegate arguments are background entry points, e.g. a scheduler's `Every(...)`: each delegate becomes `TASK <method> <first string argument>`. |
+| `csharp.entryCalls` | `[]` | C#: fully qualified methods (`Namespace.Type.Method`) whose delegate arguments are background entry points, e.g. a scheduler's `Every(...)`: each delegate becomes `TASK <method> <first string argument>`, and its code no longer counts as part of the code that registers it (startup code runs before every endpoint; a job it schedules does not). |
 | `csharp.viewRoots` | `[]` | C#: directories holding views by controller name besides `Views/` and `Areas/<area>/Views/` (project-relative), for custom view locations. |
 | `exclude` | `[]` (Go: generated mocks; C#: `bin/`, `obj/`, generated code, `wwwroot/lib/`, minified files) | Files left out of the analysis, still listed. |
 | `ignore` | `[]` | Changed files left out of **everything**: classification, dependencies, signals. |
@@ -128,8 +128,11 @@ untested.
 | TypeScript | Istanbul `coverage-final.json` (Vitest, Jest) | `eslint -f json` | `npm audit --json`, `pnpm audit --json` |
 | Go | `go test -coverprofile` | golangci-lint JSON (gosec for security) | `govulncheck -json` |
 | Python | coverage.py JSON (`pytest --cov`) | ruff JSON (`S` rules = flake8-bandit) | `pip-audit --format json` |
+| C# | Cobertura XML (`dotnet test --collect "XPlat Code Coverage"`, ReportGenerator) or coverlet JSON | SARIF from the build (`-p:ErrorLog=lint.sarif%2Cversion=2.1`; .NET security rules `CA2100`, `CA3xxx`, `CA5xxx` and Security Code Scan for security) | `dotnet list package --vulnerable --include-transitive --format json` |
 
-The `--eslint` flag takes whichever lint report fits the language: farol recognizes each format by its content.
+The `--eslint` flag takes whichever lint report fits the language: farol recognizes each format by its content. SARIF
+works for every language (CodeQL and Semgrep write it too). Destructive SQL in added lines of `.sql` files is a security
+finding in every language, without a report.
 TypeScript also gets built-in security rules (XSS sinks, `eval`, hard-coded secrets, `javascript:` URLs…) without
 any report.
 

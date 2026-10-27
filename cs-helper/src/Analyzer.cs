@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Farol.CsHelper;
 
@@ -35,6 +36,7 @@ public static class Analyzer
         Lap("parse");
         ws.Notes.Add($"{sets.Count} configuration set(s): {string.Join(" | ", sets.Select(s => string.Join(", ", s.Configurations)))}");
         var runs = sets.Select(s => new SetRun(s)).ToArray();
+        foreach (var run in runs) run.Index.EntryCalls.UnionWith(o.EntryCalls);
         // A file without #if has the same declarations in every configuration: the other configurations reuse the first
         // one's (their syntax and hashes are equal).
         Collect(runs[0], o, null);
@@ -61,7 +63,10 @@ public static class Analyzer
         if (runs.Length > 1) ws.Notes.Add($"other configurations bound {rebound} of {runs.Skip(1).Sum(r => r.Index.Found.Count)} declarations again");
         ws.Notes.Add($"timings: {string.Join(", ", timings)}");
         var graph = new Graph();
-        Views.AddDecls(ws, graph);
+        // Projects whose views the Razor generator compiled in every configuration get their layouts and partials from the
+        // generated code; the others keep the conventions (every partial in scope).
+        var compiled = ws.Projects.Where(p => runs.All(r => r.Set.Views.ContainsKey(p.File.Path))).Select(p => p.File.Path).ToHashSet(StringComparer.Ordinal);
+        Views.AddDecls(ws, graph, compiled);
         var problems = new HashSet<(string, int, string)>();
         var comments = new List<Comment>();
         var commentsDone = new HashSet<string>();
@@ -100,11 +105,22 @@ public static class Analyzer
 
     static void Collect(SetRun run, AnalyzeOptions o, Dictionary<string, List<Found>>? reuse)
     {
+        var generated = run.Set.Views.Values.SelectMany(v => v).ToDictionary(v => v.Tree);
+        foreach (var (file, line, message) in run.Set.RazorErrors) run.Problems.Add((file, line, message));
         foreach (var compilation in run.Set.Compilations.Values)
             foreach (var tree in compilation.SyntaxTrees)
             {
                 if (tree.FilePath.EndsWith("farol.GlobalUsings.g.cs", StringComparison.Ordinal)) continue;
                 var model = run.Models[tree] = compilation.GetSemanticModel(tree);
+                if (generated.TryGetValue(tree, out var view))
+                {
+                    // A compiled view is the view's declaration: its code (model, injected services, tag helpers) is its edges.
+                    run.Trees[view.View] = tree;
+                    var f = new Found(new Decl(view.View, view.View, 1, 1, "view", "", ""), tree.GetRoot(), model, [], null, null);
+                    run.Index.Index(f);
+                    run.Graph.Add(f.Decl);
+                    continue;
+                }
                 var file = Paths.Rel(o.Root, tree.FilePath);
                 run.Trees[file] = tree;
                 var decls = reuse is not null && !Conditional(tree) ? reuse.GetValueOrDefault(file) ?? [] : Decls.Collect(tree, model, file);
@@ -125,16 +141,19 @@ public static class Analyzer
     static void Finish(Workspace ws, SetRun run, AnalyzeOptions o)
     {
         var mvc = run.Set.Compilations.Values.Any(c => c.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.ControllerBase") is not null);
+        Views.AddEdges(ws, run.Index, run.Graph, o.ViewRoots, t => Routes.IsController(t, mvc));
+        RazorEdges.Add(ws, run.Set, run.Index, run.Graph, run.Models, o.ViewRoots);
+        new Entries(ws, run.Set, run.Index, run.Graph, run.Models, o.EntryCalls).Find();
         // A member nothing in the project calls is called by a library or by convention (middleware InvokeAsync, view
-        // code): it depends on its type. Controller methods are entry points of their own.
+        // component Invoke): it depends on its type. Members that are entry points of their own (controller actions,
+        // page handlers, hub methods) do not: the type does not run them.
         var called = run.Graph.Edges.Select(e => e.To).ToHashSet(StringComparer.Ordinal);
+        var entryMembers = run.Graph.Entries.Values.SelectMany(e => e.Anchors).ToHashSet(StringComparer.Ordinal);
         foreach (var f in run.Index.Found)
         {
-            if (f.Decl.Kind is not ("method" or "property") || f.Type is null || called.Contains(f.Decl.Id) || Routes.IsController(f.Type, mvc)) continue;
+            if (f.Decl.Kind is not ("method" or "property") || f.Type is null || called.Contains(f.Decl.Id) || entryMembers.Contains(f.Decl.Id) || Routes.IsController(f.Type, mvc)) continue;
             foreach (var t in run.Index.BySymbol.GetValueOrDefault(Decls.Key(f.Type)) ?? []) run.Graph.Edge(t, f.Decl.Id);
         }
-        Views.AddEdges(ws, run.Index, run.Graph, o.ViewRoots, t => Routes.IsController(t, mvc));
-        new Entries(ws, run.Set, run.Index, run.Graph, run.Models, o.EntryCalls).Find();
     }
 
     static string SimpleName(Found f) => f.SymbolKey is not { Length: > 2 } key ? "" : f.Decl.Kind == "type" ? key[2..].Split('`')[0].Split('.')[^1] : key[2..].Split('(')[0].Split('.')[^1];
@@ -151,13 +170,26 @@ public static class Analyzer
 
     static string MemberName(string key) => key.Split('(')[0].Split('.')[^1];
 
+    /// <summary>
+    /// Comments and suppressions of a file: comment and directive text, and the code that suppresses a check
+    /// ([SuppressMessage], [ExcludeFromCodeCoverage], the null-forgiving `x!`) as it is written.
+    /// </summary>
     static IEnumerable<Comment> CommentsOf(SyntaxTree tree, string file)
     {
-        foreach (var trivia in tree.GetRoot().DescendantTrivia(descendIntoTrivia: true))
+        int Line(Location l) => l.GetLineSpan().StartLinePosition.Line + 1;
+        var root = tree.GetRoot();
+        foreach (var trivia in root.DescendantTrivia(descendIntoTrivia: true))
         {
             var comment = trivia.Kind() is SyntaxKind.SingleLineCommentTrivia or SyntaxKind.MultiLineCommentTrivia;
             var directive = trivia.Kind() is SyntaxKind.PragmaWarningDirectiveTrivia or SyntaxKind.NullableDirectiveTrivia;
-            if (comment || directive) yield return new Comment(file, trivia.GetLocation().GetLineSpan().StartLinePosition.Line + 1, trivia.ToString().Trim());
+            if (comment || directive) yield return new Comment(file, Line(trivia.GetLocation()), trivia.ToString().Trim());
+        }
+        foreach (var node in root.DescendantNodes())
+        {
+            if (node is AttributeSyntax attribute && attribute.Name.ToString().Split('.')[^1] is "SuppressMessage" or "SuppressMessageAttribute" or "ExcludeFromCodeCoverage" or "ExcludeFromCodeCoverageAttribute")
+                yield return new Comment(file, Line(attribute.GetLocation()), $"[{Decls.Collapse(attribute.ToString())}]");
+            else if (node.IsKind(SyntaxKind.SuppressNullableWarningExpression))
+                yield return new Comment(file, Line(node.GetLocation()), Decls.Collapse(node.ToString()));
         }
     }
 

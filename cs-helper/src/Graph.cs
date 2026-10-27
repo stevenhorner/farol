@@ -63,9 +63,20 @@ public sealed class SetIndex
     /// <summary>Methods and properties by simple name, for members of values whose type is unknown (controller actions are entry points, never such calls).</summary>
     public Dictionary<string, List<string>> MethodsByName { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, List<string>> PropertiesByName { get; } = new(StringComparer.Ordinal);
+    /// <summary>How a method can be called: extension or not (and on which type name), and how many arguments it takes.</summary>
+    public Dictionary<string, (bool Extension, string? Receiver, int Min, int Max)> Shapes { get; } = new(StringComparer.Ordinal);
     public Dictionary<string, List<string>> Dispatch { get; } = new(StringComparer.Ordinal);
     public List<Found> Found { get; } = [];
     public List<string> Startup { get; } = [];
+    /// <summary>csharp.entryCalls: methods whose delegate arguments are entry points of their own (TASK).</summary>
+    public HashSet<string> EntryCalls { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>Namespace.Type.Method of a method, as csharp.entryCalls names it.</summary>
+    public static string EntryCallName(IMethodSymbol m)
+    {
+        m = m.ReducedFrom ?? m;
+        return m.ContainingType.OriginalDefinition.ToDisplayString().Split('<')[0] + "." + m.Name;
+    }
 
     public void Index(Found f)
     {
@@ -79,6 +90,12 @@ public sealed class SetIndex
             var map = f.Decl.Kind == "method" ? MethodsByName : PropertiesByName;
             if (!map.TryGetValue(name, out var byName)) map[name] = byName = [];
             byName.Add(f.Decl.Id);
+            if (f.Member is IMethodSymbol m)
+            {
+                var parameters = m.IsExtensionMethod ? m.Parameters.Skip(1).ToList() : [.. m.Parameters];
+                var max = parameters.Any(p => p.IsParams) ? int.MaxValue : parameters.Count;
+                Shapes[f.Decl.Id] = (m.IsExtensionMethod, m.IsExtensionMethod ? m.Parameters[0].Type.Name : null, parameters.Count(p => !p.IsOptional && !p.IsParams), max);
+            }
         }
     }
 
@@ -177,7 +194,20 @@ public sealed class SetIndex
         var span = f.Decl.Kind == "module" ? TextSpan.FromBounds(f.Node.DescendantNodes().OfType<GlobalStatementSyntax>().First().SpanStart, f.Node.DescendantNodes().OfType<GlobalStatementSyntax>().Last().Span.End) : f.Node.Span;
         var registration = f.Decl.Kind == "registration";
         // Route registrations belong to their entry points (handlers and filters are anchors), not to the startup code.
-        var skip = new SpanSet(registration ? f.Skip : [.. f.Skip, .. Decls.RouteStatements(f.Node, span, f.Skip)]);
+        // Delegates handed to an entry call (a scheduler) run as their own TASK entry points, not as part of this code.
+        var delegated = new List<TextSpan>();
+        if (EntryCalls.Count > 0)
+        {
+            var names = EntryCalls.Select(c => c.Split('.')[^1]).ToHashSet(StringComparer.Ordinal);
+            foreach (var call in f.Node.DescendantNodes(span).OfType<InvocationExpressionSyntax>())
+            {
+                var name = call.Expression switch { MemberAccessExpressionSyntax m => m.Name.Identifier.ValueText, SimpleNameSyntax n => n.Identifier.ValueText, _ => "" };
+                if (!names.Contains(name) || f.Model.GetSymbolInfo(call).Symbol is not IMethodSymbol target || !EntryCalls.Contains(EntryCallName(target))) continue;
+                foreach (var arg in call.ArgumentList.Arguments)
+                    if (arg.Expression is AnonymousFunctionExpressionSyntax || f.Model.GetSymbolInfo(arg.Expression).Symbol is IMethodSymbol) delegated.Add(arg.Span);
+            }
+        }
+        var skip = new SpanSet(registration ? f.Skip : [.. f.Skip, .. Decls.RouteStatements(f.Node, span, f.Skip), .. delegated]);
         foreach (var node in f.Node.DescendantNodesAndSelf(span, n => !skip.Covers(n.Span) || n.FullSpan.Contains(span)))
         {
             if (!span.Contains(node.Span) || skip.Covers(node.Span)) continue;
@@ -187,6 +217,23 @@ public sealed class SetIndex
             foreach (var id in Resolve(node, f)) if (id != f.Decl.Id) edges.Add((f.Decl.Id, id));
         }
         return edges;
+    }
+
+    /// <summary>
+    /// An unresolved member of a value farol cannot type. A value of a known type from a package that was not restored
+    /// (`conn.Execute(…)` on a SqlConnection) can only run a project extension method on that type name; a value of
+    /// unknown type (`dynamic`, an unresolved call's result) can run any project method of that name whose parameters
+    /// fit the arguments, or any property of that name (conservative).
+    /// </summary>
+    IEnumerable<string> Fallback(MemberAccessExpressionSyntax access, string name, Found f)
+    {
+        var receiver = f.Model.GetTypeInfo(access.Expression).Type;
+        if (receiver is not (null or IErrorTypeSymbol) && receiver.TypeKind != TypeKind.Dynamic) return [];
+        var packageType = receiver is IErrorTypeSymbol { Name.Length: > 0 } ? receiver.Name : null;
+        if (access.Parent is not InvocationExpressionSyntax call || call.Expression != access)
+            return packageType is null ? PropertiesByName.GetValueOrDefault(name) ?? [] : [];
+        var count = call.ArgumentList.Arguments.Count;
+        return (MethodsByName.GetValueOrDefault(name) ?? []).Where(id => Shapes.TryGetValue(id, out var s) && count >= s.Min && count <= s.Max && (packageType is null || (s.Extension && s.Receiver == packageType)));
     }
 
     /// <summary>Declarations the code of a node (a handler lambda, a filter registration) names.</summary>
@@ -204,14 +251,11 @@ public sealed class SetIndex
                 var info = f.Model.GetSymbolInfo(name);
                 if (info.Symbol is { } symbol)
                 {
-                    if (OwnState(name, symbol, f)) return [];
+                    if (OwnState(name, symbol, f) || NotRun(name, symbol)) return [];
                     return Targets(symbol);
                 }
                 if (info.CandidateSymbols.Length > 0) return info.CandidateSymbols.SelectMany(Targets);
-                // Unresolved member of a value whose type is unknown (a package that was not restored): every project
-                // member with that name (conservative).
-                if (name.Parent is MemberAccessExpressionSyntax access && access.Name == name && f.Model.GetTypeInfo(access.Expression).Type is null or IErrorTypeSymbol)
-                    return (access.Parent is InvocationExpressionSyntax call && call.Expression == access ? MethodsByName : PropertiesByName).GetValueOrDefault(name.Identifier.ValueText) ?? [];
+                if (name.Parent is MemberAccessExpressionSyntax access && access.Name == name) return Fallback(access, name.Identifier.ValueText, f);
                 return [];
             case ObjectCreationExpressionSyntax or ImplicitObjectCreationExpressionSyntax or ConstructorInitializerSyntax or ElementAccessExpressionSyntax or BinaryExpressionSyntax or PrefixUnaryExpressionSyntax or PostfixUnaryExpressionSyntax:
                 var s = f.Model.GetSymbolInfo(node);
@@ -219,6 +263,37 @@ public sealed class SetIndex
             default:
                 return [];
         }
+    }
+
+    /// <summary>
+    /// References that run nothing of what they name: anything inside `nameof(…)`, and a type in `typeof(T)`, an `is`/`as`
+    /// test, a type pattern, a cast or as the qualifier of a static member (testing that a value is an OrdersController,
+    /// or calling one of its static methods, does not run OrdersController).
+    /// </summary>
+    static bool NotRun(SimpleNameSyntax name, ISymbol symbol)
+    {
+        // A type that only qualifies a static member (`HomeController.ResetCache()`): the member is resolved on its own.
+        SyntaxNode qualifier = name.Parent is MemberAccessExpressionSyntax inner && inner.Name == name ? inner : name;
+        if (symbol is INamedTypeSymbol && qualifier.Parent is MemberAccessExpressionSyntax outer && outer.Expression == qualifier) return true;
+        SyntaxNode child = name;
+        foreach (var ancestor in name.Ancestors())
+        {
+            if (ancestor is InvocationExpressionSyntax { Expression: IdentifierNameSyntax { Identifier.ValueText: "nameof" } }) return true;
+            if (symbol is INamedTypeSymbol)
+            {
+                switch (ancestor)
+                {
+                    case TypeOfExpressionSyntax:
+                    case TypePatternSyntax or DeclarationPatternSyntax or RecursivePatternSyntax:
+                    case BinaryExpressionSyntax b when (b.IsKind(SyntaxKind.IsExpression) || b.IsKind(SyntaxKind.AsExpression)) && b.Right == child:
+                    case CastExpressionSyntax c when c.Type == child:
+                        return true;
+                }
+            }
+            if (ancestor is StatementSyntax or MemberDeclarationSyntax or LambdaExpressionSyntax) return false;
+            child = ancestor;
+        }
+        return false;
     }
 
     /// <summary>A member reading its own type's fields (implicitly or through this/base) is not a use of the type.</summary>

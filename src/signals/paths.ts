@@ -1,7 +1,8 @@
 import { isAbsolute, posix } from 'node:path'
 import { HELPER_EXTENSIONS, SCRIPT_EXTENSIONS } from '../config/languages.js'
 
-const CODE_EXTENSIONS = new Set([...SCRIPT_EXTENSIONS, ...HELPER_EXTENSIONS])
+// Razor views compile into generated classes: coverage tools never report their own lines.
+const CODE_EXTENSIONS = new Set([...SCRIPT_EXTENSIONS, ...HELPER_EXTENSIONS].filter((e) => e !== '.cshtml'))
 
 /** Code files (not declarations): the only files coverage and suppressions apply to (helper languages have their own readers). */
 export function isCodeFile(path: string): boolean {

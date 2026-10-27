@@ -12,10 +12,11 @@ namespace Farol.CsHelper;
 /// </summary>
 public static class Views
 {
-    public static void AddDecls(Workspace ws, Graph graph)
+    public static void AddDecls(Workspace ws, Graph graph, IReadOnlySet<string> compiled)
     {
         foreach (var project in ws.Projects)
         {
+            var byConvention = !compiled.Contains(project.File.Path);
             var ids = project.Views.Select(v => Paths.Rel(ws.Root, v)).ToList();
             foreach (var (abs, id) in project.Views.Zip(ids))
             {
@@ -27,7 +28,7 @@ public static class Views
                 {
                     if (other == id) continue;
                     var inScope = Path.GetFileName(other).StartsWith('_') && (dir == Dir(other) || dir.StartsWith(Dir(other) + "/", StringComparison.Ordinal) || Dir(other) == "");
-                    if (inScope || other.Split('/').Contains("Shared")) graph.Edge(id, other);
+                    if (byConvention && (inScope || other.Split('/').Contains("Shared"))) graph.Edge(id, other);
                 }
             }
         }
@@ -58,7 +59,8 @@ public static class Views
     {
         foreach (var f in index.Found)
         {
-            if (f.Decl.Kind != "method" || f.Type is null || !isController(f.Type)) continue;
+            var component = f.Decl.Kind == "method" && f.Type is not null ? RazorEdges.ComponentName(f.Type) : null;
+            if (f.Decl.Kind != "method" || f.Type is null || (!isController(f.Type) && component is null)) continue;
             var project = ws.Projects.FirstOrDefault(p => f.Decl.File.StartsWith(p.File.Dir == "" ? "" : p.File.Dir + "/", StringComparison.Ordinal));
             if (project is null) continue;
             var views = project.Views.Select(v => Paths.Rel(ws.Root, v)).ToHashSet(StringComparer.Ordinal);
@@ -77,7 +79,11 @@ public static class Views
                 if (first is not null && (target?.Parameters.FirstOrDefault()?.Type.SpecialType == SpecialType.System_String || f.Model.GetTypeInfo(first).Type?.SpecialType == SpecialType.System_String))
                     viewName = f.Model.GetConstantValue(first) is { HasValue: true, Value: string s } ? s : null;
                 else viewName = isAction ? Routes.ActionName(method!) : null;
-                var candidates = viewName is null ? Dynamic(views, controller) : Candidates(project.File.Dir, controller, area, viewName, viewRoots);
+                // A view component renders Components/<Name>/<view>.cshtml (Default when no name is given) under any view folder.
+                if (component is not null) viewName = first is null || f.Model.GetTypeInfo(first).Type?.SpecialType != SpecialType.System_String ? "Default" : viewName;
+                var candidates = component is not null
+                    ? views.Where(v => viewName is null ? v.Contains($"/Components/{component}/", StringComparison.Ordinal) : v.EndsWith($"/Components/{component}/{viewName}.cshtml", StringComparison.Ordinal))
+                    : viewName is null ? Dynamic(views, controller) : Candidates(project.File.Dir, controller, area, viewName, viewRoots);
                 foreach (var v in candidates) if (views.Contains(v)) graph.Edge(f.Decl.Id, v);
             }
         }

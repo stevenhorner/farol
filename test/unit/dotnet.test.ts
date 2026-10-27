@@ -4,7 +4,7 @@ import { parseConfig } from '../../src/config/load.js'
 import { CSHARP_DEFAULT_EXCLUDE, CSHARP_DEFAULT_ROLES } from '../../src/config/schema.js'
 import { createRoleMatcher } from '../../src/classify/roles.js'
 import { diffNuGet, nugetSpec } from '../../src/dotnet/nuget.js'
-import { csharpSuppressions } from '../../src/signals/dotnet.js'
+import { csharpSuppressions, parseCoverletReport, parseSarifReport } from '../../src/signals/dotnet.js'
 import type { ChangedFile } from '../../src/git/types.js'
 
 const manifest = (packages: [string, string, ('dependencies' | 'devDependencies')?][], other: Record<string, string> = {}) => ({
@@ -75,6 +75,17 @@ describe('C# suppressions', () => {
     ])
     expect(items.map((i) => `${i.line} ${i.kind}`)).toEqual(['3 pragma-warning-disable', '5 resharper-disable'])
   })
+
+  it('reads the suppressing code the helper prints as written', () => {
+    const file = { path: 'src/A.cs', status: 'modified', added: [1, 2, 3, 4].map((line) => ({ line, text: '' })), removed: [] } as unknown as ChangedFile
+    const items = csharpSuppressions([file], [
+      { file: 'src/A.cs', line: 1, text: '[SuppressMessage("Security", "CA2100")]' },
+      { file: 'src/A.cs', line: 2, text: '[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]' },
+      { file: 'src/A.cs', line: 3, text: 'user!' },
+      { file: 'src/A.cs', line: 4, text: '// wow!' },
+    ])
+    expect(items.map((i) => `${i.line} ${i.kind}`)).toEqual(['1 suppress-message', '2 exclude-from-coverage', '3 null-forgiving'])
+  })
 })
 
 describe('C# configuration', () => {
@@ -94,5 +105,23 @@ describe('C# configuration', () => {
     expect(role('src/Web.Tests/HomeTests.cs')).toBe('test')
     expect(role('Directory.Build.props')).toBe('global')
     expect(role('src/Web/Controllers/HomeController.cs')).toBe('source')
+  })
+})
+
+describe('C# reports', () => {
+  it('merges coverlet lines reported by several modules', () => {
+    const report = { 'A.dll': { '/repo/src/A.cs': { C: { M: { Lines: { 3: 0, 4: 2 } } } } }, 'B.dll': { '/repo/src/A.cs': { C: { M: { Lines: { 3: 1 } } } } } }
+    expect(parseCoverletReport(JSON.stringify(report), '/repo', '').get('src/A.cs')).toEqual([{ start: 3, end: 3, count: 1 }, { start: 4, end: 4, count: 2 }])
+  })
+
+  it('reads SARIF 1.0 locations and 2.1 base URIs, and keeps security rules as findings', () => {
+    const v1 = { version: '1.0.0', runs: [{ results: [{ ruleId: 'CA5350', level: 'warning', message: 'weak hash', locations: [{ resultFile: { uri: 'file:///repo/src/A.cs', region: { startLine: 7 } } }] }] }] }
+    const v21 = { version: '2.1.0', runs: [{ originalUriBaseIds: { SRC: { uri: 'file:///repo/src/' } }, results: [{ ruleId: 'IDE0059', level: 'error', message: { text: 'unused' }, locations: [{ physicalLocation: { artifactLocation: { uri: 'B.cs', uriBaseId: 'SRC' }, region: { startLine: 2 } } }] }] }] }
+    const a = parseSarifReport(JSON.stringify(v1), '/repo', '')
+    expect(a.messages).toEqual([{ path: 'src/A.cs', line: 7, rule: 'CA5350', severity: 'warning', message: 'weak hash' }])
+    expect(a.sast).toEqual([{ path: 'src/A.cs', line: 7, rule: 'dotnet-analyzer', severity: 'medium', message: 'CA5350: weak hash' }])
+    const b = parseSarifReport(JSON.stringify(v21), '/repo', '')
+    expect(b.messages.map((m) => `${m.path}:${m.line} ${m.severity}`)).toEqual(['src/B.cs:2 error'])
+    expect(b.sast).toEqual([])
   })
 })

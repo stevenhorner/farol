@@ -15,7 +15,8 @@ import { computeSignals, computeUsage, type SignalInputs } from './signals.js'
 import { backendImpacts } from './backend.js'
 import type { Context } from './context.js'
 import { createDiskFileSystem } from './disk-fs.js'
-import { defaultCacheDir, loadLangWorkspace, readCsManifest, readToml } from './lang-workspace.js'
+import { defaultCacheDir, loadLangWorkspace, readCsXml, readToml } from './lang-workspace.js'
+import { coberturaAsJson, resxAsJson } from './csharp-inputs.js'
 import { diffNuGet } from '../dotnet/nuget.js'
 import { diffPyproject, diffRequirementsTxt } from '../python/pyproject.js'
 import { UsageError } from '../config/load.js'
@@ -158,7 +159,7 @@ async function parseToml(text: string): Promise<unknown> {
 /** A project file parsed by the C# helper; XML it rejects is a parse error of the manifest. */
 async function parseCsManifest(text: string): Promise<unknown> {
   try {
-    return await readCsManifest(text)
+    return await readCsXml('manifest', text)
   } catch (error) {
     if (error instanceof UsageError) throw error
     throw new ManifestParseError((error instanceof Error ? error.message : String(error)).split('\n').slice(-1)[0]?.replace(/^.*cshelper: /, '') ?? 'invalid project file')
@@ -220,7 +221,8 @@ export async function runAnalyze(ctx: Context, options: AnalyzeOptions, deps: An
     if (isHelperLanguage(language)) {
       const baseRole = createAnalysisRoleOf(ctx, [])
       const cache = options.cache === false ? null : resolve(options.cacheDir ?? defaultCacheDir(deps.env))
-      const langWs = await loadLangWorkspace(ctx, files, mb, meta.head.sha, (p) => isHelperSource(language, p) && baseRole(p) === 'source', wsTimings, deps.clock, cache)
+      // C#: client files (wwwroot) the views link are declarations too, reached through the views that load them.
+      const langWs = await loadLangWorkspace(ctx, files, mb, meta.head.sha, (p) => (isHelperSource(language, p) && baseRole(p) === 'source') || (language === 'csharp' && baseRole(p) === 'client'), wsTimings, deps.clock, cache)
       Object.assign(timings, wsTimings)
       t = deps.clock()
       roleOf = createAnalysisRoleOf(ctx, langWs.graph.nodes)
@@ -232,7 +234,8 @@ export async function runAnalyze(ctx: Context, options: AnalyzeOptions, deps: An
       const helperContracts = helperContractChanges(langWs.base, langWs.head)
       contracts = contractsSection(helperContracts.changes, helperContracts.readable)
       lap('base')
-      result = classify({ files, roleOf, manifests, backend: { impacts: langWs.impacts }, graph: langWs.graph, routesFile: '', headRoutes: langWs.headRoutes, baseRoutes: langWs.baseRoutes, baseText: new Map(), headText: new Map() })
+      const resx = language === 'csharp' ? await resxAsJson(ctx, files, roleOf, mb, meta.head.sha) : { base: new Map<string, string>(), head: new Map<string, string>() }
+      result = classify({ files, roleOf, manifests, backend: { impacts: langWs.impacts }, graph: langWs.graph, routesFile: '', headRoutes: langWs.headRoutes, baseRoutes: langWs.baseRoutes, baseText: resx.base, headText: resx.head })
     } else {
       const ws = await loadWorkspace(ctx, meta.head.sha, wsTimings, deps.clock)
       headRoutes = ws.routes
@@ -279,7 +282,7 @@ export async function runAnalyze(ctx: Context, options: AnalyzeOptions, deps: An
       files,
       roleOf,
       // Flags are relative to the current directory, configuration paths to the project directory.
-      coverage: reportPath(ctx, options.coverage, ctx.config.signals.coverage),
+      coverage: ctx.config.language === 'csharp' ? await coberturaAsJson(reportPath(ctx, options.coverage, ctx.config.signals.coverage)) : reportPath(ctx, options.coverage, ctx.config.signals.coverage),
       eslint: reportPath(ctx, options.eslint, ctx.config.signals.eslint),
       readHead,
       ...(lang ? { lang } : {}),

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Welcome" xml:space="preserve">
+    <value>Welcome to the shop</value>
+  </data>
+  <data name="OrderCancelled" xml:space="preserve">
+    <value>Order cancelled</value>
+  </data>
+</root>

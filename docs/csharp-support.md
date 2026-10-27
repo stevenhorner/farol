@@ -1,7 +1,9 @@
 # Adding C#/.NET support — design proposal
 
-Status: **phase 0 and phase 1 implemented** (see [how-it-works.md](how-it-works.md#cnet) for what farol does today,
-and DECISIONS.md 2026-10-26 (9)–(11) for the choices made while building it); phases 2 and 3 are still proposals. The
+Status: **phases 0, 1 and 2 implemented** (see [how-it-works.md](how-it-works.md#cnet) for what farol does today,
+and DECISIONS.md 2026-10-26 (9)–(11) and 2026-10-27 for the choices made while building it); phase 3 is still a
+proposal. Phase 2 runs the SDK's Razor *source generator* through Roslyn's generator driver instead of the Razor
+compiler API this document describes (that API changes between SDK versions). The
 open questions of the first draft are decided (see [Decisions taken](#decisions-taken)). This document explains how farol could analyze C#/.NET backends
 (ASP.NET Core MVC, Web API, minimal APIs, Razor Pages, SignalR, gRPC, worker services) with the same pipeline,
 JSON contract and reports it already uses for Go and Python. Each choice below that is adopted needs its own dated

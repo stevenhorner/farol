@@ -5,6 +5,8 @@
 //   cshelper analyze --root <dir> --project <rel> [--comments a.cs,b.cs] [--projects g1,g2] [--configurations c1,c2]
 //                    [--defines S1,S2] [--view-roots r1,r2] [--entry-calls Ns.Type.Method,…] [--assets-root <dir>]
 //   cshelper manifest < project.csproj
+//   cshelper resx < Strings.resx
+//   cshelper cobertura < coverage.cobertura.xml
 using Farol.CsHelper;
 
 try
@@ -14,7 +16,17 @@ try
         Json.Write(Manifest.Read(Console.In.ReadToEnd()));
         return 0;
     }
-    if (args.Length == 0 || args[0] != "analyze") throw new ArgumentException("usage: cshelper analyze --root <dir> --project <rel> … | cshelper manifest");
+    if (args.Length > 0 && args[0] == "resx")
+    {
+        Json.Write(Reports.Resx(Console.In.ReadToEnd()));
+        return 0;
+    }
+    if (args.Length > 0 && args[0] == "cobertura")
+    {
+        Json.Write(Reports.Cobertura(Console.In.ReadToEnd()));
+        return 0;
+    }
+    if (args.Length == 0 || args[0] != "analyze") throw new ArgumentException("usage: cshelper analyze --root <dir> --project <rel> … | cshelper manifest | cshelper resx | cshelper cobertura");
     var flags = new Dictionary<string, string>(StringComparer.Ordinal);
     for (var i = 1; i < args.Length; i += 2)
     {

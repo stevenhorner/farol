@@ -70,7 +70,7 @@
     }
   },
   "risk": {
-    "totalPages": 9,
+    "totalPages": 14,
     "files": [
       {
         "path": "src/Shop.Web/Views/Orders/Summary.cshtml",
@@ -78,7 +78,7 @@
         "level": "low",
         "directImporters": 1,
         "transitiveDependents": 1,
-        "centrality": 0.04,
+        "centrality": 0.028,
         "pagesReached": 0,
         "routesReached": 0,
         "why": "new code not used by existing operations"
@@ -123,7 +123,7 @@
     },
     "lint": {
       "status": "not-provided",
-      "message": "no Roslyn analyzers (SARIF) report given (--eslint or signals.eslint)",
+      "message": "no SARIF report given (--eslint or signals.eslint)",
       "changedLines": null,
       "otherLines": null,
       "findings": [],
@@ -137,7 +137,7 @@
         "medium": 0,
         "low": 0
       },
-      "message": "C# files are checked by the .NET security analyzers, whose SARIF report farol does not read yet"
+      "message": "C# files are checked by the .NET security analyzers (CA2100, CA3xxx, CA5xxx) or Security Code Scan: give their SARIF report as the lint report"
     },
     "vulnerabilities": {
       "status": "not-provided",

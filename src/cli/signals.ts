@@ -5,7 +5,8 @@ import type { ChangedFile } from '../git/types.js'
 import type { CoverageSignal, LintSignal, SecurityFinding, SecuritySignal, Signals, VulnerabilitiesSignal } from '../output/schema.js'
 import { compareStrings } from '../output/order.js'
 import { isCoveragePyReport, isPipAuditReport, isRuffReport, parseCoveragePyReport, parsePipAuditReport, parseRuffReport, pythonSuppressions } from '../signals/python.js'
-import { csharpSuppressions } from '../signals/dotnet.js'
+import { csharpSuppressions, isCoberturaJson, isCoverletReport, isDotnetAuditReport, isSarifReport, parseCoberturaJson, parseCoverletReport, parseDotnetAuditReport, parseSarifReport } from '../signals/dotnet.js'
+import { sqlFindings } from '../signals/sql.js'
 import { goSuppressions, isGolangciReport, isGovulncheckReport, parseGoCoverProfile, parseGolangciReport, parseGovulncheckReport } from '../signals/go.js'
 import { isDeclarationsOnlyModule, isScriptFile } from '../classify/declarations-only.js'
 import { coverageSignal, listsUnloadedFiles, parseCoverageReport, ReportError } from '../signals/coverage.js'
@@ -86,6 +87,11 @@ function langSecurity(base: SecuritySignal, gosec: Omit<SecurityFinding, 'text'>
   return { ...base, findings, summary: { high: findings.filter((f) => f.severity === 'high').length, medium: findings.filter((f) => f.severity === 'medium').length, low: findings.filter((f) => f.severity === 'low').length } }
 }
 
+function withFindings(base: SecuritySignal, extra: readonly SecurityFinding[]): SecuritySignal {
+  const findings = [...base.findings, ...extra].sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || compareStrings(a.path, b.path) || a.line - b.line)
+  return { ...base, findings, summary: { high: findings.filter((f) => f.severity === 'high').length, medium: findings.filter((f) => f.severity === 'medium').length, low: findings.filter((f) => f.severity === 'low').length } }
+}
+
 /** Reads the reports produced by the workflow and computes every signal. Signals never change the class. */
 export function computeSignals(ctx: Context, inputs: SignalInputs): Signals {
   let coverage: CoverageSignal
@@ -97,7 +103,11 @@ export function computeSignals(ctx: Context, inputs: SignalInputs): Signals {
       const goProfile = inputs.lang !== undefined && cov.text.startsWith('mode:')
       const report = goProfile
         ? parseGoCoverProfile(cov.text, inputs.lang?.module ?? '', ctx.projectPrefix)
-        : isCoveragePyReport(cov.text)
+        : isCoverletReport(cov.text)
+          ? parseCoverletReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical)
+          : isCoberturaJson(cov.text)
+            ? parseCoberturaJson(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical)
+            : isCoveragePyReport(cov.text)
           ? parseCoveragePyReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical)
           : parseCoverageReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical)
       coverage = coverageSignal(report, inputs.files, inputs.roleOf, inputs.coverageIgnored, {
@@ -120,6 +130,10 @@ export function computeSignals(ctx: Context, inputs: SignalInputs): Signals {
         const parsed = parseGolangciReport(es.text, ctx.repoRoot, ctx.projectPrefix, canonical)
         gosec = parsed.gosec
         lint = lintSignal(parsed.messages, inputs.files)
+      } else if (isSarifReport(es.text)) {
+        const parsed = parseSarifReport(es.text, ctx.repoRoot, ctx.projectPrefix, canonical)
+        gosec = parsed.sast
+        lint = lintSignal(parsed.messages, inputs.files)
       } else if (isRuffReport(es.text)) {
         const parsed = parseRuffReport(es.text, ctx.repoRoot, ctx.projectPrefix, canonical)
         gosec = parsed.sast
@@ -136,7 +150,7 @@ export function computeSignals(ctx: Context, inputs: SignalInputs): Signals {
   else if (au.kind === 'error') vulnerabilities = { ...vulnerabilitiesNotProvided(au.message), status: 'error' }
   else {
     try {
-      const report = isGovulncheckReport(au.text) ? parseGovulncheckReport(au.text) : isPipAuditReport(au.text) ? parsePipAuditReport(au.text) : parseAuditReport(au.text)
+      const report = isGovulncheckReport(au.text) ? parseGovulncheckReport(au.text) : isPipAuditReport(au.text) ? parsePipAuditReport(au.text) : isDotnetAuditReport(au.text) ? parseDotnetAuditReport(au.text) : parseAuditReport(au.text)
       vulnerabilities = vulnerabilitiesSignal(report, inputs.changedPackages)
     } catch (error) {
       vulnerabilities = { ...vulnerabilitiesNotProvided(asError(error)), status: 'error' }
@@ -152,6 +166,9 @@ export function computeSignals(ctx: Context, inputs: SignalInputs): Signals {
   const scripts = inputs.files.filter((f) => !HELPER_EXTENSIONS.some((e) => f.path.endsWith(e)))
   const suppressions = suppressionsSignal(scripts, inputs.readHead)
   let security = securitySignal(scripts, inputs.readHead, notCode)
+  // Destructive SQL (DROP, TRUNCATE, DELETE without WHERE…) in any language: database scripts ship with the app.
+  const sql = sqlFindings(inputs.files, inputs.readHead, notCode)
+  if (sql.length > 0) security = withFindings(security, sql)
   if (inputs.lang) {
     const own = LANGUAGE_SUPPRESSIONS[inputs.lang.language](inputs.files, inputs.lang.comments)
     suppressions.items = [...suppressions.items, ...own].sort((a, b) => compareStrings(a.path, b.path) || a.line - b.line)

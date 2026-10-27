@@ -44,7 +44,7 @@ export const PYTHON_DEFAULT_ROLES = { client: [], barrel: [], i18n: [], test: ['
 export const CSHARP_DEFAULT_ROLES = {
   client: ['**/wwwroot/**'],
   barrel: [],
-  i18n: [],
+  i18n: ['**/*.resx'],
   test: ['**/*.Tests/**', '**/*.Test/**', '**/*.UnitTests/**', '**/*.IntegrationTests/**', '**/test/**', '**/tests/**', '**/*Tests.cs', '**/*Test.cs'],
   story: [],
   global: ['**/Directory.Build.props', '**/Directory.Build.targets', '**/global.json', '**/NuGet.config', '**/nuget.config', '**/NuGet.Config', '**/.editorconfig'],

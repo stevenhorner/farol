@@ -38,6 +38,8 @@ public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, 
     public void Find()
     {
         Controllers();
+        RazorPages();
+        Hubs();
         MinimalApis();
         HostedServices();
         EntryCalls();
@@ -173,6 +175,81 @@ public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, 
         }
     }
 
+    static readonly System.Text.RegularExpressions.Regex Handler = new(@"^On(Get|Post|Put|Delete|Patch|Head|Options)(\w*?)(Async)?$");
+
+    /// <summary>
+    /// Razor Pages: each page under Pages/ (or Areas/&lt;area&gt;/Pages/) is a route from its path and its @page template;
+    /// each handler of its page model (OnGet, OnPostDeleteAsync…) is an entry point, `?handler=` for named ones.
+    /// </summary>
+    void RazorPages()
+    {
+        foreach (var (projectPath, generated) in set.Views)
+        {
+            var project = ws.Projects.First(p => p.File.Path == projectPath);
+            var prefix = project.File.Dir == "" ? "" : project.File.Dir + "/";
+            foreach (var view in generated.Where(v => v.Kind.EndsWith("razor-page", StringComparison.Ordinal) && v.View.StartsWith(prefix, StringComparison.Ordinal)))
+            {
+                if (PageRoute(view.View[prefix.Length..]) is not { } route) continue;
+                var model = models[view.Tree];
+                var root = view.Tree.GetRoot();
+                var template = Metadata(root, "RouteTemplate");
+                var path = template is null ? route : template.StartsWith('/') ? template : $"{route}/{template}";
+                var pageModel = root.DescendantNodes().OfType<PropertyDeclarationSyntax>().Where(p => p.Identifier.ValueText == "Model")
+                    .Select(p => (model.GetDeclaredSymbol(p) as IPropertySymbol)?.Type as INamedTypeSymbol).FirstOrDefault(t => t is not null && SetIndex.IsSource(t));
+                var typeDecls = pageModel is null ? [] : index.BySymbol.GetValueOrDefault(Decls.Key(pageModel)) ?? [];
+                var handlers = new List<(string Verb, string Name, IMethodSymbol Method)>();
+                for (var t = pageModel; t is not null && SetIndex.IsSource(t); t = t.BaseType)
+                    foreach (var m in t.GetMembers().OfType<IMethodSymbol>())
+                        if (m is { MethodKind: MethodKind.Ordinary, IsStatic: false, DeclaredAccessibility: Accessibility.Public } && Handler.Match(m.Name) is { Success: true } h && !handlers.Any(x => x.Verb == h.Groups[1].Value.ToUpperInvariant() && x.Name == h.Groups[2].Value))
+                            handlers.Add((h.Groups[1].Value.ToUpperInvariant(), h.Groups[2].Value, m));
+                if (handlers.Count == 0) Anchor(graph.Entry($"ANY {Routes.Clean(path)}", view.View, 1, "http"), [view.View, .. typeDecls]);
+                foreach (var (verb, name, method) in handlers)
+                    Anchor(graph.Entry($"{verb} {Routes.Clean(path)}{(name == "" ? "" : $"?handler={name}")}", view.View, 1, "http"), [view.View, .. typeDecls, .. index.Targets(method)]);
+            }
+        }
+    }
+
+    /// <summary>The URL of a page file: Pages/Orders/Edit.cshtml → /Orders/Edit, Index → its folder, Areas/A/Pages/X → /A/X.</summary>
+    static string? PageRoute(string rel)
+    {
+        var parts = rel.Split('/');
+        if (Path.GetFileName(rel).StartsWith('_')) return null;
+        string[] route = parts is ["Pages", .. var rest] ? rest : parts is ["Areas", var area, "Pages", .. var inArea] ? [area, .. inArea] : [];
+        if (route.Length == 0) return null;
+        route[^1] = route[^1][..^".cshtml".Length];
+        return "/" + string.Join("/", route[^1] == "Index" ? route[..^1] : route);
+    }
+
+    /// <summary>A [RazorCompiledItemMetadata(key, value)] value of a generated view.</summary>
+    static string? Metadata(SyntaxNode root, string key) =>
+        root.DescendantNodes().OfType<AttributeSyntax>().Where(a => a.Name.ToString().Contains("RazorCompiledItemMetadata", StringComparison.Ordinal))
+            .Select(a => a.ArgumentList?.Arguments.Select(x => x.Expression).OfType<LiteralExpressionSyntax>().Select(l => l.Token.ValueText).ToList())
+            .FirstOrDefault(args => args is { Count: 2 } && args[0] == key)?[1];
+
+    /// <summary>SignalR: `MapHub&lt;THub&gt;("/path")` makes every public method of the hub an entry point (`WS /path#Method`).</summary>
+    void Hubs()
+    {
+        foreach (var (call, model) in Invocations())
+        {
+            if (call.Expression is not MemberAccessExpressionSyntax { Name: GenericNameSyntax { Identifier.ValueText: "MapHub", TypeArgumentList.Arguments: [var argument] } } access || call.ArgumentList.Arguments.Count == 0) continue;
+            if (model.GetSymbolInfo(argument).Symbol is not INamedTypeSymbol hub || !SetIndex.IsSource(hub)) continue;
+            var file = Rel(call.SyntaxTree);
+            var (path, computed) = Segment(call.ArgumentList.Arguments[0].Expression, model);
+            var hubDecls = index.BySymbol.GetValueOrDefault(Decls.Key(hub)) ?? [];
+            var methods = new List<IMethodSymbol>();
+            for (var t = hub; t is not null && SetIndex.IsSource(t); t = t.BaseType)
+                foreach (var m in t.GetMembers().OfType<IMethodSymbol>())
+                    if (m is { MethodKind: MethodKind.Ordinary, IsStatic: false, DeclaredAccessibility: Accessibility.Public, IsOverride: false } && !methods.Any(x => x.Name == m.Name)) methods.Add(m);
+            foreach (var (prefix, prefixComputed) in Prefixes(access.Expression, model, 0))
+                foreach (var m in methods)
+                {
+                    var e = graph.Entry($"WS {Routes.Clean(prefix + "/" + path)}#{m.Name}", file, Line(call), "ws");
+                    foreach (var c in prefixComputed.Concat(computed ? [new Computed(file, Line(call))] : [])) e.Computed.Add(c);
+                    Anchor(e, [.. hubDecls, .. index.Targets(m)]);
+                }
+        }
+    }
+
     /// <summary>BackgroundService and IHostedService implementations: TASK entries anchored on the type (its overrides run).</summary>
     void HostedServices()
     {
@@ -198,8 +275,7 @@ public sealed class Entries(Workspace ws, ConfigurationSet set, SetIndex index, 
         {
             if (CalledName(call) is not { } called || !names.Contains(called) || model.GetSymbolInfo(call).Symbol is not IMethodSymbol m) continue;
             m = m.ReducedFrom ?? m;
-            var full = m.ContainingType.OriginalDefinition.ToDisplayString().Split('<')[0] + "." + m.Name;
-            if (!entryCalls.Contains(full)) continue;
+            if (!entryCalls.Contains(SetIndex.EntryCallName(m))) continue;
             var file = Rel(call.SyntaxTree);
             var label = call.ArgumentList.Arguments.Select(a => model.GetConstantValue(a.Expression)).Where(c => c.HasValue && c.Value is string).Select(c => (string)c.Value!).FirstOrDefault();
             foreach (var arg in call.ArgumentList.Arguments.Select(a => a.Expression))

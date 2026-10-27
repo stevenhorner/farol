@@ -66,7 +66,7 @@ export const LintSignalSchema = z
   })
   .strict()
 
-export const SUPPRESSION_KINDS = ['eslint-disable', 'eslint-disable-line', 'eslint-disable-next-line', 'ts-ignore', 'ts-expect-error', 'ts-nocheck', 'as-any', 'any-annotation', 'nolint', 'lint-ignore', 'nosec', 'noqa', 'type-ignore', 'no-cover', 'pyright-ignore', 'pylint-disable', 'pragma-warning-disable', 'nullable-disable', 'resharper-disable'] as const
+export const SUPPRESSION_KINDS = ['eslint-disable', 'eslint-disable-line', 'eslint-disable-next-line', 'ts-ignore', 'ts-expect-error', 'ts-nocheck', 'as-any', 'any-annotation', 'nolint', 'lint-ignore', 'nosec', 'noqa', 'type-ignore', 'no-cover', 'pyright-ignore', 'pylint-disable', 'pragma-warning-disable', 'nullable-disable', 'resharper-disable', 'suppress-message', 'exclude-from-coverage', 'null-forgiving'] as const
 
 export const SuppressionsSignalSchema = z
   .object({
@@ -112,7 +112,7 @@ export const VulnerabilitiesSignalSchema = z
   })
   .strict()
 
-export const SECURITY_RULES = ['dangerously-set-inner-html', 'inner-html', 'eval', 'string-timer', 'document-write', 'postmessage-wildcard', 'hardcoded-secret', 'javascript-url', 'target-blank', 'insecure-url', 'gosec', 'bandit'] as const
+export const SECURITY_RULES = ['dangerously-set-inner-html', 'inner-html', 'eval', 'string-timer', 'document-write', 'postmessage-wildcard', 'hardcoded-secret', 'javascript-url', 'target-blank', 'insecure-url', 'gosec', 'bandit', 'dotnet-analyzer', 'sql-destructive'] as const
 
 export const SecurityFindingSchema = z
   .object({ path, line, rule: z.enum(SECURITY_RULES), severity: z.enum(['high', 'medium', 'low']), message: z.string(), text: z.string() })

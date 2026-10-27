@@ -1,13 +1,15 @@
-# farol for a C#/.NET solution (ASP.NET Core MVC, Web API, minimal APIs, worker services). Shadow mode: it comments, it
-# never blocks.
+# farol for a C#/.NET solution (ASP.NET Core MVC, Razor Pages, Web API, minimal APIs, SignalR, worker services). Shadow
+# mode: it comments, it never blocks.
 #
-#   farol        reads git, writes the HTML report and comments on the PR. Never runs the PR's code: the .NET SDK only
-#                reads it (Roslyn), and MSBuild never evaluates your projects.
-#
-# Diff coverage, lint (SARIF) and `dotnet list package --vulnerable` reports are not read for C# yet: the report shows
-# them as not verified. Packages are not restored here: `dotnet restore` evaluates the PR's MSBuild files, and this job
-# can write to the pull request. Without packages, calls on package types fall back to project members of the same name
-# and shape (conservative: more reach, never less).
+#   tests        restores, builds with the analyzers (SARIF), runs the tests with coverage (Cobertura) and lists
+#                vulnerable packages. Runs the PR's code: no secrets, read-only token. Already have a test job? Keep it,
+#                and add its "Keep the reports for farol" step.
+#   farol-usage  optional, Datadog traffic and errors (set the repository variable FAROL_DATADOG to true and the
+#                DD_API_KEY / DD_APP_KEY secrets). Has the keys, runs no code of the PR. One Datadog read per day.
+#   farol        reads git and the reports, writes the HTML report and comments on the PR. Never runs the PR's code: the
+#                .NET SDK only reads it (Roslyn and the Razor generator), MSBuild never evaluates your projects, and
+#                packages are not restored there (restore evaluates the PR's project files, and this job can write to
+#                the PR). Without packages, calls on package types fall back conservatively (more reach, never less).
 #
 # Every push to a pull request that is ready for review posts a new comment: a link that opens the HTML report in the
 # browser, and after a push a second report with only the commits since the previous push.
@@ -25,8 +27,100 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  farol:
+  tests:
     if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: ${{ hashFiles('global.json') != '' && 'global.json' || '' }}
+          dotnet-version: ${{ hashFiles('global.json') == '' && '10.0.x' || '' }}
+
+      - run: dotnet restore
+
+      # One SARIF file per project (a referenced project is built first, so each file keeps its own project's results),
+      # then merged. The .NET security rules (CA2100, CA3xxx, CA5xxx) are reported as security findings.
+      - name: Build with the analyzers (SARIF)
+        run: |
+          mkdir -p reports/sarif
+          for project in $(git ls-files '*.csproj'); do
+            dotnet build "$project" --no-restore -p:TreatWarningsAsErrors=false -p:ErrorLog="$PWD/reports/sarif/$(basename "$project").sarif%2Cversion=2.1"
+          done
+          jq -s '{version: "2.1.0", runs: [.[].runs[]]}' reports/sarif/*.sarif > reports/lint.sarif
+
+      - name: Tests with coverage (Cobertura)
+        if: ${{ !cancelled() }}
+        run: |
+          dotnet test --no-build --collect "XPlat Code Coverage" --results-directory reports/coverage
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          reportgenerator -reports:"reports/coverage/**/coverage.cobertura.xml" -targetdir:reports -reporttypes:Cobertura
+
+      - name: Vulnerable packages
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: dotnet list package --vulnerable --include-transitive --format json > reports/audit.json
+
+      # A failing test run still has a coverage report: farol shows it either way.
+      - name: Keep the reports for farol
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: farol-reports-${{ github.run_id }}
+          path: |
+            reports/Cobertura.xml
+            reports/lint.sarif
+            reports/audit.json
+          if-no-files-found: ignore
+
+  farol-usage:
+    if: github.event.pull_request.draft == false && vars.FAROL_DATADOG == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Day of the cache
+        id: day
+        run: echo "day=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: farol-usage/usage.json
+          key: farol-usage-${{ steps.day.outputs.day }}-${{ hashFiles('farol.config.json') }}
+      - uses: actions/setup-node@v4
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          node-version: 22
+      - name: farol usage
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: winnin/farol/action@main
+        with:
+          command: usage
+          out: farol-usage/usage.json
+        env:
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: farol-usage-${{ github.run_id }}
+          path: farol-usage/usage.json
+
+  farol:
+    needs: [tests, farol-usage]
+    # After the tests whatever their result, never on drafts.
+    if: ${{ !cancelled() && github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     # Shadow mode: nothing here can fail CI or block the pull request.
     continue-on-error: true
@@ -58,6 +152,14 @@ jobs:
           key: farol-helper-${{ runner.os }}-${{ github.event.pull_request.base.sha }}
           restore-keys: farol-helper-${{ runner.os }}-
 
+      - name: Reports of the other jobs
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: '{farol-reports,farol-usage}-${{ github.run_id }}'
+          path: reports
+          merge-multiple: true
+
       # After a push, also the commits since the previous head of the pull request.
       - name: Previous push
         id: since
@@ -75,6 +177,10 @@ jobs:
           command: analyze
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.event.pull_request.head.sha }}
+          coverage: ${{ hashFiles('reports/Cobertura.xml') != '' && 'reports/Cobertura.xml' || '' }}
+          eslint: ${{ hashFiles('reports/lint.sarif') != '' && 'reports/lint.sarif' || '' }}
+          audit: ${{ hashFiles('reports/audit.json') != '' && 'reports/audit.json' || '' }}
+          usage: ${{ hashFiles('reports/usage.json') != '' && 'reports/usage.json' || '' }}
           out: farol.json
 
       - name: farol analyze (since the last push)
@@ -85,6 +191,9 @@ jobs:
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.event.pull_request.head.sha }}
           since: ${{ steps.since.outputs.sha }}
+          coverage: ${{ hashFiles('reports/Cobertura.xml') != '' && 'reports/Cobertura.xml' || '' }}
+          eslint: ${{ hashFiles('reports/lint.sarif') != '' && 'reports/lint.sarif' || '' }}
+          audit: ${{ hashFiles('reports/audit.json') != '' && 'reports/audit.json' || '' }}
           out: farol-since.json
 
       - name: farol reviewers

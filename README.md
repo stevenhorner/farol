@@ -287,23 +287,29 @@ npx @winninjs/farol analyze --base origin/main --head HEAD \
 
 ### C#/.NET solution
 
-ASP.NET Core MVC and Web API controllers (conventional and attribute routes, areas), minimal APIs with route groups,
-background services, Razor views by convention, and every build configuration (`#if` editions) at once. Interface calls
-reach their implementations, so dependency injection needs no setup. farol reads your code with the C# compiler of your
-.NET SDK; it never runs MSBuild or your code.
+ASP.NET Core MVC and Web API controllers (conventional and attribute routes, areas), Razor Pages, minimal APIs with
+route groups, SignalR hubs, background services, and every build configuration (`#if` editions) at once. Interface calls
+reach their implementations, so dependency injection needs no setup; views are compiled with the SDK's Razor generator,
+so a changed partial, view component or script reaches exactly the pages that render it. farol reads your code with the
+C# compiler of your .NET SDK; it never runs MSBuild or your code.
 
 ```json
 { "language": "csharp", "surface": "backend" }
 ```
 
 ```sh
-npx @winninjs/farol routes      # every action, endpoint and background service farol found
-npx @winninjs/farol analyze --base origin/main --head HEAD --out farol.json
+dotnet build -p:ErrorLog=$PWD/reports/lint.sarif%2Cversion=2.1                          # analyzers, security rules
+dotnet test --collect "XPlat Code Coverage" --results-directory reports/coverage       # Cobertura
+dotnet list package --vulnerable --include-transitive --format json > reports/audit.json
+
+npx @winninjs/farol analyze --base origin/main --head HEAD \
+  --coverage reports/coverage/<guid>/coverage.cobertura.xml --eslint reports/lint.sarif --audit reports/audit.json --out farol.json
 ```
 
-SQL scripts count as infrastructure and `wwwroot` files as client code. Coverage, lint (SARIF) and vulnerability
-reports are not read for C# yet. Background jobs started through your own scheduler: list its methods in
-`csharp.entryCalls`. **CI:** copy [`examples/workflow-csharp.yml`](examples/workflow-csharp.yml).
+SQL scripts count as infrastructure (destructive statements are security findings), `.resx` files follow the i18n rule
+and `wwwroot` files are client code. Background jobs started through your own scheduler: list its methods in
+`csharp.entryCalls`, so each job is an entry point of its own. **CI:** copy
+[`examples/workflow-csharp.yml`](examples/workflow-csharp.yml).
 
 ### Add Datadog traffic and errors
 
@@ -334,15 +340,15 @@ matching rules are in the [reference](docs/reference.md#traffic-and-errors-from-
 
 | | TypeScript / React frontends | TypeScript / JavaScript backends | Go | Python | C# / .NET |
 |---|---|---|---|---|---|
-| **Entry points** | React Router route tables (object and JSX forms, lazy routes, split route modules); Next.js Pages and App Router (pages, API routes, layouts, middleware); TanStack Router file-based routes | GraphQL root operations (schema files and `gql` templates), REST endpoints (Fastify/Express style) and command-line commands (commander, cac, yargs) | chi, gin, echo and net/http routes; gRPC service methods; `main` binaries | FastAPI and Flask routes (routers, blueprints, prefixes); Django URLs; MCP tools, resources and prompts; Celery tasks; Temporal workflows and activities; Prefect flows; `__main__` scripts | ASP.NET Core controllers (attribute and conventional routes, areas), minimal APIs (route groups), `BackgroundService`/`IHostedService`, configured scheduler calls, programs |
-| **Reach precision** | per declaration (TypeScript type checker) | per module, per resolver for GraphQL | per declaration (`go/types`, interface calls resolved to implementations) | per declaration (Python `ast` with local type inference) | per declaration (Roslyn; interface and virtual calls resolved to implementations; every build configuration; Razor views by convention) |
+| **Entry points** | React Router route tables (object and JSX forms, lazy routes, split route modules); Next.js Pages and App Router (pages, API routes, layouts, middleware); TanStack Router file-based routes | GraphQL root operations (schema files and `gql` templates), REST endpoints (Fastify/Express style) and command-line commands (commander, cac, yargs) | chi, gin, echo and net/http routes; gRPC service methods; `main` binaries | FastAPI and Flask routes (routers, blueprints, prefixes); Django URLs; MCP tools, resources and prompts; Celery tasks; Temporal workflows and activities; Prefect flows; `__main__` scripts | ASP.NET Core controllers (attribute and conventional routes, areas), Razor Pages handlers, minimal APIs (route groups), SignalR hub methods, `BackgroundService`/`IHostedService`, configured scheduler calls, programs |
+| **Reach precision** | per declaration (TypeScript type checker) | per module, per resolver for GraphQL | per declaration (`go/types`, interface calls resolved to implementations) | per declaration (Python `ast` with local type inference) | per declaration (Roslyn; interface and virtual calls resolved to implementations; every build configuration; Razor views compiled with the SDK's generator, with their layouts, partials, view components and scripts) |
 | **Contract changes** | — | GraphQL schema (breaking / dangerous / safe) | Handler request and response types (net/http, chi, gin, echo); gRPC messages | FastAPI parameters, body, response and Pydantic models | — |
 | **Dependencies** | `package.json` + npm/pnpm/yarn/bun lockfiles | same | `go.mod` + `go.sum` | `pyproject.toml` (PEP 621, extras, groups, uv, Poetry), `requirements.txt` + `uv.lock`/`poetry.lock`/`Pipfile.lock` | `.csproj` `PackageReference`, `Directory.Packages.props` + `packages.lock.json` |
-| **Diff coverage** | Istanbul `coverage-final.json` (Vitest, Jest) | same | `go test -coverprofile` | coverage.py JSON (`pytest --cov`) | not yet |
-| **Lint** | `eslint -f json` | same | golangci-lint JSON | ruff JSON | not yet (SARIF planned) |
-| **Security** | built-in rules (XSS sinks, `eval`, hard-coded secrets, `javascript:` URLs…) | same | gosec (through golangci-lint) | flake8-bandit (ruff `S` rules) | not yet |
-| **Vulnerabilities** | `npm audit --json`, `pnpm audit --json` | same | `govulncheck -json` | `pip-audit --format json` | not yet |
-| **Suppressions** | `eslint-disable`, `@ts-ignore`, `@ts-expect-error`, `as any`… | same | `//nolint`, `//lint:ignore`, `#nosec` | `# noqa`, `# type: ignore`, `# nosec`, `# pragma: no cover`… | `#pragma warning disable`, `#nullable disable`, `// ReSharper disable` |
+| **Diff coverage** | Istanbul `coverage-final.json` (Vitest, Jest) | same | `go test -coverprofile` | coverage.py JSON (`pytest --cov`) | Cobertura XML or coverlet JSON |
+| **Lint** | `eslint -f json` | same | golangci-lint JSON | ruff JSON | SARIF (Roslyn analyzers) |
+| **Security** | built-in rules (XSS sinks, `eval`, hard-coded secrets, `javascript:` URLs…) | same | gosec (through golangci-lint) | flake8-bandit (ruff `S` rules) | .NET security analyzers through SARIF; destructive SQL in `.sql` files |
+| **Vulnerabilities** | `npm audit --json`, `pnpm audit --json` | same | `govulncheck -json` | `pip-audit --format json` | `dotnet list package --vulnerable --format json` |
+| **Suppressions** | `eslint-disable`, `@ts-ignore`, `@ts-expect-error`, `as any`… | same | `//nolint`, `//lint:ignore`, `#nosec` | `# noqa`, `# type: ignore`, `# nosec`, `# pragma: no cover`… | `#pragma warning disable`, `#nullable disable`, `// ReSharper disable`, `[SuppressMessage]`, `[ExcludeFromCodeCoverage]`, the null-forgiving `!` |
 | **Traffic and errors** (optional) | Datadog RUM page views and errors | Datadog APM requests, error spans and callers | same | same | same |
 
 In every language: environment, infrastructure and CI files (`.env*`, Dockerfiles, compose, CI pipelines, helm, k8s,

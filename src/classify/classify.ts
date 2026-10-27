@@ -216,7 +216,11 @@ export function classify(input: ClassifyInput): ClassifyResult {
     }
     if (role === 'client') {
       // Scripts and styles the app serves: no helper reads them, but every page that loads them runs them.
-      reasons.push(file.status === 'added' ? reason('client-file-added', 'new client file (served to browsers)', file.path) : reason('client-file-changed', `existing client file ${file.status} (served to browsers)`, file.path))
+      // C#: a file the views link reaches the entry points that render them.
+      const loaded = file.status === 'added' ? undefined : impactOf(file.path)
+      const by = [...(loaded?.affected.keys() ?? [])]
+      reasons.push(file.status === 'added' ? reason('client-file-added', 'new client file (served to browsers)', file.path) : reason('client-file-changed', `existing client file ${file.status} (served to browsers)${by.length > 0 ? `: loaded by ${by.length} existing ${entryWord}(s): ${by.slice(0, 3).join('; ')}${by.length > 3 ? `; and ${by.length - 3} more` : ''}` : ''}`, file.path))
+      if (loaded) addImpact(file.path)
       continue
     }
     if (role === 'test') {
@@ -293,8 +297,8 @@ export function classify(input: ClassifyInput): ClassifyResult {
         const result = checkBarrelAdditive(file.path, baseText, headText)
         additive = result.additive
         for (const p of result.problems) reasons.push(reason('barrel-not-additive', p, file.path))
-      } else if (!file.path.endsWith('.json')) {
-        reasons.push(reason('i18n-not-additive', 'the i18n rule only applies to JSON files', file.path))
+      } else if (!file.path.endsWith('.json') && !file.path.endsWith('.resx')) {
+        reasons.push(reason('i18n-not-additive', 'the i18n rule only applies to JSON and .resx files', file.path))
       } else {
         try {
           const result = checkI18nAdditive(baseText, headText)

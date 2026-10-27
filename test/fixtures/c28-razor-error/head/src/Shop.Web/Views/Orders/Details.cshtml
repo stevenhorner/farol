@@ -1,0 +1,5 @@
+@model Order
+<h1>Order @Model.Id</h1>
+@{
+    var total = Model.Total;
+<p>@Model.Sku: @total</p>

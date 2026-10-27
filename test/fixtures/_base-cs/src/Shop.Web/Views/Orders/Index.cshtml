@@ -1,7 +1,8 @@
 @model IReadOnlyList<Order>
+@inject Shop.Core.Pricing.IPriceCalculator Prices
 <ul>
 @foreach (var order in Model)
 {
-    <li><a asp-action="Details" asp-route-id="@order.Id">@order.Sku</a></li>
+    <li><a asp-action="Details" asp-route-id="@order.Id">@order.Sku</a> @Prices.PriceOf(order.Sku)</li>
 }
 </ul>
