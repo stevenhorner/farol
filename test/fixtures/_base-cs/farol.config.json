@@ -1,0 +1,9 @@
+{
+  "language": "csharp",
+  "surface": "backend",
+  "csharp": {
+    "entryCalls": [
+      "Shop.Web.Jobs.Scheduler.Every"
+    ]
+  }
+}

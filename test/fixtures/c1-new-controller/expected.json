@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "surface": "backend",
+  "tool": {
+    "name": "farol",
+    "version": "<version>"
+  },
+  "repo": null,
+  "pr": null,
+  "base": {
+    "ref": "main",
+    "sha": "<base>"
+  },
+  "mergeBase": "<base>",
+  "head": {
+    "ref": "feature",
+    "sha": "<head>"
+  },
+  "analyzedAt": "2026-01-15T12:00:00.000Z",
+  "classification": "isolated",
+  "reasons": [
+    {
+      "code": "declarations-additive",
+      "file": "src/Shop.Web/Program.cs",
+      "detail": "only additions: new declarations <top-level statements> @ src/Shop.Web/Program.cs | builder.Services.AddSingleton<IShippingQuotes, FlatShippingQuotes>();"
+    },
+    {
+      "code": "route-added",
+      "detail": "new entry point GET /Shipping/Quote/{id?} (registered in src/Shop.Web/Controllers/ShippingController.cs)"
+    },
+    {
+      "code": "new-file-in-new-route",
+      "file": "src/Shop.Core/Shipping/FlatShippingQuotes.cs",
+      "detail": "reached only by new entry point(s): GET /Shipping/Quote/{id?}"
+    },
+    {
+      "code": "new-file-in-new-route",
+      "file": "src/Shop.Core/Shipping/IShippingQuotes.cs",
+      "detail": "reached only by new entry point(s): GET /Shipping/Quote/{id?}"
+    },
+    {
+      "code": "new-file-in-new-route",
+      "file": "src/Shop.Web/Controllers/ShippingController.cs",
+      "detail": "reached only by new entry point(s): GET /Shipping/Quote/{id?}"
+    },
+    {
+      "code": "new-file-in-new-route",
+      "file": "src/Shop.Web/Views/Shipping/Quote.cshtml",
+      "detail": "reached only by new entry point(s): GET /Shipping/Quote/{id?}"
+    },
+    {
+      "code": "no-existing-code-touched",
+      "detail": "the PR only adds new files, routes, exports or keys, or changes tests"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/Shop.Core/Shipping/FlatShippingQuotes.cs",
+      "status": "added",
+      "role": "source",
+      "linesAdded": 6,
+      "linesRemoved": 0
+    },
+    {
+      "path": "src/Shop.Core/Shipping/IShippingQuotes.cs",
+      "status": "added",
+      "role": "source",
+      "linesAdded": 6,
+      "linesRemoved": 0
+    },
+    {
+      "path": "src/Shop.Web/Controllers/ShippingController.cs",
+      "status": "added",
+      "role": "source",
+      "linesAdded": 10,
+      "linesRemoved": 0
+    },
+    {
+      "path": "src/Shop.Web/Program.cs",
+      "status": "modified",
+      "role": "source",
+      "linesAdded": 2,
+      "linesRemoved": 0,
+      "additive": true
+    },
+    {
+      "path": "src/Shop.Web/Views/Shipping/Quote.cshtml",
+      "status": "added",
+      "role": "source",
+      "linesAdded": 2,
+      "linesRemoved": 0
+    }
+  ],
+  "ignoredFiles": [],
+  "dependencies": {
+    "manifests": [],
+    "lockfiles": [],
+    "changes": [],
+    "summary": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "patch": 0,
+      "added": 0,
+      "removed": 0
+    }
+  },
+  "risk": {
+    "totalPages": 20,
+    "files": [
+      {
+        "path": "src/Shop.Core/Shipping/IShippingQuotes.cs",
+        "change": "added",
+        "level": "low",
+        "directImporters": 2,
+        "transitiveDependents": 2,
+        "centrality": 0.043,
+        "pagesReached": 0,
+        "routesReached": 0,
+        "why": "new code not used by existing operations"
+      },
+      {
+        "path": "src/Shop.Core/Shipping/FlatShippingQuotes.cs",
+        "change": "added",
+        "level": "low",
+        "directImporters": 1,
+        "transitiveDependents": 1,
+        "centrality": 0.022,
+        "pagesReached": 0,
+        "routesReached": 0,
+        "why": "new code not used by existing operations"
+      },
+      {
+        "path": "src/Shop.Web/Views/Shipping/Quote.cshtml",
+        "change": "added",
+        "level": "low",
+        "directImporters": 1,
+        "transitiveDependents": 1,
+        "centrality": 0.022,
+        "pagesReached": 0,
+        "routesReached": 0,
+        "why": "new code not used by existing operations"
+      },
+      {
+        "path": "src/Shop.Web/Controllers/ShippingController.cs",
+        "change": "added",
+        "level": "low",
+        "directImporters": 0,
+        "transitiveDependents": 0,
+        "centrality": 0,
+        "pagesReached": 0,
+        "routesReached": 0,
+        "why": "new code not used by existing operations"
+      },
+      {
+        "path": "src/Shop.Web/Program.cs",
+        "change": "additive",
+        "level": "low",
+        "directImporters": 0,
+        "transitiveDependents": 0,
+        "centrality": 0,
+        "pagesReached": 0,
+        "routesReached": 0,
+        "why": "additive change: nothing that existed changed"
+      }
+    ],
+    "summary": {
+      "high": 0,
+      "medium": 0,
+      "low": 5
+    }
+  },
+  "routes": {
+    "added": [
+      {
+        "key": "GET /Shipping/Quote/{id?}",
+        "path": "GET /Shipping/Quote/{id?}",
+        "entry": "src/Shop.Web/Controllers/ShippingController.cs",
+        "hasChildren": false
+      }
+    ],
+    "affected": [],
+    "disconnectedNewFiles": []
+  },
+  "signals": {
+    "coverage": {
+      "status": "not-provided",
+      "message": "no coverage report given (--coverage or signals.coverage)",
+      "files": [],
+      "total": null,
+      "ignoredFiles": []
+    },
+    "lint": {
+      "status": "not-provided",
+      "message": "no SARIF report given (--eslint or signals.eslint)",
+      "changedLines": null,
+      "otherLines": null,
+      "findings": [],
+      "omittedFindings": 0
+    },
+    "security": {
+      "status": "not-provided",
+      "findings": [],
+      "summary": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "message": "C# files are checked by the .NET security analyzers (CA2100, CA3xxx, CA5xxx) or Security Code Scan: give their SARIF report as the lint report"
+    },
+    "vulnerabilities": {
+      "status": "not-provided",
+      "message": "no audit report given (--audit or signals.audit)",
+      "related": [],
+      "total": null
+    },
+    "suppressions": {
+      "status": "ok",
+      "items": []
+    },
+    "testsModified": {
+      "status": "ok",
+      "files": []
+    }
+  },
+  "diagnostics": {
+    "unresolvedImports": [],
+    "dynamicRoutes": [],
+    "parseErrors": [],
+    "timingsMs": {
+      "diff": 0,
+      "helperSetup": 0,
+      "helperRead": 0,
+      "base": 0,
+      "classify": 0,
+      "signals": 0,
+      "diffs": 0
+    },
+    "error": null
+  },
+  "review": null,
+  "contracts": {
+    "readable": 7,
+    "entries": [],
+    "summary": {
+      "breaking": 0,
+      "dangerous": 0,
+      "safe": 0
+    }
+  }
+}

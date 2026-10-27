@@ -15,9 +15,12 @@ import { computeSignals, computeUsage, type SignalInputs } from './signals.js'
 import { backendImpacts } from './backend.js'
 import type { Context } from './context.js'
 import { createDiskFileSystem } from './disk-fs.js'
-import { defaultCacheDir, loadLangWorkspace, readToml } from './lang-workspace.js'
+import { defaultCacheDir, loadLangWorkspace, readCsXml, readToml } from './lang-workspace.js'
+import { coberturaAsJson, resxAsJson, testOnlyBuildFiles } from './csharp-inputs.js'
+import { diffNuGet } from '../dotnet/nuget.js'
 import { diffPyproject, diffRequirementsTxt } from '../python/pyproject.js'
 import { UsageError } from '../config/load.js'
+import { isHelperLanguage, isHelperSource } from '../config/languages.js'
 import { EXIT_FAILURE, EXIT_OK, writeStdout } from './run.js'
 import { createAnalysisRoleOf, createIgnoreOf, extractRoutes, filesUnder, loadWorkspace, SOURCE_EXTENSIONS, type Workspace } from './workspace.js'
 import { diffManifest, ManifestParseError, type ManifestDiff } from '../classify/dependencies.js'
@@ -134,6 +137,7 @@ async function manifestDiffs(ctx: Context, files: readonly ChangedFile[], roleOf
       const name = posix.basename(f.path)
       if (name === 'pyproject.toml') return diffPyproject(f.path, before === null ? null : await parseToml(before), after === null ? null : await parseToml(after))
       if (name === 'requirements.txt') return diffRequirementsTxt(f.path, before, after)
+      if (name.endsWith('.csproj') || name === 'Directory.Packages.props') return diffNuGet(f.path, before === null ? null : await parseCsManifest(before), after === null ? null : await parseCsManifest(after))
       return (name === 'go.mod' ? diffGoMod : diffManifest)(f.path, before, after)
     } catch (error) {
       if (error instanceof ManifestParseError) return { manifest: f.path, error: error.message }
@@ -149,6 +153,16 @@ async function parseToml(text: string): Promise<unknown> {
   } catch (error) {
     if (error instanceof UsageError) throw error
     throw new ManifestParseError(`invalid TOML: ${(error instanceof Error ? error.message : String(error)).split('\n').slice(-1)[0] ?? ''}`)
+  }
+}
+
+/** A project file parsed by the C# helper; XML it rejects is a parse error of the manifest. */
+async function parseCsManifest(text: string): Promise<unknown> {
+  try {
+    return await readCsXml('manifest', text)
+  } catch (error) {
+    if (error instanceof UsageError) throw error
+    throw new ManifestParseError((error instanceof Error ? error.message : String(error)).split('\n').slice(-1)[0]?.replace(/^.*cshelper: /, '') ?? 'invalid project file')
   }
 }
 
@@ -203,23 +217,31 @@ export async function runAnalyze(ctx: Context, options: AnalyzeOptions, deps: An
     let lang: SignalInputs['lang']
     let headRoutes: RouteTable
     let contracts: Output['contracts']
-    if (ctx.config.language !== 'typescript') {
+    const { language } = ctx.config
+    if (isHelperLanguage(language)) {
       const baseRole = createAnalysisRoleOf(ctx, [])
-      const ext = ctx.config.language === 'go' ? '.go' : '.py'
       const cache = options.cache === false ? null : resolve(options.cacheDir ?? defaultCacheDir(deps.env))
-      const langWs = await loadLangWorkspace(ctx, files, mb, meta.head.sha, (p) => p.endsWith(ext) && baseRole(p) === 'source', wsTimings, deps.clock, cache)
+      // C#: client files (wwwroot) the views link are declarations too, reached through the views that load them.
+      const langWs = await loadLangWorkspace(ctx, files, mb, meta.head.sha, (p) => (isHelperSource(language, p) && baseRole(p) === 'source') || (language === 'csharp' && baseRole(p) === 'client'), wsTimings, deps.clock, cache)
       Object.assign(timings, wsTimings)
       t = deps.clock()
       roleOf = createAnalysisRoleOf(ctx, langWs.graph.nodes)
+      if (language === 'csharp') {
+        // MSBuild settings that only test projects import are test files, like a test project's .csproj.
+        const testOnly = await testOnlyBuildFiles(ctx, files, roleOf, mb, meta.head.sha)
+        const repoRole = roleOf
+        roleOf = (path) => (testOnly.has(path) ? 'test' : repoRole(path))
+      }
       const manifests = await manifestDiffs(ctx, files, roleOf, mb, meta.head.sha)
       const headContents = await readFiles(ctx.repoRoot, meta.head.sha, files.filter((f) => f.status !== 'deleted').map((f) => f.path))
       readHead = (path) => headContents.get(path)
-      lang = { language: ctx.config.language, module: langWs.head.module, comments: langWs.head.comments }
+      lang = { language, module: langWs.head.module, comments: langWs.head.comments }
       headRoutes = langWs.headRoutes
       const helperContracts = helperContractChanges(langWs.base, langWs.head)
       contracts = contractsSection(helperContracts.changes, helperContracts.readable)
       lap('base')
-      result = classify({ files, roleOf, manifests, backend: { impacts: langWs.impacts }, graph: langWs.graph, routesFile: '', headRoutes: langWs.headRoutes, baseRoutes: langWs.baseRoutes, baseText: new Map(), headText: new Map() })
+      const resx = language === 'csharp' ? await resxAsJson(ctx, files, roleOf, mb, meta.head.sha) : { base: new Map<string, string>(), head: new Map<string, string>() }
+      result = classify({ files, roleOf, manifests, backend: { impacts: langWs.impacts }, graph: langWs.graph, routesFile: '', headRoutes: langWs.headRoutes, baseRoutes: langWs.baseRoutes, baseText: resx.base, headText: resx.head })
     } else {
       const ws = await loadWorkspace(ctx, meta.head.sha, wsTimings, deps.clock)
       headRoutes = ws.routes
@@ -266,7 +288,7 @@ export async function runAnalyze(ctx: Context, options: AnalyzeOptions, deps: An
       files,
       roleOf,
       // Flags are relative to the current directory, configuration paths to the project directory.
-      coverage: reportPath(ctx, options.coverage, ctx.config.signals.coverage),
+      coverage: ctx.config.language === 'csharp' ? await coberturaAsJson(reportPath(ctx, options.coverage, ctx.config.signals.coverage)) : reportPath(ctx, options.coverage, ctx.config.signals.coverage),
       eslint: reportPath(ctx, options.eslint, ctx.config.signals.eslint),
       readHead,
       ...(lang ? { lang } : {}),
@@ -287,7 +309,7 @@ export async function runAnalyze(ctx: Context, options: AnalyzeOptions, deps: An
     if (contracts) meta.contracts = contracts
     lap('signals')
     // Inline diffs for the report: code files, riskiest first (the risk table order), then the others.
-    const codeRoles = new Set(['source', 'resolvers', 'schema', 'routes', 'barrel', 'i18n', 'global', 'infra'])
+    const codeRoles = new Set(['source', 'resolvers', 'schema', 'routes', 'barrel', 'i18n', 'global', 'infra', 'client'])
     const shown = result.files.filter((f) => codeRoles.has(f.role) && !files.find((c) => c.path === f.path)?.binary).map((f) => f.path)
     const order = [...result.risk.files.map((f) => f.path).filter((p) => shown.includes(p)), ...shown.filter((p) => !result.risk.files.some((f) => f.path === p))]
     meta.diffs = limitDiffs(await contextDiff(ctx.repoRoot, mb, meta.head.sha, order), order)

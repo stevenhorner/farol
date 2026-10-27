@@ -1,4 +1,4 @@
-/* farol report, in the browser: syntax highlighting of diff lines (TypeScript/JavaScript, Go, Python, GraphQL). A
+/* farol report, in the browser: syntax highlighting of diff lines (TypeScript/JavaScript, Go, Python, C#, GraphQL). A
  * small line tokenizer, no library: comments, strings, keywords, literals, numbers, types and calls. An open block
  * comment or multi-line string carries over to the next line. Loaded before wb-core.js, which uses highlightLine. */
 const HL_WORDS = (s) => new Set(s.split(' '))
@@ -18,13 +18,18 @@ const HL_LANGS = {
     lit: HL_WORDS('True False None self cls'),
     line: '#', block: null, quotes: '"\'', multi: '', triple: true, deco: true,
   },
+  cs: {
+    kw: HL_WORDS('abstract as async await base bool break byte case catch char checked class const continue decimal default delegate do double else enum event explicit extern finally fixed float for foreach goto if implicit in int interface internal is lock long namespace new object operator out override params private protected public readonly record ref return sbyte sealed short sizeof stackalloc static string struct switch throw try typeof uint ulong unchecked unsafe ushort using var virtual void volatile when where while with yield get set init init required file partial global nameof'),
+    lit: HL_WORDS('true false null this value'),
+    line: '//', block: ['/*', '*/'], quotes: '"\'', multi: '',
+  },
   gql: {
     kw: HL_WORDS('query mutation subscription fragment on type input enum interface union scalar schema extend implements directive'),
     lit: HL_WORDS('true false null'),
     line: '#', block: null, quotes: '"', multi: '', triple: true,
   },
 }
-const HL_EXT = { ts: 'js', tsx: 'js', mts: 'js', cts: 'js', js: 'js', jsx: 'js', mjs: 'js', cjs: 'js', go: 'go', py: 'py', graphql: 'gql', gql: 'gql' }
+const HL_EXT = { ts: 'js', tsx: 'js', mts: 'js', cts: 'js', js: 'js', jsx: 'js', mjs: 'js', cjs: 'js', go: 'go', py: 'py', cs: 'cs', cshtml: 'cs', graphql: 'gql', gql: 'gql' }
 /** The tokenizer of a file, by its extension, or null (shown as plain text). */
 const langOf = (path) => HL_LANGS[HL_EXT[(path ?? '').split('.').pop()]] ?? null
 

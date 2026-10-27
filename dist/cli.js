@@ -16360,8 +16360,8 @@ ${lanes.join("\n")}
       function isScopeMarker(node2) {
         return isExportAssignment(node2) || isExportDeclaration(node2);
       }
-      function hasScopeMarker(statements) {
-        return some(statements, isScopeMarker);
+      function hasScopeMarker(statements2) {
+        return some(statements2, isScopeMarker);
       }
       function needsScopeMarker(result) {
         return !isAnyImportOrReExport(result) && !isExportAssignment(result) && !hasSyntacticModifier(
@@ -28457,12 +28457,12 @@ ${lanes.join("\n")}
           node2.transformFlags |= 1024;
           return node2;
         }
-        function createBlock(statements, multiLine) {
+        function createBlock(statements2, multiLine) {
           const node2 = createBaseNode(
             242
             /* Block */
           );
-          node2.statements = createNodeArray(statements);
+          node2.statements = createNodeArray(statements2);
           node2.multiLine = multiLine;
           node2.transformFlags |= propagateChildrenFlags(node2.statements);
           node2.jsDoc = void 0;
@@ -28470,8 +28470,8 @@ ${lanes.join("\n")}
           node2.nextContainer = void 0;
           return node2;
         }
-        function updateBlock(node2, statements) {
-          return node2.statements !== statements ? update(createBlock(statements, node2.multiLine), node2) : node2;
+        function updateBlock(node2, statements2) {
+          return node2.statements !== statements2 ? update(createBlock(statements2, node2.multiLine), node2) : node2;
         }
         function createVariableStatement(modifiers, declarationList) {
           const node2 = createBaseNode(
@@ -28915,18 +28915,18 @@ ${lanes.join("\n")}
         function updateModuleDeclaration(node2, modifiers, name, body) {
           return node2.modifiers !== modifiers || node2.name !== name || node2.body !== body ? update(createModuleDeclaration(modifiers, name, body, node2.flags), node2) : node2;
         }
-        function createModuleBlock(statements) {
+        function createModuleBlock(statements2) {
           const node2 = createBaseNode(
             269
             /* ModuleBlock */
           );
-          node2.statements = createNodeArray(statements);
+          node2.statements = createNodeArray(statements2);
           node2.transformFlags |= propagateChildrenFlags(node2.statements);
           node2.jsDoc = void 0;
           return node2;
         }
-        function updateModuleBlock(node2, statements) {
-          return node2.statements !== statements ? update(createModuleBlock(statements), node2) : node2;
+        function updateModuleBlock(node2, statements2) {
+          return node2.statements !== statements2 ? update(createModuleBlock(statements2), node2) : node2;
         }
         function createCaseBlock(clauses) {
           const node2 = createBaseNode(
@@ -29717,31 +29717,31 @@ ${lanes.join("\n")}
         function updateJsxNamespacedName(node2, namespace, name) {
           return node2.namespace !== namespace || node2.name !== name ? update(createJsxNamespacedName(namespace, name), node2) : node2;
         }
-        function createCaseClause(expression, statements) {
+        function createCaseClause(expression, statements2) {
           const node2 = createBaseNode(
             297
             /* CaseClause */
           );
           node2.expression = parenthesizerRules().parenthesizeExpressionForDisallowedComma(expression);
-          node2.statements = createNodeArray(statements);
+          node2.statements = createNodeArray(statements2);
           node2.transformFlags |= propagateChildFlags(node2.expression) | propagateChildrenFlags(node2.statements);
           node2.jsDoc = void 0;
           return node2;
         }
-        function updateCaseClause(node2, expression, statements) {
-          return node2.expression !== expression || node2.statements !== statements ? update(createCaseClause(expression, statements), node2) : node2;
+        function updateCaseClause(node2, expression, statements2) {
+          return node2.expression !== expression || node2.statements !== statements2 ? update(createCaseClause(expression, statements2), node2) : node2;
         }
-        function createDefaultClause(statements) {
+        function createDefaultClause(statements2) {
           const node2 = createBaseNode(
             298
             /* DefaultClause */
           );
-          node2.statements = createNodeArray(statements);
+          node2.statements = createNodeArray(statements2);
           node2.transformFlags = propagateChildrenFlags(node2.statements);
           return node2;
         }
-        function updateDefaultClause(node2, statements) {
-          return node2.statements !== statements ? update(createDefaultClause(statements), node2) : node2;
+        function updateDefaultClause(node2, statements2) {
+          return node2.statements !== statements2 ? update(createDefaultClause(statements2), node2) : node2;
         }
         function createHeritageClause(token, types) {
           const node2 = createBaseNode(
@@ -29860,12 +29860,12 @@ ${lanes.join("\n")}
         function updateEnumMember(node2, name, initializer3) {
           return node2.name !== name || node2.initializer !== initializer3 ? update(createEnumMember(name, initializer3), node2) : node2;
         }
-        function createSourceFile2(statements, endOfFileToken, flags2) {
+        function createSourceFile2(statements2, endOfFileToken, flags2) {
           const node2 = baseFactory2.createBaseSourceFileNode(
             308
             /* SourceFile */
           );
-          node2.statements = createNodeArray(statements);
+          node2.statements = createNodeArray(statements2);
           node2.endOfFileToken = endOfFileToken;
           node2.flags |= flags2;
           node2.text = "";
@@ -29966,9 +29966,9 @@ ${lanes.join("\n")}
           setOriginal(node2, source);
           return node2;
         }
-        function cloneSourceFileWithChanges(source, statements, isDeclarationFile, referencedFiles, typeReferences, hasNoDefaultLib, libReferences) {
+        function cloneSourceFileWithChanges(source, statements2, isDeclarationFile, referencedFiles, typeReferences, hasNoDefaultLib, libReferences) {
           const node2 = cloneSourceFile(source);
-          node2.statements = createNodeArray(statements);
+          node2.statements = createNodeArray(statements2);
           node2.isDeclarationFile = isDeclarationFile;
           node2.referencedFiles = referencedFiles;
           node2.typeReferenceDirectives = typeReferences;
@@ -29977,10 +29977,10 @@ ${lanes.join("\n")}
           node2.transformFlags = propagateChildrenFlags(node2.statements) | propagateChildFlags(node2.endOfFileToken);
           return node2;
         }
-        function updateSourceFile2(node2, statements, isDeclarationFile = node2.isDeclarationFile, referencedFiles = node2.referencedFiles, typeReferenceDirectives = node2.typeReferenceDirectives, _hasNoDefaultLib = false, libReferenceDirectives = node2.libReferenceDirectives) {
-          return node2.statements !== statements || node2.isDeclarationFile !== isDeclarationFile || node2.referencedFiles !== referencedFiles || node2.typeReferenceDirectives !== typeReferenceDirectives || node2.libReferenceDirectives !== libReferenceDirectives ? update(cloneSourceFileWithChanges(
+        function updateSourceFile2(node2, statements2, isDeclarationFile = node2.isDeclarationFile, referencedFiles = node2.referencedFiles, typeReferenceDirectives = node2.typeReferenceDirectives, _hasNoDefaultLib = false, libReferenceDirectives = node2.libReferenceDirectives) {
+          return node2.statements !== statements2 || node2.isDeclarationFile !== isDeclarationFile || node2.referencedFiles !== referencedFiles || node2.typeReferenceDirectives !== typeReferenceDirectives || node2.libReferenceDirectives !== libReferenceDirectives ? update(cloneSourceFileWithChanges(
             node2,
-            statements,
+            statements2,
             isDeclarationFile,
             referencedFiles,
             typeReferenceDirectives,
@@ -30152,7 +30152,7 @@ ${lanes.join("\n")}
           }
           return clone22;
         }
-        function createImmediatelyInvokedFunctionExpression(statements, param, paramValue) {
+        function createImmediatelyInvokedFunctionExpression(statements2, param, paramValue) {
           return createCallExpression(
             createFunctionExpression(
               /*modifiers*/
@@ -30168,7 +30168,7 @@ ${lanes.join("\n")}
               /*type*/
               void 0,
               createBlock(
-                statements,
+                statements2,
                 /*multiLine*/
                 true
               )
@@ -30179,7 +30179,7 @@ ${lanes.join("\n")}
             paramValue ? [paramValue] : []
           );
         }
-        function createImmediatelyInvokedArrowFunction(statements, param, paramValue) {
+        function createImmediatelyInvokedArrowFunction(statements2, param, paramValue) {
           return createCallExpression(
             createArrowFunction(
               /*modifiers*/
@@ -30193,7 +30193,7 @@ ${lanes.join("\n")}
               /*equalsGreaterThanToken*/
               void 0,
               createBlock(
-                statements,
+                statements2,
                 /*multiLine*/
                 true
               )
@@ -30576,12 +30576,12 @@ ${lanes.join("\n")}
           }
           return statementOffset;
         }
-        function ensureUseStrict(statements) {
-          const foundUseStrict = findUseStrictPrologue(statements);
+        function ensureUseStrict(statements2) {
+          const foundUseStrict = findUseStrictPrologue(statements2);
           if (!foundUseStrict) {
-            return setTextRange(createNodeArray([createUseStrictPrologue(), ...statements]), statements);
+            return setTextRange(createNodeArray([createUseStrictPrologue(), ...statements2]), statements2);
           }
-          return statements;
+          return statements2;
         }
         function liftToBlock(nodes) {
           Debug.assert(every(nodes, isStatementOrBlock), "Cannot lift nodes to a Block.");
@@ -30594,19 +30594,19 @@ ${lanes.join("\n")}
           }
           return i;
         }
-        function mergeLexicalEnvironment(statements, declarations) {
+        function mergeLexicalEnvironment(statements2, declarations) {
           if (!some(declarations)) {
-            return statements;
+            return statements2;
           }
-          const leftStandardPrologueEnd = findSpanEnd(statements, isPrologueDirective, 0);
-          const leftHoistedFunctionsEnd = findSpanEnd(statements, isHoistedFunction, leftStandardPrologueEnd);
-          const leftHoistedVariablesEnd = findSpanEnd(statements, isHoistedVariableStatement, leftHoistedFunctionsEnd);
+          const leftStandardPrologueEnd = findSpanEnd(statements2, isPrologueDirective, 0);
+          const leftHoistedFunctionsEnd = findSpanEnd(statements2, isHoistedFunction, leftStandardPrologueEnd);
+          const leftHoistedVariablesEnd = findSpanEnd(statements2, isHoistedVariableStatement, leftHoistedFunctionsEnd);
           const rightStandardPrologueEnd = findSpanEnd(declarations, isPrologueDirective, 0);
           const rightHoistedFunctionsEnd = findSpanEnd(declarations, isHoistedFunction, rightStandardPrologueEnd);
           const rightHoistedVariablesEnd = findSpanEnd(declarations, isHoistedVariableStatement, rightHoistedFunctionsEnd);
           const rightCustomPrologueEnd = findSpanEnd(declarations, isCustomPrologue, rightHoistedVariablesEnd);
           Debug.assert(rightCustomPrologueEnd === declarations.length, "Expected declarations to be valid standard or custom prologues");
-          const left = isNodeArray(statements) ? statements.slice() : statements;
+          const left = isNodeArray(statements2) ? statements2.slice() : statements2;
           if (rightCustomPrologueEnd > rightHoistedVariablesEnd) {
             left.splice(leftHoistedVariablesEnd, 0, ...declarations.slice(rightHoistedVariablesEnd, rightCustomPrologueEnd));
           }
@@ -30622,7 +30622,7 @@ ${lanes.join("\n")}
             } else {
               const leftPrologues = /* @__PURE__ */ new Map();
               for (let i = 0; i < leftStandardPrologueEnd; i++) {
-                const leftPrologue = statements[i];
+                const leftPrologue = statements2[i];
                 leftPrologues.set(leftPrologue.expression.text, true);
               }
               for (let i = rightStandardPrologueEnd - 1; i >= 0; i--) {
@@ -30633,10 +30633,10 @@ ${lanes.join("\n")}
               }
             }
           }
-          if (isNodeArray(statements)) {
-            return setTextRange(createNodeArray(left, statements.hasTrailingComma), statements);
+          if (isNodeArray(statements2)) {
+            return setTextRange(createNodeArray(left, statements2.hasTrailingComma), statements2);
           }
-          return statements;
+          return statements2;
         }
         function replaceModifiers(node2, modifiers) {
           let modifierArray;
@@ -33384,8 +33384,8 @@ ${lanes.join("\n")}
       function isUseStrictPrologue(node2) {
         return isStringLiteral(node2.expression) && node2.expression.text === "use strict";
       }
-      function findUseStrictPrologue(statements) {
-        for (const statement of statements) {
+      function findUseStrictPrologue(statements2) {
+        for (const statement of statements2) {
           if (isPrologueDirective(statement)) {
             if (isUseStrictPrologue(statement)) {
               return statement;
@@ -33396,8 +33396,8 @@ ${lanes.join("\n")}
         }
         return void 0;
       }
-      function startsWithUseStrict(statements) {
-        const firstStatement = firstOrUndefined(statements);
+      function startsWithUseStrict(statements2) {
+        const firstStatement = firstOrUndefined(statements2);
         return firstStatement !== void 0 && isPrologueDirective(firstStatement) && isUseStrictPrologue(firstStatement);
       }
       function isCommaExpression(node2) {
@@ -35484,9 +35484,9 @@ ${lanes.join("\n")}
           sourceFlags = contextFlags;
           nextToken();
           const pos = getNodePos();
-          let statements, endOfFileToken;
+          let statements2, endOfFileToken;
           if (token() === 1) {
-            statements = createNodeArray([], pos, pos);
+            statements2 = createNodeArray([], pos, pos);
             endOfFileToken = parseTokenNode();
           } else {
             let expressions;
@@ -35539,7 +35539,7 @@ ${lanes.join("\n")}
             const expression = isArray(expressions) ? finishNode(factoryCreateArrayLiteralExpression(expressions), pos) : Debug.checkDefined(expressions);
             const statement = factoryCreateExpressionStatement(expression);
             finishNode(statement, pos);
-            statements = createNodeArray([statement], pos);
+            statements2 = createNodeArray([statement], pos);
             endOfFileToken = parseExpectedToken(1, Diagnostics.Unexpected_token);
           }
           const sourceFile = createSourceFile2(
@@ -35548,7 +35548,7 @@ ${lanes.join("\n")}
             6,
             /*isDeclarationFile*/
             false,
-            statements,
+            statements2,
             endOfFileToken,
             sourceFlags,
             noop
@@ -35639,14 +35639,14 @@ ${lanes.join("\n")}
           }
           sourceFlags = contextFlags;
           nextToken();
-          const statements = parseList(0, parseStatement);
+          const statements2 = parseList(0, parseStatement);
           Debug.assert(
             token() === 1
             /* EndOfFileToken */
           );
           const endHasJSDoc = hasPrecedingJSDocComment();
           const endOfFileToken = withJSDoc(parseTokenNode(), endHasJSDoc);
-          const sourceFile = createSourceFile2(fileName, languageVersion2, scriptKind2, isDeclarationFile, statements, endOfFileToken, sourceFlags, setExternalModuleIndicator2);
+          const sourceFile = createSourceFile2(fileName, languageVersion2, scriptKind2, isDeclarationFile, statements2, endOfFileToken, sourceFlags, setExternalModuleIndicator2);
           processCommentPragmas(sourceFile, sourceText);
           processPragmasIntoFields(sourceFile, reportPragmaDiagnostic);
           sourceFile.commentDirectives = scanner2.getCommentDirectives();
@@ -35684,7 +35684,7 @@ ${lanes.join("\n")}
           const savedSyntaxCursor = syntaxCursor;
           const baseSyntaxCursor = IncrementalParser.createSyntaxCursor(sourceFile);
           syntaxCursor = { currentNode: currentNode2 };
-          const statements = [];
+          const statements2 = [];
           const savedParseDiagnostics = parseDiagnostics;
           parseDiagnostics = [];
           let pos = 0;
@@ -35692,7 +35692,7 @@ ${lanes.join("\n")}
           while (start !== -1) {
             const prevStatement = sourceFile.statements[pos];
             const nextStatement = sourceFile.statements[start];
-            addRange(statements, sourceFile.statements, pos, start);
+            addRange(statements2, sourceFile.statements, pos, start);
             pos = findNextStatementWithoutAwait(sourceFile.statements, start);
             const diagnosticStart = findIndex(savedParseDiagnostics, (diagnostic) => diagnostic.start >= prevStatement.pos);
             const diagnosticEnd = diagnosticStart >= 0 ? findIndex(savedParseDiagnostics, (diagnostic) => diagnostic.start >= nextStatement.pos, diagnosticStart) : -1;
@@ -35708,7 +35708,7 @@ ${lanes.join("\n")}
                 while (token() !== 1) {
                   const startPos = scanner2.getTokenFullStart();
                   const statement = parseListElement(0, parseStatement);
-                  statements.push(statement);
+                  statements2.push(statement);
                   if (startPos === scanner2.getTokenFullStart()) {
                     nextToken();
                   }
@@ -35731,28 +35731,28 @@ ${lanes.join("\n")}
           }
           if (pos >= 0) {
             const prevStatement = sourceFile.statements[pos];
-            addRange(statements, sourceFile.statements, pos);
+            addRange(statements2, sourceFile.statements, pos);
             const diagnosticStart = findIndex(savedParseDiagnostics, (diagnostic) => diagnostic.start >= prevStatement.pos);
             if (diagnosticStart >= 0) {
               addRange(parseDiagnostics, savedParseDiagnostics, diagnosticStart);
             }
           }
           syntaxCursor = savedSyntaxCursor;
-          return factory2.updateSourceFile(sourceFile, setTextRange(factoryCreateNodeArray(statements), sourceFile.statements));
+          return factory2.updateSourceFile(sourceFile, setTextRange(factoryCreateNodeArray(statements2), sourceFile.statements));
           function containsPossibleTopLevelAwait(node2) {
             return !(node2.flags & 65536) && !!(node2.transformFlags & 67108864);
           }
-          function findNextStatementWithAwait(statements2, start2) {
-            for (let i = start2; i < statements2.length; i++) {
-              if (containsPossibleTopLevelAwait(statements2[i])) {
+          function findNextStatementWithAwait(statements22, start2) {
+            for (let i = start2; i < statements22.length; i++) {
+              if (containsPossibleTopLevelAwait(statements22[i])) {
                 return i;
               }
             }
             return -1;
           }
-          function findNextStatementWithoutAwait(statements2, start2) {
-            for (let i = start2; i < statements2.length; i++) {
-              if (!containsPossibleTopLevelAwait(statements2[i])) {
+          function findNextStatementWithoutAwait(statements22, start2) {
+            for (let i = start2; i < statements22.length; i++) {
+              if (!containsPossibleTopLevelAwait(statements22[i])) {
                 return i;
               }
             }
@@ -35774,8 +35774,8 @@ ${lanes.join("\n")}
           );
         }
         Parser22.fixupParentReferences = fixupParentReferences;
-        function createSourceFile2(fileName2, languageVersion2, scriptKind2, isDeclarationFile, statements, endOfFileToken, flags, setExternalModuleIndicator2) {
-          let sourceFile = factory2.createSourceFile(statements, endOfFileToken, flags);
+        function createSourceFile2(fileName2, languageVersion2, scriptKind2, isDeclarationFile, statements2, endOfFileToken, flags, setExternalModuleIndicator2) {
+          let sourceFile = factory2.createSourceFile(statements2, endOfFileToken, flags);
           setTextRangePosWidth(sourceFile, 0, sourceText.length);
           setFields(sourceFile);
           if (!isDeclarationFile && isExternalModule(sourceFile) && sourceFile.transformFlags & 67108864) {
@@ -40021,18 +40021,18 @@ ${lanes.join("\n")}
           const openBraceParsed = parseExpected(19, diagnosticMessage);
           if (openBraceParsed || ignoreMissingOpenBrace) {
             const multiLine = scanner2.hasPrecedingLineBreak();
-            const statements = parseList(1, parseStatement);
+            const statements2 = parseList(1, parseStatement);
             parseExpectedMatchingBrackets(19, 20, openBraceParsed, openBracePosition);
-            const result = withJSDoc(finishNode(factoryCreateBlock(statements, multiLine), pos), hasJSDoc);
+            const result = withJSDoc(finishNode(factoryCreateBlock(statements2, multiLine), pos), hasJSDoc);
             if (token() === 64) {
               parseErrorAtCurrentToken(Diagnostics.Declaration_or_statement_expected_This_follows_a_block_of_statements_so_if_you_intended_to_write_a_destructuring_assignment_you_might_need_to_wrap_the_whole_assignment_in_parentheses);
               nextToken();
             }
             return result;
           } else {
-            const statements = createMissingList();
+            const statements2 = createMissingList();
             return withJSDoc(finishNode(factoryCreateBlock(
-              statements,
+              statements2,
               /*multiLine*/
               void 0
             ), pos), hasJSDoc);
@@ -40261,8 +40261,8 @@ ${lanes.join("\n")}
             59
             /* ColonToken */
           );
-          const statements = parseList(3, parseStatement);
-          return withJSDoc(finishNode(factory2.createCaseClause(expression, statements), pos), hasJSDoc);
+          const statements2 = parseList(3, parseStatement);
+          return withJSDoc(finishNode(factory2.createCaseClause(expression, statements2), pos), hasJSDoc);
         }
         function parseDefaultClause() {
           const pos = getNodePos();
@@ -40274,8 +40274,8 @@ ${lanes.join("\n")}
             59
             /* ColonToken */
           );
-          const statements = parseList(3, parseStatement);
-          return finishNode(factory2.createDefaultClause(statements), pos);
+          const statements2 = parseList(3, parseStatement);
+          return finishNode(factory2.createDefaultClause(statements2), pos);
         }
         function parseCaseOrDefaultClause() {
           return token() === 84 ? parseCaseClause() : parseDefaultClause();
@@ -41547,20 +41547,20 @@ ${lanes.join("\n")}
         }
         function parseModuleBlock() {
           const pos = getNodePos();
-          let statements;
+          let statements2;
           if (parseExpected(
             19
             /* OpenBraceToken */
           )) {
-            statements = parseList(1, parseStatement);
+            statements2 = parseList(1, parseStatement);
             parseExpected(
               20
               /* CloseBraceToken */
             );
           } else {
-            statements = createMissingList();
+            statements2 = createMissingList();
           }
-          return finishNode(factory2.createModuleBlock(statements), pos);
+          return finishNode(factory2.createModuleBlock(statements2), pos);
         }
         function parseModuleOrNamespaceDeclaration(pos, hasJSDoc, modifiers, flags) {
           const namespaceFlag = flags & 32;
@@ -46436,9 +46436,9 @@ ${lanes.join("\n")}
         }
         return value;
       }
-      function parseJsonConfigFileContent(json3, host, basePath, existingOptions, configFileName, resolutionStack, extraFileExtensions, extendedConfigCache, existingWatchOptions) {
+      function parseJsonConfigFileContent(json4, host, basePath, existingOptions, configFileName, resolutionStack, extraFileExtensions, extendedConfigCache, existingWatchOptions) {
         return parseJsonConfigFileContentWorker(
-          json3,
+          json4,
           /*sourceFile*/
           void 0,
           host,
@@ -46482,10 +46482,10 @@ ${lanes.join("\n")}
         return getDirectoryPath(getNormalizedAbsolutePath(fileName, basePath));
       }
       var defaultIncludeSpec = "**/*";
-      function parseJsonConfigFileContentWorker(json3, sourceFile, host, basePath, existingOptions = {}, existingWatchOptions, configFileName, resolutionStack = [], extraFileExtensions = [], extendedConfigCache) {
-        Debug.assert(json3 === void 0 && sourceFile !== void 0 || json3 !== void 0 && sourceFile === void 0);
+      function parseJsonConfigFileContentWorker(json4, sourceFile, host, basePath, existingOptions = {}, existingWatchOptions, configFileName, resolutionStack = [], extraFileExtensions = [], extendedConfigCache) {
+        Debug.assert(json4 === void 0 && sourceFile !== void 0 || json4 !== void 0 && sourceFile === void 0);
         const errors = [];
-        const parsedConfig = parseConfig2(json3, sourceFile, host, basePath, configFileName, resolutionStack, errors, extendedConfigCache);
+        const parsedConfig = parseConfig2(json4, sourceFile, host, basePath, configFileName, resolutionStack, errors, extendedConfigCache);
         const { raw } = parsedConfig;
         const options = handleOptionConfigDirTemplateSubstitution(
           extend2(existingOptions, parsedConfig.options || {}),
@@ -46750,15 +46750,15 @@ ${lanes.join("\n")}
       function isSuccessfulParsedTsconfig(value) {
         return !!value.options;
       }
-      function parseConfig2(json3, sourceFile, host, basePath, configFileName, resolutionStack, errors, extendedConfigCache) {
+      function parseConfig2(json4, sourceFile, host, basePath, configFileName, resolutionStack, errors, extendedConfigCache) {
         var _a3;
         basePath = normalizeSlashes(basePath);
         const resolvedPath = getNormalizedAbsolutePath(configFileName || "", basePath);
         if (resolutionStack.includes(resolvedPath)) {
           errors.push(createCompilerDiagnostic(Diagnostics.Circularity_detected_while_resolving_configuration_Colon_0, [...resolutionStack, resolvedPath].join(" -> ")));
-          return { raw: json3 || convertToObject(sourceFile, errors) };
+          return { raw: json4 || convertToObject(sourceFile, errors) };
         }
-        const ownConfig = json3 ? parseOwnConfigOfJson(json3, host, basePath, configFileName, errors) : parseOwnConfigOfJsonSourceFile(sourceFile, host, basePath, configFileName, errors);
+        const ownConfig = json4 ? parseOwnConfigOfJson(json4, host, basePath, configFileName, errors) : parseOwnConfigOfJsonSourceFile(sourceFile, host, basePath, configFileName, errors);
         if ((_a3 = ownConfig.options) == null ? void 0 : _a3.paths) {
           ownConfig.options.pathsBasePath = basePath;
         }
@@ -46809,16 +46809,16 @@ ${lanes.join("\n")}
           return assign({}, result.watchOptions, watchOptions);
         }
       }
-      function parseOwnConfigOfJson(json3, host, basePath, configFileName, errors) {
-        if (hasProperty(json3, "excludes")) {
+      function parseOwnConfigOfJson(json4, host, basePath, configFileName, errors) {
+        if (hasProperty(json4, "excludes")) {
           errors.push(createCompilerDiagnostic(Diagnostics.Unknown_option_excludes_Did_you_mean_exclude));
         }
-        const options = convertCompilerOptionsFromJsonWorker(json3.compilerOptions, basePath, errors, configFileName);
-        const typeAcquisition = convertTypeAcquisitionFromJsonWorker(json3.typeAcquisition, basePath, errors, configFileName);
-        const watchOptions = convertWatchOptionsFromJsonWorker(json3.watchOptions, basePath, errors);
-        json3.compileOnSave = convertCompileOnSaveOptionFromJson(json3, basePath, errors);
-        const extendedConfigPath = json3.extends || json3.extends === "" ? getExtendsConfigPathOrArray(json3.extends, host, basePath, configFileName, errors) : void 0;
-        return { raw: json3, options, watchOptions, typeAcquisition, extendedConfigPath };
+        const options = convertCompilerOptionsFromJsonWorker(json4.compilerOptions, basePath, errors, configFileName);
+        const typeAcquisition = convertTypeAcquisitionFromJsonWorker(json4.typeAcquisition, basePath, errors, configFileName);
+        const watchOptions = convertWatchOptionsFromJsonWorker(json4.watchOptions, basePath, errors);
+        json4.compileOnSave = convertCompileOnSaveOptionFromJson(json4, basePath, errors);
+        const extendedConfigPath = json4.extends || json4.extends === "" ? getExtendsConfigPathOrArray(json4.extends, host, basePath, configFileName, errors) : void 0;
+        return { raw: json4, options, watchOptions, typeAcquisition, extendedConfigPath };
       }
       function getExtendsConfigPathOrArray(value, host, basePath, configFileName, errors, propertyAssignment, valueExpression, sourceFile) {
         let extendedConfigPath;
@@ -46864,7 +46864,7 @@ ${lanes.join("\n")}
         let extendedConfigPath;
         let rootCompilerOptions;
         const rootOptions = getTsconfigRootOptionsMap();
-        const json3 = convertConfigFileToObject(
+        const json4 = convertConfigFileToObject(
           sourceFile,
           errors,
           { rootOptions, onPropertySet }
@@ -46872,10 +46872,10 @@ ${lanes.join("\n")}
         if (!typeAcquisition) {
           typeAcquisition = getDefaultTypeAcquisition(configFileName);
         }
-        if (rootCompilerOptions && json3 && json3.compilerOptions === void 0) {
+        if (rootCompilerOptions && json4 && json4.compilerOptions === void 0) {
           errors.push(createDiagnosticForNodeInSourceFile(sourceFile, rootCompilerOptions[0], Diagnostics._0_should_be_set_inside_the_compilerOptions_object_of_the_config_json_file, getTextOfPropertyName(rootCompilerOptions[0])));
         }
-        return { raw: json3, options, watchOptions, typeAcquisition, extendedConfigPath };
+        return { raw: json4, options, watchOptions, typeAcquisition, extendedConfigPath };
         function onPropertySet(keyText, value, propertyAssignment, parentOption, option) {
           if (option && option !== extendsOptionDeclaration) value = convertJsonOption(option, value, basePath, errors, propertyAssignment, propertyAssignment.initializer, sourceFile);
           if (parentOption == null ? void 0 : parentOption.name) {
@@ -50192,9 +50192,9 @@ ${lanes.join("\n")}
         let p = specifier.parent;
         while (p) {
           if (isBlock(p) || isModuleBlock(p) || isSourceFile(p)) {
-            const statements = p.statements;
+            const statements2 = p.statements;
             let found;
-            for (const statement of statements) {
+            for (const statement of statements2) {
               if (nodeHasName(statement, name)) {
                 if (!statement.parent) {
                   setParent(statement, p);
@@ -52176,9 +52176,9 @@ ${lanes.join("\n")}
             }
           }
         }
-        function updateStrictModeStatementList(statements) {
+        function updateStrictModeStatementList(statements2) {
           if (!inStrictMode) {
-            for (const statement of statements) {
+            for (const statement of statements2) {
               if (!isPrologueDirective(statement)) {
                 return;
               }
@@ -59797,10 +59797,10 @@ ${lanes.join("\n")}
             context.typeStack.push(type.id);
             context.typeStack.push(-1);
             const table3 = createSymbolTable([symbol2]);
-            const statements = symbolTableToDeclarationStatements(table3, context);
+            const statements2 = symbolTableToDeclarationStatements(table3, context);
             context.typeStack.pop();
             context.typeStack.pop();
-            return statements;
+            return statements2;
           }
           function withContext2(enclosingDeclaration, flags, internalFlags, tracker, maximumLength, verbosityLevel, cb, out) {
             const moduleResolverHost = (tracker == null ? void 0 : tracker.moduleResolverHost) ?? createBasicNodeBuilderModuleSpecifierResolutionHost(host);
@@ -62681,12 +62681,12 @@ ${lanes.join("\n")}
               }
               return filter([getNameOfDeclaration(statement)], isIdentifierAndNotUndefined);
             }
-            function flattenExportAssignedNamespace(statements) {
-              const exportAssignment = find(statements, isExportAssignment);
-              const nsIndex = findIndex(statements, isModuleDeclaration);
-              let ns = nsIndex !== -1 ? statements[nsIndex] : void 0;
+            function flattenExportAssignedNamespace(statements2) {
+              const exportAssignment = find(statements2, isExportAssignment);
+              const nsIndex = findIndex(statements2, isModuleDeclaration);
+              let ns = nsIndex !== -1 ? statements2[nsIndex] : void 0;
               if (ns && exportAssignment && exportAssignment.isExportEquals && isIdentifier(exportAssignment.expression) && isIdentifier(ns.name) && idText(ns.name) === idText(exportAssignment.expression) && ns.body && isModuleBlock(ns.body)) {
-                const excessExports = filter(statements, (s) => !!(getEffectiveModifierFlags(s) & 32));
+                const excessExports = filter(statements2, (s) => !!(getEffectiveModifierFlags(s) & 32));
                 const name = ns.name;
                 let body = ns.body;
                 if (length(excessExports)) {
@@ -62716,9 +62716,9 @@ ${lanes.join("\n")}
                       ])
                     )
                   );
-                  statements = [...statements.slice(0, nsIndex), ns, ...statements.slice(nsIndex + 1)];
+                  statements2 = [...statements2.slice(0, nsIndex), ns, ...statements2.slice(nsIndex + 1)];
                 }
-                if (!find(statements, (s) => s !== ns && nodeHasName(s, name))) {
+                if (!find(statements2, (s) => s !== ns && nodeHasName(s, name))) {
                   results = [];
                   const mixinExportFlag = !some(body.statements, (s) => hasSyntacticModifier(
                     s,
@@ -62732,16 +62732,16 @@ ${lanes.join("\n")}
                       /* None */
                     );
                   });
-                  statements = [...filter(statements, (s) => s !== ns && s !== exportAssignment), ...results];
+                  statements2 = [...filter(statements2, (s) => s !== ns && s !== exportAssignment), ...results];
                 }
               }
-              return statements;
+              return statements2;
             }
-            function mergeExportDeclarations(statements) {
-              const exports2 = filter(statements, (d) => isExportDeclaration(d) && !d.moduleSpecifier && !!d.exportClause && isNamedExports(d.exportClause));
+            function mergeExportDeclarations(statements2) {
+              const exports2 = filter(statements2, (d) => isExportDeclaration(d) && !d.moduleSpecifier && !!d.exportClause && isNamedExports(d.exportClause));
               if (length(exports2) > 1) {
-                const nonExports = filter(statements, (d) => !isExportDeclaration(d) || !!d.moduleSpecifier || !d.exportClause);
-                statements = [
+                const nonExports = filter(statements2, (d) => !isExportDeclaration(d) || !!d.moduleSpecifier || !d.exportClause);
+                statements2 = [
                   ...nonExports,
                   factory.createExportDeclaration(
                     /*modifiers*/
@@ -62754,14 +62754,14 @@ ${lanes.join("\n")}
                   )
                 ];
               }
-              const reexports = filter(statements, (d) => isExportDeclaration(d) && !!d.moduleSpecifier && !!d.exportClause && isNamedExports(d.exportClause));
+              const reexports = filter(statements2, (d) => isExportDeclaration(d) && !!d.moduleSpecifier && !!d.exportClause && isNamedExports(d.exportClause));
               if (length(reexports) > 1) {
                 const groups = group(reexports, (decl) => isStringLiteral(decl.moduleSpecifier) ? ">" + decl.moduleSpecifier.text : ">");
                 if (groups.length !== reexports.length) {
                   for (const group2 of groups) {
                     if (group2.length > 1) {
-                      statements = [
-                        ...filter(statements, (s) => !group2.includes(s)),
+                      statements2 = [
+                        ...filter(statements2, (s) => !group2.includes(s)),
                         factory.createExportDeclaration(
                           /*modifiers*/
                           void 0,
@@ -62775,20 +62775,20 @@ ${lanes.join("\n")}
                   }
                 }
               }
-              return statements;
+              return statements2;
             }
-            function inlineExportModifiers(statements) {
-              const index = findIndex(statements, (d) => isExportDeclaration(d) && !d.moduleSpecifier && !d.attributes && !!d.exportClause && isNamedExports(d.exportClause));
+            function inlineExportModifiers(statements2) {
+              const index = findIndex(statements2, (d) => isExportDeclaration(d) && !d.moduleSpecifier && !d.attributes && !!d.exportClause && isNamedExports(d.exportClause));
               if (index >= 0) {
-                const exportDecl = statements[index];
+                const exportDecl = statements2[index];
                 const replacements = mapDefined(exportDecl.exportClause.elements, (e) => {
                   if (!e.propertyName && e.name.kind !== 11) {
                     const name = e.name;
-                    const indices = indicesOf(statements);
-                    const associatedIndices = filter(indices, (i) => nodeHasName(statements[i], name));
-                    if (length(associatedIndices) && every(associatedIndices, (i) => canHaveExportModifier(statements[i]))) {
+                    const indices = indicesOf(statements2);
+                    const associatedIndices = filter(indices, (i) => nodeHasName(statements2[i], name));
+                    if (length(associatedIndices) && every(associatedIndices, (i) => canHaveExportModifier(statements2[i]))) {
                       for (const index2 of associatedIndices) {
-                        statements[index2] = addExportModifier(statements[index2]);
+                        statements2[index2] = addExportModifier(statements2[index2]);
                       }
                       return void 0;
                     }
@@ -62796,9 +62796,9 @@ ${lanes.join("\n")}
                   return e;
                 });
                 if (!length(replacements)) {
-                  orderedRemoveItemAt(statements, index);
+                  orderedRemoveItemAt(statements2, index);
                 } else {
-                  statements[index] = factory.updateExportDeclaration(
+                  statements2[index] = factory.updateExportDeclaration(
                     exportDecl,
                     exportDecl.modifiers,
                     exportDecl.isTypeOnly,
@@ -62811,16 +62811,16 @@ ${lanes.join("\n")}
                   );
                 }
               }
-              return statements;
+              return statements2;
             }
-            function mergeRedundantStatements(statements) {
-              statements = flattenExportAssignedNamespace(statements);
-              statements = mergeExportDeclarations(statements);
-              statements = inlineExportModifiers(statements);
-              if (enclosingDeclaration && (isSourceFile(enclosingDeclaration) && isExternalOrCommonJsModule(enclosingDeclaration) || isModuleDeclaration(enclosingDeclaration)) && (!some(statements, isExternalModuleIndicator) || !hasScopeMarker(statements) && some(statements, needsScopeMarker))) {
-                statements.push(createEmptyExports(factory));
+            function mergeRedundantStatements(statements2) {
+              statements2 = flattenExportAssignedNamespace(statements2);
+              statements2 = mergeExportDeclarations(statements2);
+              statements2 = inlineExportModifiers(statements2);
+              if (enclosingDeclaration && (isSourceFile(enclosingDeclaration) && isExternalOrCommonJsModule(enclosingDeclaration) || isModuleDeclaration(enclosingDeclaration)) && (!some(statements2, isExternalModuleIndicator) || !hasScopeMarker(statements2) && some(statements2, needsScopeMarker))) {
+                statements2.push(createEmptyExports(factory));
               }
-              return statements;
+              return statements2;
             }
             function addExportModifier(node2) {
               const flags = (getEffectiveModifierFlags(node2) | 32) & ~128;
@@ -98029,12 +98029,12 @@ ${lanes.join("\n")}
           let endNode2 = node2;
           const parent2 = node2.parent;
           if (canHaveStatements(parent2)) {
-            const statements = parent2.statements;
-            const offset = statements.indexOf(node2);
+            const statements2 = parent2.statements;
+            const offset = statements2.indexOf(node2);
             if (offset >= 0) {
               let first2 = offset;
               for (let i = offset - 1; i >= 0; i--) {
-                const prevNode = statements[i];
+                const prevNode = statements2[i];
                 if (!isPotentiallyExecutableNode(prevNode) || reportedUnreachableNodes.has(prevNode) || !isSourceElementUnreachable(prevNode)) {
                   break;
                 }
@@ -98042,16 +98042,16 @@ ${lanes.join("\n")}
                 reportedUnreachableNodes.add(prevNode);
               }
               let last2 = offset;
-              for (let i = offset + 1; i < statements.length; i++) {
-                const nextNode = statements[i];
+              for (let i = offset + 1; i < statements2.length; i++) {
+                const nextNode = statements2[i];
                 if (!isPotentiallyExecutableNode(nextNode) || !isSourceElementUnreachable(nextNode)) {
                   break;
                 }
                 last2 = i;
                 reportedUnreachableNodes.add(nextNode);
               }
-              startNode2 = statements[first2];
-              endNode2 = statements[last2];
+              startNode2 = statements2[first2];
+              endNode2 = statements2[last2];
             }
           }
           const start = getTokenPosOfNode(startNode2, sourceFile);
@@ -102637,11 +102637,11 @@ ${lanes.join("\n")}
         Debug.assertEachNode(nodes, test);
         return nodes;
       }
-      function visitLexicalEnvironment(statements, visitor, context, start, ensureUseStrict, nodesVisitor = visitNodes2) {
+      function visitLexicalEnvironment(statements2, visitor, context, start, ensureUseStrict, nodesVisitor = visitNodes2) {
         context.startLexicalEnvironment();
-        statements = nodesVisitor(statements, visitor, isStatement, start);
-        if (ensureUseStrict) statements = context.factory.ensureUseStrict(statements);
-        return factory.mergeLexicalEnvironment(statements, context.endLexicalEnvironment());
+        statements2 = nodesVisitor(statements2, visitor, isStatement, start);
+        if (ensureUseStrict) statements2 = context.factory.ensureUseStrict(statements2);
+        return factory.mergeLexicalEnvironment(statements2, context.endLexicalEnvironment());
       }
       function visitParameterList(nodes, visitor, context, nodesVisitor = visitNodes2) {
         let updated;
@@ -102771,8 +102771,8 @@ ${lanes.join("\n")}
             return context.factory.createBlock(declarations);
           }
           const block2 = context.factory.converters.convertToFunctionBlock(updated);
-          const statements = factory.mergeLexicalEnvironment(block2.statements, declarations);
-          return context.factory.updateBlock(block2, statements);
+          const statements2 = factory.mergeLexicalEnvironment(block2.statements, declarations);
+          return context.factory.updateBlock(block2, statements2);
         }
         return updated;
       }
@@ -105161,9 +105161,9 @@ ${lanes.join("\n")}
         const expression = skipParentheses(statement.expression);
         return isSuperCall(expression) ? expression : void 0;
       }
-      function findSuperStatementIndexPathWorker(statements, start, indices) {
-        for (let i = start; i < statements.length; i += 1) {
-          const statement = statements[i];
+      function findSuperStatementIndexPathWorker(statements2, start, indices) {
+        for (let i = start; i < statements2.length; i += 1) {
+          const statement = statements2[i];
           if (getSuperCallFromStatement(statement)) {
             indices.unshift(i);
             return true;
@@ -105174,9 +105174,9 @@ ${lanes.join("\n")}
         }
         return false;
       }
-      function findSuperStatementIndexPath(statements, start) {
+      function findSuperStatementIndexPath(statements2, start) {
         const indices = [];
-        findSuperStatementIndexPathWorker(statements, start, indices);
+        findSuperStatementIndexPathWorker(statements2, start, indices);
         return indices;
       }
       function getProperties(node2, requireInitializer, isStatic2) {
@@ -106584,7 +106584,7 @@ ${lanes.join("\n")}
           setEmitFlags(classDeclaration, emitFlags);
           let statement;
           if (promoteToIIFE) {
-            const statements = [classDeclaration];
+            const statements2 = [classDeclaration];
             const closingBraceLocation = createTokenRange(
               skipTrivia(currentSourceFile.text, node2.members.end),
               20
@@ -106605,9 +106605,9 @@ ${lanes.join("\n")}
               3072 | 768
               /* NoTokenSourceMaps */
             );
-            statements.push(returnStatement);
-            insertStatementsAfterStandardPrologue(statements, context.endLexicalEnvironment());
-            const iife = factory2.createImmediatelyInvokedArrowFunction(statements);
+            statements2.push(returnStatement);
+            insertStatementsAfterStandardPrologue(statements2, context.endLexicalEnvironment());
+            const iife = factory2.createImmediatelyInvokedArrowFunction(statements2);
             setInternalEmitFlags(
               iife,
               1
@@ -106986,11 +106986,11 @@ ${lanes.join("\n")}
           if (!some(parametersWithPropertyAssignments)) {
             return visitFunctionBody(body, visitor, context);
           }
-          let statements = [];
+          let statements2 = [];
           resumeLexicalEnvironment();
           const prologueStatementCount = factory2.copyPrologue(
             body.statements,
-            statements,
+            statements2,
             /*ensureUseStrict*/
             false,
             visitor
@@ -106999,7 +106999,7 @@ ${lanes.join("\n")}
           const parameterPropertyAssignments = mapDefined(parametersWithPropertyAssignments, transformParameterWithPropertyAssignment);
           if (superPath.length) {
             transformConstructorBodyWorker(
-              statements,
+              statements2,
               body.statements,
               prologueStatementCount,
               superPath,
@@ -107008,12 +107008,12 @@ ${lanes.join("\n")}
               parameterPropertyAssignments
             );
           } else {
-            addRange(statements, parameterPropertyAssignments);
-            addRange(statements, visitNodes2(body.statements, visitor, isStatement, prologueStatementCount));
+            addRange(statements2, parameterPropertyAssignments);
+            addRange(statements2, visitNodes2(body.statements, visitor, isStatement, prologueStatementCount));
           }
-          statements = factory2.mergeLexicalEnvironment(statements, endLexicalEnvironment());
+          statements2 = factory2.mergeLexicalEnvironment(statements2, endLexicalEnvironment());
           const block2 = factory2.createBlock(
-            setTextRange(factory2.createNodeArray(statements), body.statements),
+            setTextRange(factory2.createNodeArray(statements2), body.statements),
             /*multiLine*/
             true
           );
@@ -107149,9 +107149,9 @@ ${lanes.join("\n")}
             visitFunctionBody(node2.body, visitor, context) || factory2.createBlock([])
           );
           if (isExportOfNamespace(node2)) {
-            const statements = [updated];
-            addExportMemberAssignment(statements, node2);
-            return statements;
+            const statements2 = [updated];
+            addExportMemberAssignment(statements2, node2);
+            return statements2;
           }
           return updated;
         }
@@ -107346,9 +107346,9 @@ ${lanes.join("\n")}
           if (!shouldEmitEnumDeclaration(node2)) {
             return factory2.createNotEmittedStatement(node2);
           }
-          const statements = [];
+          const statements2 = [];
           let emitFlags = 4;
-          const varAdded = addVarForEnumOrModuleDeclaration(statements, node2);
+          const varAdded = addVarForEnumOrModuleDeclaration(statements2, node2);
           if (varAdded) {
             if (moduleKind !== 4 || currentLexicalScope !== currentSourceFile) {
               emitFlags |= 1024;
@@ -107421,21 +107421,21 @@ ${lanes.join("\n")}
           }
           setTextRange(enumStatement, node2);
           addEmitFlags(enumStatement, emitFlags);
-          statements.push(enumStatement);
-          return statements;
+          statements2.push(enumStatement);
+          return statements2;
         }
         function transformEnumBody(node2, localName) {
           const savedCurrentNamespaceLocalName = currentNamespaceContainerName;
           currentNamespaceContainerName = localName;
-          const statements = [];
+          const statements2 = [];
           startLexicalEnvironment();
           const members3 = map2(node2.members, transformEnumMember);
-          insertStatementsAfterStandardPrologue(statements, endLexicalEnvironment());
-          addRange(statements, members3);
+          insertStatementsAfterStandardPrologue(statements2, endLexicalEnvironment());
+          addRange(statements2, members3);
           currentNamespaceContainerName = savedCurrentNamespaceLocalName;
           return factory2.createBlock(
             setTextRange(
-              factory2.createNodeArray(statements),
+              factory2.createNodeArray(statements2),
               /*location*/
               node2.members
             ),
@@ -107514,7 +107514,7 @@ ${lanes.join("\n")}
           Debug.assertNode(node2.name, isIdentifier);
           return node2.name.escapedText;
         }
-        function addVarForEnumOrModuleDeclaration(statements, node2) {
+        function addVarForEnumOrModuleDeclaration(statements2, node2) {
           const varDecl = factory2.createVariableDeclaration(factory2.getLocalName(
             node2,
             /*allowComments*/
@@ -107544,7 +107544,7 @@ ${lanes.join("\n")}
               2048
               /* NoTrailingComments */
             );
-            statements.push(statement);
+            statements2.push(statement);
             return true;
           }
           return false;
@@ -107555,9 +107555,9 @@ ${lanes.join("\n")}
           }
           Debug.assertNode(node2.name, isIdentifier, "A TypeScript namespace should have an Identifier name.");
           enableSubstitutionForNamespaceExports();
-          const statements = [];
+          const statements2 = [];
           let emitFlags = 4;
-          const varAdded = addVarForEnumOrModuleDeclaration(statements, node2);
+          const varAdded = addVarForEnumOrModuleDeclaration(statements2, node2);
           if (varAdded) {
             if (moduleKind !== 4 || currentLexicalScope !== currentSourceFile) {
               emitFlags |= 1024;
@@ -107630,8 +107630,8 @@ ${lanes.join("\n")}
           }
           setTextRange(moduleStatement, node2);
           addEmitFlags(moduleStatement, emitFlags);
-          statements.push(moduleStatement);
-          return statements;
+          statements2.push(moduleStatement);
+          return statements2;
         }
         function transformModuleBody(node2, namespaceLocalName) {
           const savedCurrentNamespaceContainerName = currentNamespaceContainerName;
@@ -107640,35 +107640,35 @@ ${lanes.join("\n")}
           currentNamespaceContainerName = namespaceLocalName;
           currentNamespace = node2;
           currentScopeFirstDeclarationsOfName = void 0;
-          const statements = [];
+          const statements2 = [];
           startLexicalEnvironment();
           let statementsLocation;
           let blockLocation;
           if (node2.body) {
             if (node2.body.kind === 269) {
-              saveStateAndInvoke(node2.body, (body) => addRange(statements, visitNodes2(body.statements, namespaceElementVisitor, isStatement)));
+              saveStateAndInvoke(node2.body, (body) => addRange(statements2, visitNodes2(body.statements, namespaceElementVisitor, isStatement)));
               statementsLocation = node2.body.statements;
               blockLocation = node2.body;
             } else {
               const result = visitModuleDeclaration(node2.body);
               if (result) {
                 if (isArray(result)) {
-                  addRange(statements, result);
+                  addRange(statements2, result);
                 } else {
-                  statements.push(result);
+                  statements2.push(result);
                 }
               }
               const moduleBlock = getInnerMostModuleDeclarationFromDottedModule(node2).body;
               statementsLocation = moveRangePos(moduleBlock.statements, -1);
             }
           }
-          insertStatementsAfterStandardPrologue(statements, endLexicalEnvironment());
+          insertStatementsAfterStandardPrologue(statements2, endLexicalEnvironment());
           currentNamespaceContainerName = savedCurrentNamespaceContainerName;
           currentNamespace = savedCurrentNamespace;
           currentScopeFirstDeclarationsOfName = savedCurrentScopeFirstDeclarationsOfName;
           const block2 = factory2.createBlock(
             setTextRange(
-              factory2.createNodeArray(statements),
+              factory2.createNodeArray(statements2),
               /*location*/
               statementsLocation
             ),
@@ -107876,8 +107876,8 @@ ${lanes.join("\n")}
           setSourceMapRange(statement, createRange(-1, node2.end));
           return statement;
         }
-        function addExportMemberAssignment(statements, node2) {
-          statements.push(createExportMemberAssignmentStatement(node2));
+        function addExportMemberAssignment(statements2, node2) {
+          statements2.push(createExportMemberAssignmentStatement(node2));
         }
         function createNamespaceExport(exportName, exportValue, location) {
           return setTextRange(
@@ -108881,13 +108881,13 @@ ${lanes.join("\n")}
               return visitNode(node2.body.statements[0].expression, visitor, isExpression);
             }
             startLexicalEnvironment();
-            let statements = setCurrentClassElementAnd(
+            let statements2 = setCurrentClassElementAnd(
               node2,
-              (statements2) => visitNodes2(statements2, visitor, isStatement),
+              (statements22) => visitNodes2(statements22, visitor, isStatement),
               node2.body.statements
             );
-            statements = factory2.mergeLexicalEnvironment(statements, endLexicalEnvironment());
-            const iife = factory2.createImmediatelyInvokedArrowFunction(statements);
+            statements2 = factory2.mergeLexicalEnvironment(statements2, endLexicalEnvironment());
+            const iife = factory2.createImmediatelyInvokedArrowFunction(statements2);
             setOriginalNode(skipParentheses(iife.expression), node2);
             addEmitFlags(
               skipParentheses(iife.expression),
@@ -109233,22 +109233,22 @@ ${lanes.join("\n")}
           let modifiers = visitNodes2(node2.modifiers, modifierVisitor, isModifier);
           const heritageClauses = visitNodes2(node2.heritageClauses, heritageClauseVisitor, isHeritageClause);
           const { members: members3, prologue } = transformClassMembers(node2);
-          const statements = [];
+          const statements2 = [];
           if (pendingClassReferenceAssignment) {
             getPendingExpressions().unshift(pendingClassReferenceAssignment);
           }
           if (some(pendingExpressions)) {
-            statements.push(factory2.createExpressionStatement(factory2.inlineExpressions(pendingExpressions)));
+            statements2.push(factory2.createExpressionStatement(factory2.inlineExpressions(pendingExpressions)));
           }
           if (shouldTransformInitializersUsingSet || shouldTransformPrivateElementsOrClassStaticBlocks || getInternalEmitFlags(node2) & 32) {
             const staticProperties = getStaticPropertiesAndClassStaticBlock(node2);
             if (some(staticProperties)) {
-              addPropertyOrClassStaticBlockStatements(statements, staticProperties, factory2.getInternalName(node2));
+              addPropertyOrClassStaticBlockStatements(statements2, staticProperties, factory2.getInternalName(node2));
             }
           }
-          if (statements.length > 0 && isExport && isDefault) {
+          if (statements2.length > 0 && isExport && isDefault) {
             modifiers = visitNodes2(modifiers, (node22) => isExportOrDefaultModifier(node22) ? void 0 : node22, isModifier);
-            statements.push(factory2.createExportAssignment(
+            statements2.push(factory2.createExportAssignment(
               /*modifiers*/
               void 0,
               /*isExportEquals*/
@@ -109276,11 +109276,11 @@ ${lanes.join("\n")}
             heritageClauses,
             members3
           );
-          statements.unshift(classDecl);
+          statements2.unshift(classDecl);
           if (prologue) {
-            statements.unshift(factory2.createExpressionStatement(prologue));
+            statements2.unshift(factory2.createExpressionStatement(prologue));
           }
-          return statements;
+          return statements2;
         }
         function visitClassExpression(node2) {
           return visitInNewClassLexicalEnvironment(node2, visitClassExpressionInNewClassLexicalEnvironment);
@@ -109603,7 +109603,7 @@ ${lanes.join("\n")}
           resumeLexicalEnvironment();
           const needsSyntheticConstructor = !constructor && isDerivedClass;
           let statementOffset = 0;
-          let statements = [];
+          let statements2 = [];
           const initializerStatements = [];
           const receiver = factory2.createThis();
           addInstanceMethodStatements(initializerStatements, privateMethodsAndAccessors, receiver);
@@ -109618,7 +109618,7 @@ ${lanes.join("\n")}
           if (constructor == null ? void 0 : constructor.body) {
             statementOffset = factory2.copyPrologue(
               constructor.body.statements,
-              statements,
+              statements2,
               /*ensureUseStrict*/
               false,
               visitor
@@ -109626,7 +109626,7 @@ ${lanes.join("\n")}
             const superStatementIndices = findSuperStatementIndexPath(constructor.body.statements, statementOffset);
             if (superStatementIndices.length) {
               transformConstructorBodyWorker(
-                statements,
+                statements2,
                 constructor.body.statements,
                 statementOffset,
                 superStatementIndices,
@@ -109644,12 +109644,12 @@ ${lanes.join("\n")}
                   break;
                 }
               }
-              addRange(statements, initializerStatements);
-              addRange(statements, visitNodes2(constructor.body.statements, visitor, isStatement, statementOffset));
+              addRange(statements2, initializerStatements);
+              addRange(statements2, visitNodes2(constructor.body.statements, visitor, isStatement, statementOffset));
             }
           } else {
             if (needsSyntheticConstructor) {
-              statements.push(
+              statements2.push(
                 factory2.createExpressionStatement(
                   factory2.createCallExpression(
                     factory2.createSuper(),
@@ -109660,17 +109660,17 @@ ${lanes.join("\n")}
                 )
               );
             }
-            addRange(statements, initializerStatements);
+            addRange(statements2, initializerStatements);
           }
-          statements = factory2.mergeLexicalEnvironment(statements, endLexicalEnvironment());
-          if (statements.length === 0 && !constructor) {
+          statements2 = factory2.mergeLexicalEnvironment(statements2, endLexicalEnvironment());
+          if (statements2.length === 0 && !constructor) {
             return void 0;
           }
-          const multiLine = (constructor == null ? void 0 : constructor.body) && constructor.body.statements.length >= statements.length ? constructor.body.multiLine ?? statements.length > 0 : statements.length > 0;
+          const multiLine = (constructor == null ? void 0 : constructor.body) && constructor.body.statements.length >= statements2.length ? constructor.body.multiLine ?? statements2.length > 0 : statements2.length > 0;
           return setTextRange(
             factory2.createBlock(
               setTextRange(
-                factory2.createNodeArray(statements),
+                factory2.createNodeArray(statements2),
                 /*location*/
                 ((_a3 = constructor == null ? void 0 : constructor.body) == null ? void 0 : _a3.statements) ?? node2.members
               ),
@@ -109680,7 +109680,7 @@ ${lanes.join("\n")}
             constructor == null ? void 0 : constructor.body
           );
         }
-        function addPropertyOrClassStaticBlockStatements(statements, properties, receiver) {
+        function addPropertyOrClassStaticBlockStatements(statements2, properties, receiver) {
           for (const property of properties) {
             if (isStatic(property) && !shouldTransformPrivateElementsOrClassStaticBlocks) {
               continue;
@@ -109689,7 +109689,7 @@ ${lanes.join("\n")}
             if (!statement) {
               continue;
             }
-            statements.push(statement);
+            statements2.push(statement);
           }
         }
         function transformPropertyOrClassStaticBlock(property, receiver) {
@@ -109907,13 +109907,13 @@ ${lanes.join("\n")}
             );
           }
         }
-        function addInstanceMethodStatements(statements, methods, receiver) {
+        function addInstanceMethodStatements(statements2, methods, receiver) {
           if (!shouldTransformPrivateElementsOrClassStaticBlocks || !some(methods)) {
             return;
           }
           const { weakSetName } = getPrivateIdentifierEnvironment().data;
           Debug.assert(weakSetName, "weakSetName should be set in private identifier environment");
-          statements.push(
+          statements2.push(
             factory2.createExpressionStatement(
               createPrivateInstanceMethodInitializer(factory2, receiver, weakSetName)
             )
@@ -110829,12 +110829,12 @@ ${lanes.join("\n")}
           ))) {
             return visitEachChild(node2, visitor, context);
           }
-          const statements = classOrConstructorParameterIsDecorated(
+          const statements2 = classOrConstructorParameterIsDecorated(
             /*useLegacyDecorators*/
             true,
             node2
           ) ? transformClassDeclarationWithClassDecorators(node2, node2.name) : transformClassDeclarationWithoutClassDecorators(node2, node2.name);
-          return singleOrMany(statements);
+          return singleOrMany(statements2);
         }
         function decoratorContainsPrivateIdentifierInExpression(decorator) {
           return !!(decorator.transformFlags & 536870912);
@@ -110989,19 +110989,19 @@ ${lanes.join("\n")}
           setOriginalNode(varStatement, node2);
           setTextRange(varStatement, location);
           setCommentRange(varStatement, node2);
-          const statements = [varStatement];
-          addRange(statements, decorationStatements);
-          addConstructorDecorationStatement(statements, node2);
+          const statements2 = [varStatement];
+          addRange(statements2, decorationStatements);
+          addConstructorDecorationStatement(statements2, node2);
           if (isExport) {
             if (isDefault) {
               const exportStatement = factory2.createExportDefault(declName);
-              statements.push(exportStatement);
+              statements2.push(exportStatement);
             } else {
               const exportStatement = factory2.createExternalModuleExport(factory2.getDeclarationName(node2));
-              statements.push(exportStatement);
+              statements2.push(exportStatement);
             }
           }
-          return statements;
+          return statements2;
         }
         function visitClassExpression(node2) {
           return factory2.updateClassExpression(
@@ -111134,8 +111134,8 @@ ${lanes.join("\n")}
           addRange(decoratorExpressions, map2(metadata, transformDecorator));
           return decoratorExpressions;
         }
-        function addClassElementDecorationStatements(statements, node2, isStatic2) {
-          addRange(statements, map2(generateClassElementDecorationExpressions(node2, isStatic2), (expr) => factory2.createExpressionStatement(expr)));
+        function addClassElementDecorationStatements(statements2, node2, isStatic2) {
+          addRange(statements2, map2(generateClassElementDecorationExpressions(node2, isStatic2), (expr) => factory2.createExpressionStatement(expr)));
         }
         function isDecoratedClassElement(member, isStaticElement, parent2) {
           return nodeOrChildIsDecorated(
@@ -111192,10 +111192,10 @@ ${lanes.join("\n")}
           setSourceMapRange(helper, moveRangePastModifiers(member));
           return helper;
         }
-        function addConstructorDecorationStatement(statements, node2) {
+        function addConstructorDecorationStatement(statements2, node2) {
           const expression = generateConstructorDecorationExpression(node2);
           if (expression) {
-            statements.push(setOriginalNode(factory2.createExpressionStatement(expression), node2));
+            statements2.push(setOriginalNode(factory2.createExpressionStatement(expression), node2));
           }
         }
         function generateConstructorDecorationExpression(node2) {
@@ -112087,7 +112087,7 @@ ${lanes.join("\n")}
         }
         function visitClassDeclaration(node2) {
           if (isDecoratedClassLike(node2)) {
-            const statements = [];
+            const statements2 = [];
             const originalClass = getOriginalNode(node2, isClassLike) ?? node2;
             const className = originalClass.name ? factory2.createStringLiteralFromNode(originalClass.name) : factory2.createStringLiteral("default");
             const isExport = hasSyntacticModifier(
@@ -112125,18 +112125,18 @@ ${lanes.join("\n")}
                   void 0,
                   varDecls
                 );
-                statements.push(varStatement);
+                statements2.push(varStatement);
                 const exportStatement = factory2.createExportDefault(factory2.getDeclarationName(node2));
                 setOriginalNode(exportStatement, node2);
                 setCommentRange(exportStatement, getCommentRange(node2));
                 setSourceMapRange(exportStatement, moveRangePastDecorators(node2));
-                statements.push(exportStatement);
+                statements2.push(exportStatement);
               } else {
                 const exportStatement = factory2.createExportDefault(iife);
                 setOriginalNode(exportStatement, node2);
                 setCommentRange(exportStatement, getCommentRange(node2));
                 setSourceMapRange(exportStatement, moveRangePastDecorators(node2));
-                statements.push(exportStatement);
+                statements2.push(exportStatement);
               }
             } else {
               Debug.assertIsDefined(node2.name, "A class declaration that is not a default export must have a name.");
@@ -112167,14 +112167,14 @@ ${lanes.join("\n")}
               const varStatement = factory2.createVariableStatement(modifiers, varDecls);
               setOriginalNode(varStatement, node2);
               setCommentRange(varStatement, getCommentRange(node2));
-              statements.push(varStatement);
+              statements2.push(varStatement);
               if (isExport) {
                 const exportStatement = factory2.createExternalModuleExport(declName);
                 setOriginalNode(exportStatement, node2);
-                statements.push(exportStatement);
+                statements2.push(exportStatement);
               }
             }
-            return singleOrMany(statements);
+            return singleOrMany(statements2);
           } else {
             const modifiers = visitNodes2(node2.modifiers, modifierVisitor, isModifier);
             const heritageClauses = visitNodes2(node2.heritageClauses, visitor, isHeritageClause);
@@ -112222,14 +112222,14 @@ ${lanes.join("\n")}
         }
         function prepareConstructor(_parent, classInfo2) {
           if (some(classInfo2.pendingInstanceInitializers)) {
-            const statements = [];
-            statements.push(
+            const statements2 = [];
+            statements2.push(
               factory2.createExpressionStatement(
                 factory2.inlineExpressions(classInfo2.pendingInstanceInitializers)
               )
             );
             classInfo2.pendingInstanceInitializers = void 0;
-            return statements;
+            return statements2;
           }
         }
         function transformConstructorBodyWorker(statementsOut, statementsIn, statementOffset, superPath, superPathDepth, initializerStatements) {
@@ -112269,23 +112269,23 @@ ${lanes.join("\n")}
           if (node2.body && classInfo) {
             const initializerStatements = prepareConstructor(classInfo.class, classInfo);
             if (initializerStatements) {
-              const statements = [];
+              const statements2 = [];
               const nonPrologueStart = factory2.copyPrologue(
                 node2.body.statements,
-                statements,
+                statements2,
                 /*ensureUseStrict*/
                 false,
                 visitor
               );
               const superStatementIndices = findSuperStatementIndexPath(node2.body.statements, nonPrologueStart);
               if (superStatementIndices.length > 0) {
-                transformConstructorBodyWorker(statements, node2.body.statements, nonPrologueStart, superStatementIndices, 0, initializerStatements);
+                transformConstructorBodyWorker(statements2, node2.body.statements, nonPrologueStart, superStatementIndices, 0, initializerStatements);
               } else {
-                addRange(statements, initializerStatements);
-                addRange(statements, visitNodes2(node2.body.statements, visitor, isStatement));
+                addRange(statements2, initializerStatements);
+                addRange(statements2, visitNodes2(node2.body.statements, visitor, isStatement));
               }
               body = factory2.createBlock(
-                statements,
+                statements2,
                 /*multiLine*/
                 true
               );
@@ -112334,7 +112334,7 @@ ${lanes.join("\n")}
             classInfo2.memberInfos.set(member, memberInfo);
             pendingExpressions ?? (pendingExpressions = []);
             pendingExpressions.push(memberDecoratorsAssignment);
-            const statements = isMethodOrAccessor(member) || isAutoAccessorPropertyDeclaration(member) ? isStatic(member) ? classInfo2.staticNonFieldDecorationStatements ?? (classInfo2.staticNonFieldDecorationStatements = []) : classInfo2.nonStaticNonFieldDecorationStatements ?? (classInfo2.nonStaticNonFieldDecorationStatements = []) : isPropertyDeclaration(member) && !isAutoAccessorPropertyDeclaration(member) ? isStatic(member) ? classInfo2.staticFieldDecorationStatements ?? (classInfo2.staticFieldDecorationStatements = []) : classInfo2.nonStaticFieldDecorationStatements ?? (classInfo2.nonStaticFieldDecorationStatements = []) : Debug.fail();
+            const statements2 = isMethodOrAccessor(member) || isAutoAccessorPropertyDeclaration(member) ? isStatic(member) ? classInfo2.staticNonFieldDecorationStatements ?? (classInfo2.staticNonFieldDecorationStatements = []) : classInfo2.nonStaticNonFieldDecorationStatements ?? (classInfo2.nonStaticNonFieldDecorationStatements = []) : isPropertyDeclaration(member) && !isAutoAccessorPropertyDeclaration(member) ? isStatic(member) ? classInfo2.staticFieldDecorationStatements ?? (classInfo2.staticFieldDecorationStatements = []) : classInfo2.nonStaticFieldDecorationStatements ?? (classInfo2.nonStaticFieldDecorationStatements = []) : Debug.fail();
             const kind = isGetAccessorDeclaration(member) ? "getter" : isSetAccessorDeclaration(member) ? "setter" : isMethodDeclaration(member) ? "method" : isAutoAccessorPropertyDeclaration(member) ? "accessor" : isPropertyDeclaration(member) ? "field" : Debug.fail();
             let propertyName2;
             if (isIdentifier(member.name) || isPrivateIdentifier(member.name)) {
@@ -112378,7 +112378,7 @@ ${lanes.join("\n")}
               const esDecorateExpression = emitHelpers().createESDecorateHelper(factory2.createThis(), descriptor ?? factory2.createNull(), memberDecoratorsName, context2, factory2.createNull(), methodExtraInitializersName);
               const esDecorateStatement = factory2.createExpressionStatement(esDecorateExpression);
               setSourceMapRange(esDecorateStatement, moveRangePastDecorators(member));
-              statements.push(esDecorateStatement);
+              statements2.push(esDecorateStatement);
             } else if (isPropertyDeclaration(member)) {
               initializersName = memberInfo.memberInitializersName ?? (memberInfo.memberInitializersName = createHelperVariable(member, "initializers"));
               extraInitializersName = memberInfo.memberExtraInitializersName ?? (memberInfo.memberExtraInitializersName = createHelperVariable(member, "extraInitializers"));
@@ -112405,7 +112405,7 @@ ${lanes.join("\n")}
               );
               const esDecorateStatement = factory2.createExpressionStatement(esDecorateExpression);
               setSourceMapRange(esDecorateStatement, moveRangePastDecorators(member));
-              statements.push(esDecorateStatement);
+              statements2.push(esDecorateStatement);
             }
           }
           if (name === void 0) {
@@ -112498,14 +112498,14 @@ ${lanes.join("\n")}
             if (classInfo) {
               classInfo.hasStaticInitializers = true;
               if (some(classInfo.pendingStaticInitializers)) {
-                const statements = [];
+                const statements2 = [];
                 for (const initializer3 of classInfo.pendingStaticInitializers) {
                   const initializerStatement = factory2.createExpressionStatement(initializer3);
                   setSourceMapRange(initializerStatement, getSourceMapRange(initializer3));
-                  statements.push(initializerStatement);
+                  statements2.push(initializerStatement);
                 }
                 const body = factory2.createBlock(
-                  statements,
+                  statements2,
                   /*multiLine*/
                   true
                 );
@@ -113773,9 +113773,9 @@ ${lanes.join("\n")}
             if (capturedSuperProperties.size) {
               const variableStatement = createSuperAccessVariableStatement(factory2, resolver, node2, capturedSuperProperties);
               substitutedSuperAccessors[getNodeId(variableStatement)] = true;
-              const statements = updated.statements.slice();
-              insertStatementsAfterStandardPrologue(statements, [variableStatement]);
-              updated = factory2.updateBlock(updated, statements);
+              const statements2 = updated.statements.slice();
+              insertStatementsAfterStandardPrologue(statements2, [variableStatement]);
+              updated = factory2.updateBlock(updated, statements2);
             }
             if (hasSuperElementAccess) {
               if (resolver.hasNodeCheckFlag(
@@ -113917,8 +113917,8 @@ ${lanes.join("\n")}
           asyncBody = factory2.updateBlock(asyncBody, factory2.mergeLexicalEnvironment(asyncBody.statements, endLexicalEnvironment()));
           let result;
           if (!isArrowFunction2) {
-            const statements = [];
-            statements.push(
+            const statements2 = [];
+            statements2.push(
               factory2.createReturnStatement(
                 emitHelpers().createAwaiterHelper(
                   hasLexicalThis,
@@ -113943,14 +113943,14 @@ ${lanes.join("\n")}
               if (capturedSuperProperties.size) {
                 const variableStatement = createSuperAccessVariableStatement(factory2, resolver, node2, capturedSuperProperties);
                 substitutedSuperAccessors[getNodeId(variableStatement)] = true;
-                insertStatementsAfterStandardPrologue(statements, [variableStatement]);
+                insertStatementsAfterStandardPrologue(statements2, [variableStatement]);
               }
             }
             if (captureLexicalArguments) {
-              insertStatementsAfterStandardPrologue(statements, [createCaptureArgumentsStatement()]);
+              insertStatementsAfterStandardPrologue(statements2, [createCaptureArgumentsStatement()]);
             }
             const block2 = factory2.createBlock(
-              statements,
+              statements2,
               /*multiLine*/
               true
             );
@@ -114857,13 +114857,13 @@ ${lanes.join("\n")}
               /*recordTempVariable*/
               void 0
             );
-            const statements = [createForOfBindingStatement(factory2, initializerWithoutParens, temp)];
+            const statements2 = [createForOfBindingStatement(factory2, initializerWithoutParens, temp)];
             if (isBlock(node2.statement)) {
-              addRange(statements, node2.statement.statements);
+              addRange(statements2, node2.statement.statements);
               bodyLocation = node2.statement;
               statementsLocation = node2.statement.statements;
             } else if (node2.statement) {
-              append(statements, node2.statement);
+              append(statements2, node2.statement);
               bodyLocation = node2.statement;
               statementsLocation = node2.statement;
             }
@@ -114883,7 +114883,7 @@ ${lanes.join("\n")}
               node2.expression,
               setTextRange(
                 factory2.createBlock(
-                  setTextRange(factory2.createNodeArray(statements), statementsLocation),
+                  setTextRange(factory2.createNodeArray(statements2), statementsLocation),
                   /*multiLine*/
                   true
                 ),
@@ -114901,22 +114901,22 @@ ${lanes.join("\n")}
           const exitNonUserCodeExpression = factory2.createAssignment(nonUserCode, factory2.createFalse());
           const exitNonUserCodeStatement = factory2.createExpressionStatement(exitNonUserCodeExpression);
           setSourceMapRange(exitNonUserCodeStatement, node2.expression);
-          const statements = [iteratorValueStatement, exitNonUserCodeStatement];
+          const statements2 = [iteratorValueStatement, exitNonUserCodeStatement];
           const binding = createForOfBindingStatement(factory2, node2.initializer, value);
-          statements.push(visitNode(binding, visitor, isStatement));
+          statements2.push(visitNode(binding, visitor, isStatement));
           let bodyLocation;
           let statementsLocation;
           const statement = visitIterationBody(node2.statement, visitor, context);
           if (isBlock(statement)) {
-            addRange(statements, statement.statements);
+            addRange(statements2, statement.statements);
             bodyLocation = statement;
             statementsLocation = statement.statements;
           } else {
-            statements.push(statement);
+            statements2.push(statement);
           }
           return setTextRange(
             factory2.createBlock(
-              setTextRange(factory2.createNodeArray(statements), statementsLocation),
+              setTextRange(factory2.createNodeArray(statements2), statementsLocation),
               /*multiLine*/
               true
             ),
@@ -115361,36 +115361,36 @@ ${lanes.join("\n")}
         function transformFunctionBody2(node2) {
           resumeLexicalEnvironment();
           let statementOffset = 0;
-          const statements = [];
+          const statements2 = [];
           const body = visitNode(node2.body, visitor, isConciseBody) ?? factory2.createBlock([]);
           if (isBlock(body)) {
             statementOffset = factory2.copyPrologue(
               body.statements,
-              statements,
+              statements2,
               /*ensureUseStrict*/
               false,
               visitor
             );
           }
-          addRange(statements, appendObjectRestAssignmentsIfNeeded(
+          addRange(statements2, appendObjectRestAssignmentsIfNeeded(
             /*statements*/
             void 0,
             node2
           ));
           const leadingStatements = endLexicalEnvironment();
-          if (statementOffset > 0 || some(statements) || some(leadingStatements)) {
+          if (statementOffset > 0 || some(statements2) || some(leadingStatements)) {
             const block2 = factory2.converters.convertToFunctionBlock(
               body,
               /*multiLine*/
               true
             );
-            insertStatementsAfterStandardPrologue(statements, leadingStatements);
-            addRange(statements, block2.statements.slice(statementOffset));
-            return factory2.updateBlock(block2, setTextRange(factory2.createNodeArray(statements), block2.statements));
+            insertStatementsAfterStandardPrologue(statements2, leadingStatements);
+            addRange(statements2, block2.statements.slice(statementOffset));
+            return factory2.updateBlock(block2, setTextRange(factory2.createNodeArray(statements2), block2.statements));
           }
           return body;
         }
-        function appendObjectRestAssignmentsIfNeeded(statements, node2) {
+        function appendObjectRestAssignmentsIfNeeded(statements2, node2) {
           let containsPrecedingObjectRestOrSpread = false;
           for (const parameter of node2.parameters) {
             if (containsPrecedingObjectRestOrSpread) {
@@ -115415,7 +115415,7 @@ ${lanes.join("\n")}
                       2097152
                       /* CustomPrologue */
                     );
-                    statements = append(statements, statement);
+                    statements2 = append(statements2, statement);
                   }
                 } else if (parameter.initializer) {
                   const name = factory2.getGeneratedNameForNode(parameter);
@@ -115427,7 +115427,7 @@ ${lanes.join("\n")}
                     2097152
                     /* CustomPrologue */
                   );
-                  statements = append(statements, statement);
+                  statements2 = append(statements2, statement);
                 }
               } else if (parameter.initializer) {
                 const name = factory2.cloneNode(parameter.name);
@@ -115466,7 +115466,7 @@ ${lanes.join("\n")}
                   768 | 64 | 2097152 | 3072
                   /* NoComments */
                 );
-                statements = append(statements, statement);
+                statements2 = append(statements2, statement);
               }
             } else if (parameter.transformFlags & 65536) {
               containsPrecedingObjectRestOrSpread = true;
@@ -115493,11 +115493,11 @@ ${lanes.join("\n")}
                   2097152
                   /* CustomPrologue */
                 );
-                statements = append(statements, statement);
+                statements2 = append(statements2, statement);
               }
             }
           }
-          return statements;
+          return statements2;
         }
         function enableSubstitutionForAsyncMethodsWithSuper() {
           if ((enabledSubstitutions & 1) === 0) {
@@ -116259,7 +116259,7 @@ ${lanes.join("\n")}
           return visitEachChild(node2, visitor, context);
         }
         function transformUsingDeclarations(statementsIn, start, end, envBinding, topLevelStatements) {
-          const statements = [];
+          const statements2 = [];
           for (let i = start; i < end; i++) {
             const statement = statementsIn[i];
             const usingKind = getUsingKind(statement);
@@ -116314,10 +116314,10 @@ ${lanes.join("\n")}
               hoistOrAppendNode(result);
             }
           }
-          return statements;
+          return statements2;
           function hoistOrAppendNode(node2) {
             Debug.assertNode(node2, isStatement);
-            append(statements, hoist(node2));
+            append(statements2, hoist(node2));
           }
           function hoist(node2) {
             if (!topLevelStatements) return node2;
@@ -116535,7 +116535,7 @@ ${lanes.join("\n")}
           return factory2.createUniqueName("env");
         }
         function createDownlevelUsingStatements(bodyStatements, envBinding, async) {
-          const statements = [];
+          const statements2 = [];
           const envObject = factory2.createObjectLiteralExpression([
             factory2.createPropertyAssignment("stack", factory2.createArrayLiteralExpression()),
             factory2.createPropertyAssignment("error", factory2.createVoidZero()),
@@ -116559,7 +116559,7 @@ ${lanes.join("\n")}
             void 0,
             envVarList
           );
-          statements.push(envVarStatement);
+          statements2.push(envVarStatement);
           const tryBlock = factory2.createBlock(
             bodyStatements,
             /*multiLine*/
@@ -116627,13 +116627,13 @@ ${lanes.join("\n")}
             );
           }
           const tryStatement = factory2.createTryStatement(tryBlock, catchClause, finallyBlock);
-          statements.push(tryStatement);
-          return statements;
+          statements2.push(tryStatement);
+          return statements2;
         }
       }
-      function countPrologueStatements(statements) {
-        for (let i = 0; i < statements.length; i++) {
-          if (!isPrologueDirective(statements[i]) && !isCustomPrologue(statements[i])) {
+      function countPrologueStatements(statements2) {
+        for (let i = 0; i < statements2.length; i++) {
+          if (!isPrologueDirective(statements2[i]) && !isCustomPrologue(statements2[i])) {
             return i;
           }
         }
@@ -116651,9 +116651,9 @@ ${lanes.join("\n")}
       function getUsingKind(statement) {
         return isVariableStatement(statement) ? getUsingKindOfVariableStatement(statement) : 0;
       }
-      function getUsingKindOfStatements(statements) {
+      function getUsingKindOfStatements(statements2) {
         let result = 0;
-        for (const statement of statements) {
+        for (const statement of statements2) {
           const usingKind = getUsingKind(statement);
           if (usingKind === 2) return 2;
           if (usingKind > result) result = usingKind;
@@ -116737,9 +116737,9 @@ ${lanes.join("\n")}
           currentFileState.importSpecifier = getJSXImplicitImportBase(compilerOptions, node2);
           let visited = visitEachChild(node2, visitor, context);
           addEmitHelpers(visited, context.readEmitHelpers());
-          let statements = visited.statements;
+          let statements2 = visited.statements;
           if (currentFileState.filenameDeclaration) {
-            statements = insertStatementAfterCustomPrologue(statements.slice(), factory2.createVariableStatement(
+            statements2 = insertStatementAfterCustomPrologue(statements2.slice(), factory2.createVariableStatement(
               /*modifiers*/
               void 0,
               factory2.createVariableDeclarationList(
@@ -116771,7 +116771,7 @@ ${lanes.join("\n")}
                   /*incremental*/
                   false
                 );
-                statements = insertStatementAfterCustomPrologue(statements.slice(), importStatement);
+                statements2 = insertStatementAfterCustomPrologue(statements2.slice(), importStatement);
               } else if (isExternalOrCommonJsModule(node2)) {
                 const requireStatement = factory2.createVariableStatement(
                   /*modifiers*/
@@ -116806,13 +116806,13 @@ ${lanes.join("\n")}
                   /*incremental*/
                   false
                 );
-                statements = insertStatementAfterCustomPrologue(statements.slice(), requireStatement);
+                statements2 = insertStatementAfterCustomPrologue(statements2.slice(), requireStatement);
               } else {
               }
             }
           }
-          if (statements !== visited.statements) {
-            visited = factory2.updateSourceFile(visited, statements);
+          if (statements2 !== visited.statements) {
+            visited = factory2.updateSourceFile(visited, statements2);
           }
           currentFileState = void 0;
           return visited;
@@ -117822,7 +117822,7 @@ ${lanes.join("\n")}
             /* SourceFileIncludes */
           );
           const prologue = [];
-          const statements = [];
+          const statements2 = [];
           startLexicalEnvironment();
           const statementOffset = factory2.copyPrologue(
             node2.statements,
@@ -117831,9 +117831,9 @@ ${lanes.join("\n")}
             false,
             visitor
           );
-          addRange(statements, visitNodes2(node2.statements, visitor, isStatement, statementOffset));
+          addRange(statements2, visitNodes2(node2.statements, visitor, isStatement, statementOffset));
           if (taggedTemplateStringDeclarations) {
-            statements.push(
+            statements2.push(
               factory2.createVariableStatement(
                 /*modifiers*/
                 void 0,
@@ -117851,7 +117851,7 @@ ${lanes.join("\n")}
           );
           return factory2.updateSourceFile(
             node2,
-            setTextRange(factory2.createNodeArray(concatenate(prologue, statements)), node2.statements)
+            setTextRange(factory2.createNodeArray(concatenate(prologue, statements2)), node2.statements)
           );
         }
         function visitSwitchStatement(node2) {
@@ -118017,7 +118017,7 @@ ${lanes.join("\n")}
             transformClassLikeDeclarationToExpression(node2)
           );
           setOriginalNode(variable, node2);
-          const statements = [];
+          const statements2 = [];
           const statement = factory2.createVariableStatement(
             /*modifiers*/
             void 0,
@@ -118026,7 +118026,7 @@ ${lanes.join("\n")}
           setOriginalNode(statement, node2);
           setTextRange(statement, node2);
           startOnNewLine(statement);
-          statements.push(statement);
+          statements2.push(statement);
           if (hasSyntacticModifier(
             node2,
             32
@@ -118038,9 +118038,9 @@ ${lanes.join("\n")}
               /* Default */
             ) ? factory2.createExportDefault(factory2.getLocalName(node2)) : factory2.createExternalModuleExport(factory2.getLocalName(node2));
             setOriginalNode(exportStatement, statement);
-            statements.push(exportStatement);
+            statements2.push(exportStatement);
           }
-          return singleOrMany(statements);
+          return singleOrMany(statements2);
         }
         function visitClassExpression(node2) {
           return transformClassLikeDeclarationToExpression(node2);
@@ -118101,13 +118101,13 @@ ${lanes.join("\n")}
           return result;
         }
         function transformClassBody(node2, extendsClauseElement) {
-          const statements = [];
+          const statements2 = [];
           const name = factory2.getInternalName(node2);
           const constructorLikeName = isIdentifierANonContextualKeyword(name) ? factory2.getGeneratedNameForNode(name) : name;
           startLexicalEnvironment();
-          addExtendsHelperIfNeeded(statements, node2, extendsClauseElement);
-          addConstructor(statements, node2, constructorLikeName, extendsClauseElement);
-          addClassMembers(statements, node2);
+          addExtendsHelperIfNeeded(statements2, node2, extendsClauseElement);
+          addConstructor(statements2, node2, constructorLikeName, extendsClauseElement);
+          addClassMembers(statements2, node2);
           const closingBraceLocation = createTokenRange(
             skipTrivia(currentText, node2.members.end),
             20
@@ -118127,11 +118127,11 @@ ${lanes.join("\n")}
             3072 | 768
             /* NoTokenSourceMaps */
           );
-          statements.push(statement);
-          insertStatementsAfterStandardPrologue(statements, endLexicalEnvironment());
+          statements2.push(statement);
+          insertStatementsAfterStandardPrologue(statements2, endLexicalEnvironment());
           const block2 = factory2.createBlock(
             setTextRange(
-              factory2.createNodeArray(statements),
+              factory2.createNodeArray(statements2),
               /*location*/
               node2.members
             ),
@@ -118145,9 +118145,9 @@ ${lanes.join("\n")}
           );
           return block2;
         }
-        function addExtendsHelperIfNeeded(statements, node2, extendsClauseElement) {
+        function addExtendsHelperIfNeeded(statements2, node2, extendsClauseElement) {
           if (extendsClauseElement) {
-            statements.push(
+            statements2.push(
               setTextRange(
                 factory2.createExpressionStatement(
                   emitHelpers().createExtendsHelper(factory2.getInternalName(node2))
@@ -118158,7 +118158,7 @@ ${lanes.join("\n")}
             );
           }
         }
-        function addConstructor(statements, node2, name, extendsClauseElement) {
+        function addConstructor(statements2, node2, name, extendsClauseElement) {
           const savedConvertedLoopState = convertedLoopState;
           convertedLoopState = void 0;
           const ancestorFacts = enterSubtree(
@@ -118189,7 +118189,7 @@ ${lanes.join("\n")}
               /* CapturesThis */
             );
           }
-          statements.push(constructorFunction);
+          statements2.push(constructorFunction);
           exitSubtree(
             ancestorFacts,
             229376,
@@ -118202,13 +118202,13 @@ ${lanes.join("\n")}
           return visitParameterList(constructor && !hasSynthesizedSuper ? constructor.parameters : void 0, visitor, context) || [];
         }
         function createDefaultConstructorBody(node2, isDerivedClass) {
-          const statements = [];
+          const statements2 = [];
           resumeLexicalEnvironment();
-          factory2.mergeLexicalEnvironment(statements, endLexicalEnvironment());
+          factory2.mergeLexicalEnvironment(statements2, endLexicalEnvironment());
           if (isDerivedClass) {
-            statements.push(factory2.createReturnStatement(createDefaultSuperCallOrThis()));
+            statements2.push(factory2.createReturnStatement(createDefaultSuperCallOrThis()));
           }
-          const statementsArray = factory2.createNodeArray(statements);
+          const statementsArray = factory2.createNodeArray(statements2);
           setTextRange(statementsArray, node2.members);
           const block2 = factory2.createBlock(
             statementsArray,
@@ -118259,7 +118259,7 @@ ${lanes.join("\n")}
           const isDerivedClass = !!extendsClauseElement && skipOuterExpressions(extendsClauseElement.expression).kind !== 106;
           if (!constructor) return createDefaultConstructorBody(node2, isDerivedClass);
           const prologue = [];
-          const statements = [];
+          const statements2 = [];
           resumeLexicalEnvironment();
           const standardPrologueEnd = factory2.copyStandardPrologue(
             constructor.body.statements,
@@ -118270,7 +118270,7 @@ ${lanes.join("\n")}
           if (hasSynthesizedSuper || containsSuperCall(constructor.body)) {
             hierarchyFacts |= 8192;
           }
-          addRange(statements, visitNodes2(constructor.body.statements, visitor, isStatement, standardPrologueEnd));
+          addRange(statements2, visitNodes2(constructor.body.statements, visitor, isStatement, standardPrologueEnd));
           const mayReplaceThis = isDerivedClass || hierarchyFacts & 8192;
           addDefaultValueAssignmentsIfNeeded2(prologue, constructor);
           addRestParameterIfNeeded(prologue, constructor, hasSynthesizedSuper);
@@ -118282,14 +118282,14 @@ ${lanes.join("\n")}
           }
           factory2.mergeLexicalEnvironment(prologue, endLexicalEnvironment());
           if (mayReplaceThis && !isSufficientlyCoveredByReturnStatements(constructor.body)) {
-            statements.push(factory2.createReturnStatement(createCapturedThis()));
+            statements2.push(factory2.createReturnStatement(createCapturedThis()));
           }
           const body = factory2.createBlock(
             setTextRange(
               factory2.createNodeArray(
                 [
                   ...prologue,
-                  ...statements
+                  ...statements2
                 ]
               ),
               /*location*/
@@ -118642,7 +118642,7 @@ ${lanes.join("\n")}
         function hasDefaultValueOrBindingPattern(node2) {
           return node2.initializer !== void 0 || isBindingPattern(node2.name);
         }
-        function addDefaultValueAssignmentsIfNeeded2(statements, node2) {
+        function addDefaultValueAssignmentsIfNeeded2(statements2, node2) {
           if (!some(node2.parameters, hasDefaultValueOrBindingPattern)) {
             return false;
           }
@@ -118653,18 +118653,18 @@ ${lanes.join("\n")}
               continue;
             }
             if (isBindingPattern(name)) {
-              added = insertDefaultValueAssignmentForBindingPattern(statements, parameter, name, initializer3) || added;
+              added = insertDefaultValueAssignmentForBindingPattern(statements2, parameter, name, initializer3) || added;
             } else if (initializer3) {
-              insertDefaultValueAssignmentForInitializer(statements, parameter, name, initializer3);
+              insertDefaultValueAssignmentForInitializer(statements2, parameter, name, initializer3);
               added = true;
             }
           }
           return added;
         }
-        function insertDefaultValueAssignmentForBindingPattern(statements, parameter, name, initializer3) {
+        function insertDefaultValueAssignmentForBindingPattern(statements2, parameter, name, initializer3) {
           if (name.elements.length > 0) {
             insertStatementAfterCustomPrologue(
-              statements,
+              statements2,
               setEmitFlags(
                 factory2.createVariableStatement(
                   /*modifiers*/
@@ -118686,7 +118686,7 @@ ${lanes.join("\n")}
             return true;
           } else if (initializer3) {
             insertStatementAfterCustomPrologue(
-              statements,
+              statements2,
               setEmitFlags(
                 factory2.createExpressionStatement(
                   factory2.createAssignment(
@@ -118702,7 +118702,7 @@ ${lanes.join("\n")}
           }
           return false;
         }
-        function insertDefaultValueAssignmentForInitializer(statements, parameter, name, initializer3) {
+        function insertDefaultValueAssignmentForInitializer(statements2, parameter, name, initializer3) {
           initializer3 = Debug.checkDefined(visitNode(initializer3, visitor, isExpression));
           const statement = factory2.createIfStatement(
             factory2.createTypeCheck(factory2.cloneNode(name), "undefined"),
@@ -118745,12 +118745,12 @@ ${lanes.join("\n")}
             768 | 64 | 2097152 | 3072
             /* NoComments */
           );
-          insertStatementAfterCustomPrologue(statements, statement);
+          insertStatementAfterCustomPrologue(statements2, statement);
         }
         function shouldAddRestParameter(node2, inConstructorWithSynthesizedSuper) {
           return !!(node2 && node2.dotDotDotToken && !inConstructorWithSynthesizedSuper);
         }
-        function addRestParameterIfNeeded(statements, node2, inConstructorWithSynthesizedSuper) {
+        function addRestParameterIfNeeded(statements2, node2, inConstructorWithSynthesizedSuper) {
           const prologueStatements = [];
           const parameter = lastOrUndefined(node2.parameters);
           if (!shouldAddRestParameter(parameter, inConstructorWithSynthesizedSuper)) {
@@ -118857,17 +118857,17 @@ ${lanes.join("\n")}
               )
             );
           }
-          insertStatementsAfterCustomPrologue(statements, prologueStatements);
+          insertStatementsAfterCustomPrologue(statements2, prologueStatements);
           return true;
         }
-        function insertCaptureThisForNodeIfNeeded(statements, node2) {
+        function insertCaptureThisForNodeIfNeeded(statements2, node2) {
           if (hierarchyFacts & 131072 && node2.kind !== 220) {
-            insertCaptureThisForNode(statements, node2, factory2.createThis());
+            insertCaptureThisForNode(statements2, node2, factory2.createThis());
             return true;
           }
           return false;
         }
-        function insertCaptureThisForNode(statements, node2, initializer3) {
+        function insertCaptureThisForNode(statements2, node2, initializer3) {
           enableSubstitutionsForCapturedThis();
           const captureThisStatement = factory2.createVariableStatement(
             /*modifiers*/
@@ -118889,14 +118889,14 @@ ${lanes.join("\n")}
             /* CustomPrologue */
           );
           setSourceMapRange(captureThisStatement, node2);
-          insertStatementAfterCustomPrologue(statements, captureThisStatement);
+          insertStatementAfterCustomPrologue(statements2, captureThisStatement);
         }
-        function insertCaptureNewTargetIfNeeded(statements, node2) {
+        function insertCaptureNewTargetIfNeeded(statements2, node2) {
           if (hierarchyFacts & 32768) {
             let newTarget;
             switch (node2.kind) {
               case 220:
-                return statements;
+                return statements2;
               case 175:
               case 178:
               case 179:
@@ -118972,24 +118972,24 @@ ${lanes.join("\n")}
               3072 | 2097152
               /* CustomPrologue */
             );
-            insertStatementAfterCustomPrologue(statements, captureNewTargetStatement);
+            insertStatementAfterCustomPrologue(statements2, captureNewTargetStatement);
           }
-          return statements;
+          return statements2;
         }
-        function addClassMembers(statements, node2) {
+        function addClassMembers(statements2, node2) {
           for (const member of node2.members) {
             switch (member.kind) {
               case 241:
-                statements.push(transformSemicolonClassElementToStatement(member));
+                statements2.push(transformSemicolonClassElementToStatement(member));
                 break;
               case 175:
-                statements.push(transformClassMethodDeclarationToStatement(getClassMemberPrefix(node2, member), member, node2));
+                statements2.push(transformClassMethodDeclarationToStatement(getClassMemberPrefix(node2, member), member, node2));
                 break;
               case 178:
               case 179:
                 const accessors = getAllAccessorDeclarations(node2.members, member);
                 if (member === accessors.firstAccessor) {
-                  statements.push(transformAccessorsToStatement(getClassMemberPrefix(node2, member), accessors, node2));
+                  statements2.push(transformAccessorsToStatement(getClassMemberPrefix(node2, member), accessors, node2));
                 }
                 break;
               case 177:
@@ -119307,7 +119307,7 @@ ${lanes.join("\n")}
           let statementsLocation;
           let closeBraceLocation;
           const prologue = [];
-          const statements = [];
+          const statements2 = [];
           const body = node2.body;
           let statementOffset;
           resumeLexicalEnvironment();
@@ -119319,20 +119319,20 @@ ${lanes.join("\n")}
               /*ensureUseStrict*/
               false
             );
-            statementOffset = factory2.copyCustomPrologue(body.statements, statements, statementOffset, visitor, isHoistedFunction);
-            statementOffset = factory2.copyCustomPrologue(body.statements, statements, statementOffset, visitor, isHoistedVariableStatement);
+            statementOffset = factory2.copyCustomPrologue(body.statements, statements2, statementOffset, visitor, isHoistedFunction);
+            statementOffset = factory2.copyCustomPrologue(body.statements, statements2, statementOffset, visitor, isHoistedVariableStatement);
           }
-          multiLine = addDefaultValueAssignmentsIfNeeded2(statements, node2) || multiLine;
+          multiLine = addDefaultValueAssignmentsIfNeeded2(statements2, node2) || multiLine;
           multiLine = addRestParameterIfNeeded(
-            statements,
+            statements2,
             node2,
             /*inConstructorWithSynthesizedSuper*/
             false
           ) || multiLine;
           if (isBlock(body)) {
-            statementOffset = factory2.copyCustomPrologue(body.statements, statements, statementOffset, visitor);
+            statementOffset = factory2.copyCustomPrologue(body.statements, statements2, statementOffset, visitor);
             statementsLocation = body.statements;
-            addRange(statements, visitNodes2(body.statements, visitor, isStatement, statementOffset));
+            addRange(statements2, visitNodes2(body.statements, visitor, isStatement, statementOffset));
             if (!multiLine && body.multiLine) {
               multiLine = true;
             }
@@ -119359,7 +119359,7 @@ ${lanes.join("\n")}
               768 | 64 | 2048
               /* NoTrailingComments */
             );
-            statements.push(returnStatement);
+            statements2.push(returnStatement);
             closeBraceLocation = body;
           }
           factory2.mergeLexicalEnvironment(prologue, endLexicalEnvironment());
@@ -119368,11 +119368,11 @@ ${lanes.join("\n")}
           if (some(prologue)) {
             multiLine = true;
           }
-          statements.unshift(...prologue);
-          if (isBlock(body) && arrayIsEqualTo(statements, body.statements)) {
+          statements2.unshift(...prologue);
+          if (isBlock(body) && arrayIsEqualTo(statements2, body.statements)) {
             return body;
           }
-          const block2 = factory2.createBlock(setTextRange(factory2.createNodeArray(statements), statementsLocation), multiLine);
+          const block2 = factory2.createBlock(setTextRange(factory2.createNodeArray(statements2), statementsLocation), multiLine);
           setTextRange(block2, node2.body);
           if (!multiLine && singleLine) {
             setEmitFlags(
@@ -119681,7 +119681,7 @@ ${lanes.join("\n")}
           );
         }
         function convertForOfStatementHead(node2, boundValue, convertedLoopBodyStatements) {
-          const statements = [];
+          const statements2 = [];
           const initializer3 = node2.initializer;
           if (isVariableDeclarationList(initializer3)) {
             if (node2.initializer.flags & 7) {
@@ -119699,7 +119699,7 @@ ${lanes.join("\n")}
               const declarationList = setTextRange(factory2.createVariableDeclarationList(declarations), node2.initializer);
               setOriginalNode(declarationList, node2.initializer);
               setSourceMapRange(declarationList, createRange(declarations[0].pos, last(declarations).end));
-              statements.push(
+              statements2.push(
                 factory2.createVariableStatement(
                   /*modifiers*/
                   void 0,
@@ -119707,7 +119707,7 @@ ${lanes.join("\n")}
                 )
               );
             } else {
-              statements.push(
+              statements2.push(
                 setTextRange(
                   factory2.createVariableStatement(
                     /*modifiers*/
@@ -119739,33 +119739,33 @@ ${lanes.join("\n")}
           } else {
             const assignment = factory2.createAssignment(initializer3, boundValue);
             if (isDestructuringAssignment(assignment)) {
-              statements.push(factory2.createExpressionStatement(visitBinaryExpression(
+              statements2.push(factory2.createExpressionStatement(visitBinaryExpression(
                 assignment,
                 /*expressionResultIsUnused*/
                 true
               )));
             } else {
               setTextRangeEnd(assignment, initializer3.end);
-              statements.push(setTextRange(factory2.createExpressionStatement(Debug.checkDefined(visitNode(assignment, visitor, isExpression))), moveRangeEnd(initializer3, -1)));
+              statements2.push(setTextRange(factory2.createExpressionStatement(Debug.checkDefined(visitNode(assignment, visitor, isExpression))), moveRangeEnd(initializer3, -1)));
             }
           }
           if (convertedLoopBodyStatements) {
-            return createSyntheticBlockForConvertedStatements(addRange(statements, convertedLoopBodyStatements));
+            return createSyntheticBlockForConvertedStatements(addRange(statements2, convertedLoopBodyStatements));
           } else {
             const statement = visitNode(node2.statement, visitor, isStatement, factory2.liftToBlock);
             Debug.assert(statement);
             if (isBlock(statement)) {
-              return factory2.updateBlock(statement, setTextRange(factory2.createNodeArray(concatenate(statements, statement.statements)), statement.statements));
+              return factory2.updateBlock(statement, setTextRange(factory2.createNodeArray(concatenate(statements2, statement.statements)), statement.statements));
             } else {
-              statements.push(statement);
-              return createSyntheticBlockForConvertedStatements(statements);
+              statements2.push(statement);
+              return createSyntheticBlockForConvertedStatements(statements2);
             }
           }
         }
-        function createSyntheticBlockForConvertedStatements(statements) {
+        function createSyntheticBlockForConvertedStatements(statements2) {
           return setEmitFlags(
             factory2.createBlock(
-              factory2.createNodeArray(statements),
+              factory2.createNodeArray(statements2),
               /*multiLine*/
               true
             ),
@@ -120085,17 +120085,17 @@ ${lanes.join("\n")}
             return result;
           }
           const currentState = createConvertedLoopState(node2);
-          const statements = [];
+          const statements2 = [];
           const outerConvertedLoopState = convertedLoopState;
           convertedLoopState = currentState;
           const initializerFunction = shouldConvertInitializerOfForStatement(node2) ? createFunctionForInitializerOfForStatement(node2, currentState) : void 0;
           const bodyFunction = shouldConvertBodyOfIterationStatement(node2) ? createFunctionForBodyOfIterationStatement(node2, currentState, outerConvertedLoopState) : void 0;
           convertedLoopState = outerConvertedLoopState;
-          if (initializerFunction) statements.push(initializerFunction.functionDeclaration);
-          if (bodyFunction) statements.push(bodyFunction.functionDeclaration);
-          addExtraDeclarationsForConvertedLoop(statements, currentState, outerConvertedLoopState);
+          if (initializerFunction) statements2.push(initializerFunction.functionDeclaration);
+          if (bodyFunction) statements2.push(bodyFunction.functionDeclaration);
+          addExtraDeclarationsForConvertedLoop(statements2, currentState, outerConvertedLoopState);
           if (initializerFunction) {
-            statements.push(generateCallToConvertedLoopInitializer(initializerFunction.functionName, initializerFunction.containsYield));
+            statements2.push(generateCallToConvertedLoopInitializer(initializerFunction.functionName, initializerFunction.containsYield));
           }
           let loop;
           if (bodyFunction) {
@@ -120113,8 +120113,8 @@ ${lanes.join("\n")}
             const clone22 = convertIterationStatementCore(node2, initializerFunction, Debug.checkDefined(visitNode(node2.statement, visitor, isStatement, factory2.liftToBlock)));
             loop = factory2.restoreEnclosingLabel(clone22, outermostLabeledStatement, convertedLoopState && resetLabel);
           }
-          statements.push(loop);
-          return statements;
+          statements2.push(loop);
+          return statements2;
         }
         function convertIterationStatementCore(node2, initializerFunction, convertedLoopBody) {
           switch (node2.kind) {
@@ -120209,7 +120209,7 @@ ${lanes.join("\n")}
           }
           return currentState;
         }
-        function addExtraDeclarationsForConvertedLoop(statements, state, outerState) {
+        function addExtraDeclarationsForConvertedLoop(statements2, state, outerState) {
           let extraVariableDeclarations;
           if (state.argumentsName) {
             if (outerState) {
@@ -120277,7 +120277,7 @@ ${lanes.join("\n")}
             ));
           }
           if (extraVariableDeclarations) {
-            statements.push(factory2.createVariableStatement(
+            statements2.push(factory2.createVariableStatement(
               /*modifiers*/
               void 0,
               factory2.createVariableDeclarationList(extraVariableDeclarations)
@@ -120300,13 +120300,13 @@ ${lanes.join("\n")}
           let emitFlags = 0;
           if (currentState.containsLexicalThis) emitFlags |= 16;
           if (containsYield && hierarchyFacts & 4) emitFlags |= 524288;
-          const statements = [];
-          statements.push(factory2.createVariableStatement(
+          const statements2 = [];
+          statements2.push(factory2.createVariableStatement(
             /*modifiers*/
             void 0,
             node2.initializer
           ));
-          copyOutParameters(currentState.loopOutParameters, 2, 1, statements);
+          copyOutParameters(currentState.loopOutParameters, 2, 1, statements2);
           const functionDeclaration = factory2.createVariableStatement(
             /*modifiers*/
             void 0,
@@ -120336,7 +120336,7 @@ ${lanes.join("\n")}
                       void 0,
                       Debug.checkDefined(visitNode(
                         factory2.createBlock(
-                          statements,
+                          statements2,
                           /*multiLine*/
                           true
                         ),
@@ -120360,23 +120360,23 @@ ${lanes.join("\n")}
           startLexicalEnvironment();
           const statement = visitNode(node2.statement, visitor, isStatement, factory2.liftToBlock);
           const lexicalEnvironment = endLexicalEnvironment();
-          const statements = [];
+          const statements2 = [];
           if (shouldConvertConditionOfForStatement(node2) || shouldConvertIncrementorOfForStatement(node2)) {
             currentState.conditionVariable = factory2.createUniqueName("inc");
             if (node2.incrementor) {
-              statements.push(factory2.createIfStatement(
+              statements2.push(factory2.createIfStatement(
                 currentState.conditionVariable,
                 factory2.createExpressionStatement(Debug.checkDefined(visitNode(node2.incrementor, visitor, isExpression))),
                 factory2.createExpressionStatement(factory2.createAssignment(currentState.conditionVariable, factory2.createTrue()))
               ));
             } else {
-              statements.push(factory2.createIfStatement(
+              statements2.push(factory2.createIfStatement(
                 factory2.createLogicalNot(currentState.conditionVariable),
                 factory2.createExpressionStatement(factory2.createAssignment(currentState.conditionVariable, factory2.createTrue()))
               ));
             }
             if (shouldConvertConditionOfForStatement(node2)) {
-              statements.push(factory2.createIfStatement(
+              statements2.push(factory2.createIfStatement(
                 factory2.createPrefixUnaryExpression(54, Debug.checkDefined(visitNode(node2.condition, visitor, isExpression))),
                 Debug.checkDefined(visitNode(factory2.createBreakStatement(), visitor, isStatement))
               ));
@@ -120384,14 +120384,14 @@ ${lanes.join("\n")}
           }
           Debug.assert(statement);
           if (isBlock(statement)) {
-            addRange(statements, statement.statements);
+            addRange(statements2, statement.statements);
           } else {
-            statements.push(statement);
+            statements2.push(statement);
           }
-          copyOutParameters(currentState.loopOutParameters, 1, 1, statements);
-          insertStatementsAfterStandardPrologue(statements, lexicalEnvironment);
+          copyOutParameters(currentState.loopOutParameters, 1, 1, statements2);
+          insertStatementsAfterStandardPrologue(statements2, lexicalEnvironment);
           const loopBody = factory2.createBlock(
-            statements,
+            statements2,
             /*multiLine*/
             true
           );
@@ -120446,10 +120446,10 @@ ${lanes.join("\n")}
           const target = copyDirection === 0 ? outParam.originalName : outParam.outParamName;
           return factory2.createBinaryExpression(target, 64, source);
         }
-        function copyOutParameters(outParams, partFlags, copyDirection, statements) {
+        function copyOutParameters(outParams, partFlags, copyDirection, statements2) {
           for (const outParam of outParams) {
             if (outParam.flags & partFlags) {
-              statements.push(factory2.createExpressionStatement(copyOutParameter(outParam, copyDirection)));
+              statements2.push(factory2.createExpressionStatement(copyOutParameter(outParam, copyDirection)));
             }
           }
         }
@@ -120474,7 +120474,7 @@ ${lanes.join("\n")}
           return factory2.createExpressionStatement(callResult);
         }
         function generateCallToConvertedLoop(loopFunctionExpressionName, state, outerState, containsYield) {
-          const statements = [];
+          const statements2 = [];
           const isSimpleLoop = !(state.nonLocalJumps & ~4) && !state.labeledNonLocalBreaks && !state.labeledNonLocalContinues;
           const call = factory2.createCallExpression(
             loopFunctionExpressionName,
@@ -120494,8 +120494,8 @@ ${lanes.join("\n")}
             )
           ) : call;
           if (isSimpleLoop) {
-            statements.push(factory2.createExpressionStatement(callResult));
-            copyOutParameters(state.loopOutParameters, 1, 0, statements);
+            statements2.push(factory2.createExpressionStatement(callResult));
+            copyOutParameters(state.loopOutParameters, 1, 0, statements2);
           } else {
             const loopResultName = factory2.createUniqueName("state");
             const stateVariable = factory2.createVariableStatement(
@@ -120512,8 +120512,8 @@ ${lanes.join("\n")}
                 )]
               )
             );
-            statements.push(stateVariable);
-            copyOutParameters(state.loopOutParameters, 1, 0, statements);
+            statements2.push(stateVariable);
+            copyOutParameters(state.loopOutParameters, 1, 0, statements2);
             if (state.nonLocalJumps & 8) {
               let returnStatement;
               if (outerState) {
@@ -120522,7 +120522,7 @@ ${lanes.join("\n")}
               } else {
                 returnStatement = factory2.createReturnStatement(factory2.createPropertyAccessExpression(loopResultName, "value"));
               }
-              statements.push(
+              statements2.push(
                 factory2.createIfStatement(
                   factory2.createTypeCheck(loopResultName, "object"),
                   returnStatement
@@ -120530,7 +120530,7 @@ ${lanes.join("\n")}
               );
             }
             if (state.nonLocalJumps & 2) {
-              statements.push(
+              statements2.push(
                 factory2.createIfStatement(
                   factory2.createStrictEquality(
                     loopResultName,
@@ -120558,7 +120558,7 @@ ${lanes.join("\n")}
                 outerState,
                 caseClauses
               );
-              statements.push(
+              statements2.push(
                 factory2.createSwitchStatement(
                   loopResultName,
                   factory2.createCaseBlock(caseClauses)
@@ -120566,7 +120566,7 @@ ${lanes.join("\n")}
               );
             }
           }
-          return statements;
+          return statements2;
         }
         function setLabeledJump(state, isBreak, labelText, labelMarker) {
           if (isBreak) {
@@ -120586,15 +120586,15 @@ ${lanes.join("\n")}
             return;
           }
           table3.forEach((labelMarker, labelText) => {
-            const statements = [];
+            const statements2 = [];
             if (!outerLoop || outerLoop.labels && outerLoop.labels.get(labelText)) {
               const label2 = factory2.createIdentifier(labelText);
-              statements.push(isBreak ? factory2.createBreakStatement(label2) : factory2.createContinueStatement(label2));
+              statements2.push(isBreak ? factory2.createBreakStatement(label2) : factory2.createContinueStatement(label2));
             } else {
               setLabeledJump(outerLoop, isBreak, labelText, labelMarker);
-              statements.push(factory2.createReturnStatement(loopResultName));
+              statements2.push(factory2.createReturnStatement(loopResultName));
             }
-            caseClauses.push(factory2.createCaseClause(factory2.createStringLiteral(labelMarker), statements));
+            caseClauses.push(factory2.createCaseClause(factory2.createStringLiteral(labelMarker), statements2));
           });
         }
         function processLoopVariableDeclaration(container, decl, loopParameters, loopOutParameters, hasCapturedBindingsInForHead) {
@@ -120878,16 +120878,16 @@ ${lanes.join("\n")}
           const funcStatements = func.body.statements;
           let classBodyStart = 0;
           let classBodyEnd = -1;
-          const statements = [];
+          const statements2 = [];
           if (aliasAssignment) {
             const extendsCall = tryCast(funcStatements[classBodyStart], isExpressionStatement);
             if (extendsCall) {
-              statements.push(extendsCall);
+              statements2.push(extendsCall);
               classBodyStart++;
             }
-            statements.push(funcStatements[classBodyStart]);
+            statements2.push(funcStatements[classBodyStart]);
             classBodyStart++;
-            statements.push(
+            statements2.push(
               factory2.createExpressionStatement(
                 factory2.createAssignment(
                   aliasAssignment.left,
@@ -120899,20 +120899,20 @@ ${lanes.join("\n")}
           while (!isReturnStatement(elementAt(funcStatements, classBodyEnd))) {
             classBodyEnd--;
           }
-          addRange(statements, funcStatements, classBodyStart, classBodyEnd);
+          addRange(statements2, funcStatements, classBodyStart, classBodyEnd);
           if (classBodyEnd < -1) {
-            addRange(statements, funcStatements, classBodyEnd + 1);
+            addRange(statements2, funcStatements, classBodyEnd + 1);
           }
           const returnStatement = tryCast(elementAt(funcStatements, classBodyEnd), isReturnStatement);
           for (const statement of remainingStatements) {
             if (isReturnStatement(statement) && (returnStatement == null ? void 0 : returnStatement.expression) && !isIdentifier(returnStatement.expression)) {
-              statements.push(returnStatement);
+              statements2.push(returnStatement);
             } else {
-              statements.push(statement);
+              statements2.push(statement);
             }
           }
           addRange(
-            statements,
+            statements2,
             classStatements,
             /*start*/
             1
@@ -120942,7 +120942,7 @@ ${lanes.join("\n")}
                       void 0,
                       factory2.updateBlock(
                         func.body,
-                        statements
+                        statements2
                       )
                     )
                   ),
@@ -121368,7 +121368,7 @@ ${lanes.join("\n")}
         let lastOperationWasAbrupt;
         let lastOperationWasCompletion;
         let clauses;
-        let statements;
+        let statements2;
         let exceptionBlockStack;
         let currentExceptionBlock;
         let withBlockStack;
@@ -121555,7 +121555,7 @@ ${lanes.join("\n")}
           return node2;
         }
         function transformGeneratorFunctionBody(body) {
-          const statements2 = [];
+          const statements22 = [];
           const savedInGeneratorFunctionBody = inGeneratorFunctionBody;
           const savedInStatementContainingYield = inStatementContainingYield;
           const savedBlocks = blocks;
@@ -121588,15 +121588,15 @@ ${lanes.join("\n")}
           resumeLexicalEnvironment();
           const statementOffset = factory2.copyPrologue(
             body.statements,
-            statements2,
+            statements22,
             /*ensureUseStrict*/
             false,
             visitor
           );
           transformAndEmitStatements(body.statements, statementOffset);
           const buildResult = build22();
-          insertStatementsAfterStandardPrologue(statements2, endLexicalEnvironment());
-          statements2.push(factory2.createReturnStatement(buildResult));
+          insertStatementsAfterStandardPrologue(statements22, endLexicalEnvironment());
+          statements22.push(factory2.createReturnStatement(buildResult));
           inGeneratorFunctionBody = savedInGeneratorFunctionBody;
           inStatementContainingYield = savedInStatementContainingYield;
           blocks = savedBlocks;
@@ -121610,7 +121610,7 @@ ${lanes.join("\n")}
           operationArguments = savedOperationArguments;
           operationLocations = savedOperationLocations;
           state = savedState;
-          return setTextRange(factory2.createBlock(statements2, body.multiLine), body);
+          return setTextRange(factory2.createBlock(statements22, body.multiLine), body);
         }
         function visitVariableStatement(node2) {
           if (node2.transformFlags & 1048576) {
@@ -121957,10 +121957,10 @@ ${lanes.join("\n")}
           }
           return visitEachChild(node2, visitor, context);
         }
-        function transformAndEmitStatements(statements2, start = 0) {
-          const numStatements = statements2.length;
+        function transformAndEmitStatements(statements22, start = 0) {
+          const numStatements = statements22.length;
           for (let i = start; i < numStatements; i++) {
-            transformAndEmitStatement(statements2[i]);
+            transformAndEmitStatement(statements22[i]);
           }
         }
         function transformAndEmitEmbeddedStatement(node2) {
@@ -122951,7 +122951,7 @@ ${lanes.join("\n")}
           lastOperationWasAbrupt = false;
           lastOperationWasCompletion = false;
           clauses = void 0;
-          statements = void 0;
+          statements2 = void 0;
           exceptionBlockStack = void 0;
           currentExceptionBlock = void 0;
           withBlockStack = void 0;
@@ -123001,13 +123001,13 @@ ${lanes.join("\n")}
             const switchStatement = factory2.createSwitchStatement(labelExpression, factory2.createCaseBlock(clauses));
             return [startOnNewLine(switchStatement)];
           }
-          if (statements) {
-            return statements;
+          if (statements2) {
+            return statements2;
           }
           return [];
         }
         function flushLabel() {
-          if (!statements) {
+          if (!statements2) {
             return;
           }
           appendLabel(
@@ -123029,7 +123029,7 @@ ${lanes.join("\n")}
               void 0
             );
           }
-          if (statements && clauses) {
+          if (statements2 && clauses) {
             appendLabel(
               /*markLabelEnd*/
               false
@@ -123055,16 +123055,16 @@ ${lanes.join("\n")}
           if (!clauses) {
             clauses = [];
           }
-          if (statements) {
+          if (statements2) {
             if (withBlockStack) {
               for (let i = withBlockStack.length - 1; i >= 0; i--) {
                 const withBlock = withBlockStack[i];
-                statements = [factory2.createWithStatement(withBlock.expression, factory2.createBlock(statements))];
+                statements2 = [factory2.createWithStatement(withBlock.expression, factory2.createBlock(statements2))];
               }
             }
             if (currentExceptionBlock) {
               const { startLabel, catchLabel, finallyLabel, endLabel } = currentExceptionBlock;
-              statements.unshift(
+              statements2.unshift(
                 factory2.createExpressionStatement(
                   factory2.createCallExpression(
                     factory2.createPropertyAccessExpression(factory2.createPropertyAccessExpression(state, "trys"), "push"),
@@ -123084,7 +123084,7 @@ ${lanes.join("\n")}
               currentExceptionBlock = void 0;
             }
             if (markLabelEnd) {
-              statements.push(
+              statements2.push(
                 factory2.createExpressionStatement(
                   factory2.createAssignment(
                     factory2.createPropertyAccessExpression(state, "label"),
@@ -123097,10 +123097,10 @@ ${lanes.join("\n")}
           clauses.push(
             factory2.createCaseClause(
               factory2.createNumericLiteral(labelNumber),
-              statements || []
+              statements2 || []
             )
           );
-          statements = void 0;
+          statements2 = void 0;
         }
         function tryEnterLabel(operationIndex) {
           if (!labelOffsets) {
@@ -123148,8 +123148,8 @@ ${lanes.join("\n")}
                     if (!exceptionBlockStack) {
                       exceptionBlockStack = [];
                     }
-                    if (!statements) {
-                      statements = [];
+                    if (!statements2) {
+                      statements2 = [];
                     }
                     exceptionBlockStack.push(currentExceptionBlock);
                     currentExceptionBlock = block2;
@@ -123211,10 +123211,10 @@ ${lanes.join("\n")}
         }
         function writeStatement(statement) {
           if (statement) {
-            if (!statements) {
-              statements = [statement];
+            if (!statements2) {
+              statements2 = [statement];
             } else {
-              statements.push(statement);
+              statements2.push(statement);
             }
           }
         }
@@ -123480,17 +123480,17 @@ ${lanes.join("\n")}
         }
         function transformCommonJSModule(node2) {
           startLexicalEnvironment();
-          const statements = [];
+          const statements2 = [];
           const ensureUseStrict = getAlwaysStrict(compilerOptions) || isExternalModule(currentSourceFile);
-          const statementOffset = factory2.copyPrologue(node2.statements, statements, ensureUseStrict && !isJsonSourceFile(node2), topLevelVisitor);
+          const statementOffset = factory2.copyPrologue(node2.statements, statements2, ensureUseStrict && !isJsonSourceFile(node2), topLevelVisitor);
           if (shouldEmitUnderscoreUnderscoreESModule()) {
-            append(statements, createUnderscoreUnderscoreESModule());
+            append(statements2, createUnderscoreUnderscoreESModule());
           }
           if (some(currentModuleInfo.exportedNames)) {
             const chunkSize = 50;
             for (let i = 0; i < currentModuleInfo.exportedNames.length; i += chunkSize) {
               append(
-                statements,
+                statements2,
                 factory2.createExpressionStatement(
                   reduceLeft(
                     currentModuleInfo.exportedNames.slice(i, i + chunkSize),
@@ -123502,17 +123502,17 @@ ${lanes.join("\n")}
             }
           }
           for (const f of currentModuleInfo.exportedFunctions) {
-            appendExportsOfHoistedDeclaration(statements, f);
+            appendExportsOfHoistedDeclaration(statements2, f);
           }
-          append(statements, visitNode(currentModuleInfo.externalHelpersImportDeclaration, topLevelVisitor, isStatement));
-          addRange(statements, visitNodes2(node2.statements, topLevelVisitor, isStatement, statementOffset));
+          append(statements2, visitNode(currentModuleInfo.externalHelpersImportDeclaration, topLevelVisitor, isStatement));
+          addRange(statements2, visitNodes2(node2.statements, topLevelVisitor, isStatement, statementOffset));
           addExportEqualsIfNeeded(
-            statements,
+            statements2,
             /*emitAsReturn*/
             false
           );
-          insertStatementsAfterStandardPrologue(statements, endLexicalEnvironment());
-          const updated = factory2.updateSourceFile(node2, setTextRange(factory2.createNodeArray(statements), node2.statements));
+          insertStatementsAfterStandardPrologue(statements2, endLexicalEnvironment());
+          const updated = factory2.updateSourceFile(node2, setTextRange(factory2.createNodeArray(statements2), node2.statements));
           addEmitHelpers(updated, context.readEmitHelpers());
           return updated;
         }
@@ -123810,39 +123810,39 @@ ${lanes.join("\n")}
         }
         function transformAsynchronousModuleBody(node2) {
           startLexicalEnvironment();
-          const statements = [];
+          const statements2 = [];
           const statementOffset = factory2.copyPrologue(
             node2.statements,
-            statements,
+            statements2,
             /*ensureUseStrict*/
             true,
             topLevelVisitor
           );
           if (shouldEmitUnderscoreUnderscoreESModule()) {
-            append(statements, createUnderscoreUnderscoreESModule());
+            append(statements2, createUnderscoreUnderscoreESModule());
           }
           if (some(currentModuleInfo.exportedNames)) {
             append(
-              statements,
+              statements2,
               factory2.createExpressionStatement(reduceLeft(currentModuleInfo.exportedNames, (prev, nextId) => nextId.kind === 11 ? factory2.createAssignment(factory2.createElementAccessExpression(factory2.createIdentifier("exports"), factory2.createStringLiteral(nextId.text)), prev) : factory2.createAssignment(factory2.createPropertyAccessExpression(factory2.createIdentifier("exports"), factory2.createIdentifier(idText(nextId))), prev), factory2.createVoidZero()))
             );
           }
           for (const f of currentModuleInfo.exportedFunctions) {
-            appendExportsOfHoistedDeclaration(statements, f);
+            appendExportsOfHoistedDeclaration(statements2, f);
           }
-          append(statements, visitNode(currentModuleInfo.externalHelpersImportDeclaration, topLevelVisitor, isStatement));
+          append(statements2, visitNode(currentModuleInfo.externalHelpersImportDeclaration, topLevelVisitor, isStatement));
           if (moduleKind === 2) {
-            addRange(statements, mapDefined(currentModuleInfo.externalImports, getAMDImportExpressionForImport));
+            addRange(statements2, mapDefined(currentModuleInfo.externalImports, getAMDImportExpressionForImport));
           }
-          addRange(statements, visitNodes2(node2.statements, topLevelVisitor, isStatement, statementOffset));
+          addRange(statements2, visitNodes2(node2.statements, topLevelVisitor, isStatement, statementOffset));
           addExportEqualsIfNeeded(
-            statements,
+            statements2,
             /*emitAsReturn*/
             true
           );
-          insertStatementsAfterStandardPrologue(statements, endLexicalEnvironment());
+          insertStatementsAfterStandardPrologue(statements2, endLexicalEnvironment());
           const body = factory2.createBlock(
-            statements,
+            statements2,
             /*multiLine*/
             true
           );
@@ -123851,7 +123851,7 @@ ${lanes.join("\n")}
           }
           return body;
         }
-        function addExportEqualsIfNeeded(statements, emitAsReturn) {
+        function addExportEqualsIfNeeded(statements2, emitAsReturn) {
           if (currentModuleInfo.exportEquals) {
             const expressionResult = visitNode(currentModuleInfo.exportEquals.expression, visitor, isExpression);
             if (expressionResult) {
@@ -123863,7 +123863,7 @@ ${lanes.join("\n")}
                   768 | 3072
                   /* NoComments */
                 );
-                statements.push(statement);
+                statements2.push(statement);
               } else {
                 const statement = factory2.createExpressionStatement(
                   factory2.createAssignment(
@@ -123880,7 +123880,7 @@ ${lanes.join("\n")}
                   3072
                   /* NoComments */
                 );
-                statements.push(statement);
+                statements2.push(statement);
               }
             }
           }
@@ -124056,19 +124056,19 @@ ${lanes.join("\n")}
               false
             );
             if (exportStatements) {
-              const statements = [];
+              const statements2 = [];
               const varDeclList = visitNode(node2.initializer, discardedValueVisitor, isVariableDeclarationList);
               const varStatement = factory2.createVariableStatement(
                 /*modifiers*/
                 void 0,
                 varDeclList
               );
-              statements.push(varStatement);
-              addRange(statements, exportStatements);
+              statements2.push(varStatement);
+              addRange(statements2, exportStatements);
               const condition = visitNode(node2.condition, visitor, isExpression);
               const incrementor = visitNode(node2.incrementor, discardedValueVisitor, isExpression);
               const body = visitIterationBody(node2.statement, isTopLevel ? topLevelNestedVisitor : visitor, context);
-              statements.push(factory2.updateForStatement(
+              statements2.push(factory2.updateForStatement(
                 node2,
                 /*initializer*/
                 void 0,
@@ -124076,7 +124076,7 @@ ${lanes.join("\n")}
                 incrementor,
                 body
               ));
-              return statements;
+              return statements2;
             }
           }
           return factory2.updateForStatement(
@@ -124522,7 +124522,7 @@ ${lanes.join("\n")}
           return innerExpr;
         }
         function visitTopLevelImportDeclaration(node2) {
-          let statements;
+          let statements2;
           const namespaceDeclaration = getNamespaceDeclarationNode(node2);
           if (moduleKind !== 2) {
             if (!node2.importClause) {
@@ -124564,8 +124564,8 @@ ${lanes.join("\n")}
                   );
                 }
               }
-              statements = append(
-                statements,
+              statements2 = append(
+                statements2,
                 setOriginalNode(
                   setTextRange(
                     factory2.createVariableStatement(
@@ -124586,8 +124586,8 @@ ${lanes.join("\n")}
               );
             }
           } else if (namespaceDeclaration && isDefaultImport(node2)) {
-            statements = append(
-              statements,
+            statements2 = append(
+              statements2,
               factory2.createVariableStatement(
                 /*modifiers*/
                 void 0,
@@ -124616,8 +124616,8 @@ ${lanes.join("\n")}
               )
             );
           }
-          statements = appendExportsOfImportDeclaration(statements, node2);
-          return singleOrMany(statements);
+          statements2 = appendExportsOfImportDeclaration(statements2, node2);
+          return singleOrMany(statements2);
         }
         function createRequireCall2(importNode) {
           const moduleName = getExternalModuleNameLiteral(factory2, importNode, currentSourceFile, host, resolver, compilerOptions);
@@ -124634,15 +124634,15 @@ ${lanes.join("\n")}
         }
         function visitTopLevelImportEqualsDeclaration(node2) {
           Debug.assert(isExternalModuleImportEqualsDeclaration(node2), "import= for internal module references should be handled in an earlier transformer.");
-          let statements;
+          let statements2;
           if (moduleKind !== 2) {
             if (hasSyntacticModifier(
               node2,
               32
               /* Export */
             )) {
-              statements = append(
-                statements,
+              statements2 = append(
+                statements2,
                 setOriginalNode(
                   setTextRange(
                     factory2.createExpressionStatement(
@@ -124657,8 +124657,8 @@ ${lanes.join("\n")}
                 )
               );
             } else {
-              statements = append(
-                statements,
+              statements2 = append(
+                statements2,
                 setOriginalNode(
                   setTextRange(
                     factory2.createVariableStatement(
@@ -124692,8 +124692,8 @@ ${lanes.join("\n")}
               32
               /* Export */
             )) {
-              statements = append(
-                statements,
+              statements2 = append(
+                statements2,
                 setOriginalNode(
                   setTextRange(
                     factory2.createExpressionStatement(
@@ -124706,8 +124706,8 @@ ${lanes.join("\n")}
               );
             }
           }
-          statements = appendExportsOfImportEqualsDeclaration(statements, node2);
-          return singleOrMany(statements);
+          statements2 = appendExportsOfImportEqualsDeclaration(statements2, node2);
+          return singleOrMany(statements2);
         }
         function visitTopLevelExportDeclaration(node2) {
           if (!node2.moduleSpecifier) {
@@ -124715,9 +124715,9 @@ ${lanes.join("\n")}
           }
           const generatedName = factory2.getGeneratedNameForNode(node2);
           if (node2.exportClause && isNamedExports(node2.exportClause)) {
-            const statements = [];
+            const statements2 = [];
             if (moduleKind !== 2) {
-              statements.push(
+              statements2.push(
                 setOriginalNode(
                   setTextRange(
                     factory2.createVariableStatement(
@@ -124747,7 +124747,7 @@ ${lanes.join("\n")}
               const exportNeedsImportDefault = !!getESModuleInterop(compilerOptions) && !(getInternalEmitFlags(node2) & 2) && moduleExportNameIsDefault(specifierName);
               const target = exportNeedsImportDefault ? emitHelpers().createImportDefaultHelper(generatedName) : generatedName;
               const exportedValue = specifierName.kind === 11 ? factory2.createElementAccessExpression(target, specifierName) : factory2.createPropertyAccessExpression(target, specifierName);
-              statements.push(
+              statements2.push(
                 setOriginalNode(
                   setTextRange(
                     factory2.createExpressionStatement(
@@ -124766,10 +124766,10 @@ ${lanes.join("\n")}
                 )
               );
             }
-            return singleOrMany(statements);
+            return singleOrMany(statements2);
           } else if (node2.exportClause) {
-            const statements = [];
-            statements.push(
+            const statements2 = [];
+            statements2.push(
               setOriginalNode(
                 setTextRange(
                   factory2.createExpressionStatement(
@@ -124786,7 +124786,7 @@ ${lanes.join("\n")}
                 node2
               )
             );
-            return singleOrMany(statements);
+            return singleOrMany(statements2);
           } else {
             return setOriginalNode(
               setTextRange(
@@ -124813,14 +124813,14 @@ ${lanes.join("\n")}
           );
         }
         function visitFunctionDeclaration(node2) {
-          let statements;
+          let statements2;
           if (hasSyntacticModifier(
             node2,
             32
             /* Export */
           )) {
-            statements = append(
-              statements,
+            statements2 = append(
+              statements2,
               setOriginalNode(
                 setTextRange(
                   factory2.createFunctionDeclaration(
@@ -124848,19 +124848,19 @@ ${lanes.join("\n")}
               )
             );
           } else {
-            statements = append(statements, visitEachChild(node2, visitor, context));
+            statements2 = append(statements2, visitEachChild(node2, visitor, context));
           }
-          return singleOrMany(statements);
+          return singleOrMany(statements2);
         }
         function visitClassDeclaration(node2) {
-          let statements;
+          let statements2;
           if (hasSyntacticModifier(
             node2,
             32
             /* Export */
           )) {
-            statements = append(
-              statements,
+            statements2 = append(
+              statements2,
               setOriginalNode(
                 setTextRange(
                   factory2.createClassDeclaration(
@@ -124883,13 +124883,13 @@ ${lanes.join("\n")}
               )
             );
           } else {
-            statements = append(statements, visitEachChild(node2, visitor, context));
+            statements2 = append(statements2, visitEachChild(node2, visitor, context));
           }
-          statements = appendExportsOfHoistedDeclaration(statements, node2);
-          return singleOrMany(statements);
+          statements2 = appendExportsOfHoistedDeclaration(statements2, node2);
+          return singleOrMany(statements2);
         }
         function visitVariableStatement(node2) {
-          let statements;
+          let statements2;
           let variables;
           let expressions;
           if (hasSyntacticModifier(
@@ -124949,20 +124949,20 @@ ${lanes.join("\n")}
               }
             }
             if (variables) {
-              statements = append(statements, factory2.updateVariableStatement(node2, modifiers, factory2.updateVariableDeclarationList(node2.declarationList, variables)));
+              statements2 = append(statements2, factory2.updateVariableStatement(node2, modifiers, factory2.updateVariableDeclarationList(node2.declarationList, variables)));
             }
             if (expressions) {
               const statement = setOriginalNode(setTextRange(factory2.createExpressionStatement(factory2.inlineExpressions(expressions)), node2), node2);
               if (removeCommentsOnExpressions) {
                 removeAllComments(statement);
               }
-              statements = append(statements, statement);
+              statements2 = append(statements2, statement);
             }
           } else {
-            statements = append(statements, visitEachChild(node2, visitor, context));
+            statements2 = append(statements2, visitEachChild(node2, visitor, context));
           }
-          statements = appendExportsOfVariableStatement(statements, node2);
-          return singleOrMany(statements);
+          statements2 = appendExportsOfVariableStatement(statements2, node2);
+          return singleOrMany(statements2);
         }
         function createAllExportExpressions(name, value, location) {
           const exportedNames = getExports(name);
@@ -125010,28 +125010,28 @@ ${lanes.join("\n")}
             );
           }
         }
-        function appendExportsOfImportDeclaration(statements, decl) {
+        function appendExportsOfImportDeclaration(statements2, decl) {
           if (currentModuleInfo.exportEquals) {
-            return statements;
+            return statements2;
           }
           const importClause = decl.importClause;
           if (!importClause) {
-            return statements;
+            return statements2;
           }
           const seen = new IdentifierNameMap();
           if (importClause.name) {
-            statements = appendExportsOfDeclaration(statements, seen, importClause);
+            statements2 = appendExportsOfDeclaration(statements2, seen, importClause);
           }
           const namedBindings = importClause.namedBindings;
           if (namedBindings) {
             switch (namedBindings.kind) {
               case 275:
-                statements = appendExportsOfDeclaration(statements, seen, namedBindings);
+                statements2 = appendExportsOfDeclaration(statements2, seen, namedBindings);
                 break;
               case 276:
                 for (const importBinding of namedBindings.elements) {
-                  statements = appendExportsOfDeclaration(
-                    statements,
+                  statements2 = appendExportsOfDeclaration(
+                    statements2,
                     seen,
                     importBinding,
                     /*liveBinding*/
@@ -125041,49 +125041,49 @@ ${lanes.join("\n")}
                 break;
             }
           }
-          return statements;
+          return statements2;
         }
-        function appendExportsOfImportEqualsDeclaration(statements, decl) {
+        function appendExportsOfImportEqualsDeclaration(statements2, decl) {
           if (currentModuleInfo.exportEquals) {
-            return statements;
+            return statements2;
           }
-          return appendExportsOfDeclaration(statements, new IdentifierNameMap(), decl);
+          return appendExportsOfDeclaration(statements2, new IdentifierNameMap(), decl);
         }
-        function appendExportsOfVariableStatement(statements, node2) {
+        function appendExportsOfVariableStatement(statements2, node2) {
           return appendExportsOfVariableDeclarationList(
-            statements,
+            statements2,
             node2.declarationList,
             /*isForInOrOfInitializer*/
             false
           );
         }
-        function appendExportsOfVariableDeclarationList(statements, node2, isForInOrOfInitializer) {
+        function appendExportsOfVariableDeclarationList(statements2, node2, isForInOrOfInitializer) {
           if (currentModuleInfo.exportEquals) {
-            return statements;
+            return statements2;
           }
           for (const decl of node2.declarations) {
-            statements = appendExportsOfBindingElement(statements, decl, isForInOrOfInitializer);
+            statements2 = appendExportsOfBindingElement(statements2, decl, isForInOrOfInitializer);
           }
-          return statements;
+          return statements2;
         }
-        function appendExportsOfBindingElement(statements, decl, isForInOrOfInitializer) {
+        function appendExportsOfBindingElement(statements2, decl, isForInOrOfInitializer) {
           if (currentModuleInfo.exportEquals) {
-            return statements;
+            return statements2;
           }
           if (isBindingPattern(decl.name)) {
             for (const element of decl.name.elements) {
               if (!isOmittedExpression(element)) {
-                statements = appendExportsOfBindingElement(statements, element, isForInOrOfInitializer);
+                statements2 = appendExportsOfBindingElement(statements2, element, isForInOrOfInitializer);
               }
             }
           } else if (!isGeneratedIdentifier(decl.name) && (!isVariableDeclaration(decl) || decl.initializer || isForInOrOfInitializer)) {
-            statements = appendExportsOfDeclaration(statements, new IdentifierNameMap(), decl);
+            statements2 = appendExportsOfDeclaration(statements2, new IdentifierNameMap(), decl);
           }
-          return statements;
+          return statements2;
         }
-        function appendExportsOfHoistedDeclaration(statements, decl) {
+        function appendExportsOfHoistedDeclaration(statements2, decl) {
           if (currentModuleInfo.exportEquals) {
-            return statements;
+            return statements2;
           }
           const seen = new IdentifierNameMap();
           if (hasSyntacticModifier(
@@ -125096,8 +125096,8 @@ ${lanes.join("\n")}
               2048
               /* Default */
             ) ? factory2.createIdentifier("default") : factory2.getDeclarationName(decl);
-            statements = appendExportStatement(
-              statements,
+            statements2 = appendExportStatement(
+              statements2,
               seen,
               exportName,
               factory2.getLocalName(decl),
@@ -125106,17 +125106,17 @@ ${lanes.join("\n")}
             );
           }
           if (decl.name) {
-            statements = appendExportsOfDeclaration(statements, seen, decl);
+            statements2 = appendExportsOfDeclaration(statements2, seen, decl);
           }
-          return statements;
+          return statements2;
         }
-        function appendExportsOfDeclaration(statements, seen, decl, liveBinding) {
+        function appendExportsOfDeclaration(statements2, seen, decl, liveBinding) {
           const name = factory2.getDeclarationName(decl);
           const exportSpecifiers = currentModuleInfo.exportSpecifiers.get(name);
           if (exportSpecifiers) {
             for (const exportSpecifier of exportSpecifiers) {
-              statements = appendExportStatement(
-                statements,
+              statements2 = appendExportStatement(
+                statements2,
                 seen,
                 exportSpecifier.name,
                 name,
@@ -125128,17 +125128,17 @@ ${lanes.join("\n")}
               );
             }
           }
-          return statements;
+          return statements2;
         }
-        function appendExportStatement(statements, seen, exportName, expression, location, allowComments, liveBinding) {
+        function appendExportStatement(statements2, seen, exportName, expression, location, allowComments, liveBinding) {
           if (exportName.kind !== 11) {
             if (seen.has(exportName)) {
-              return statements;
+              return statements2;
             }
             seen.set(exportName, true);
           }
-          statements = append(statements, createExportStatement(exportName, expression, location, allowComments, liveBinding));
-          return statements;
+          statements2 = append(statements2, createExportStatement(exportName, expression, location, allowComments, liveBinding));
+          return statements2;
         }
         function createUnderscoreUnderscoreESModule() {
           const statement = factory2.createExpressionStatement(
@@ -125572,11 +125572,11 @@ ${lanes.join("\n")}
           return dependencyGroups;
         }
         function createSystemModuleBody(node2, dependencyGroups) {
-          const statements = [];
+          const statements2 = [];
           startLexicalEnvironment();
           const ensureUseStrict = getAlwaysStrict(compilerOptions) || isExternalModule(currentSourceFile);
-          const statementOffset = factory2.copyPrologue(node2.statements, statements, ensureUseStrict, topLevelVisitor);
-          statements.push(
+          const statementOffset = factory2.copyPrologue(node2.statements, statements2, ensureUseStrict, topLevelVisitor);
+          statements2.push(
             factory2.createVariableStatement(
               /*modifiers*/
               void 0,
@@ -125597,9 +125597,9 @@ ${lanes.join("\n")}
           );
           visitNode(moduleInfo.externalHelpersImportDeclaration, topLevelVisitor, isStatement);
           const executeStatements = visitNodes2(node2.statements, topLevelVisitor, isStatement, statementOffset);
-          addRange(statements, hoistedStatements);
-          insertStatementsAfterStandardPrologue(statements, endLexicalEnvironment());
-          const exportStarFunction = addExportStarIfNeeded(statements);
+          addRange(statements2, hoistedStatements);
+          insertStatementsAfterStandardPrologue(statements2, endLexicalEnvironment());
+          const exportStarFunction = addExportStarIfNeeded(statements2);
           const modifiers = node2.transformFlags & 2097152 ? factory2.createModifiersFromModifierFlags(
             1024
             /* Async */
@@ -125632,14 +125632,14 @@ ${lanes.join("\n")}
             /*multiLine*/
             true
           );
-          statements.push(factory2.createReturnStatement(moduleObject));
+          statements2.push(factory2.createReturnStatement(moduleObject));
           return factory2.createBlock(
-            statements,
+            statements2,
             /*multiLine*/
             true
           );
         }
-        function addExportStarIfNeeded(statements) {
+        function addExportStarIfNeeded(statements2) {
           if (!moduleInfo.hasExportStarsToExportValues) {
             return;
           }
@@ -125656,7 +125656,7 @@ ${lanes.join("\n")}
                 /*localNames*/
                 void 0
               );
-              statements.push(exportStarFunction2);
+              statements2.push(exportStarFunction2);
               return exportStarFunction2.name;
             }
           }
@@ -125691,7 +125691,7 @@ ${lanes.join("\n")}
             );
           }
           const exportedNamesStorageRef = factory2.createUniqueName("exportedNames");
-          statements.push(
+          statements2.push(
             factory2.createVariableStatement(
               /*modifiers*/
               void 0,
@@ -125712,7 +125712,7 @@ ${lanes.join("\n")}
             )
           );
           const exportStarFunction = createExportStarFunction(exportedNamesStorageRef);
-          statements.push(exportStarFunction);
+          statements2.push(exportStarFunction);
           return exportStarFunction.name;
         }
         function createExportStarFunction(localNames) {
@@ -125807,7 +125807,7 @@ ${lanes.join("\n")}
           for (const group2 of dependencyGroups) {
             const localName = forEach(group2.externalImports, (i) => getLocalNameForExternalImport(factory2, i, currentSourceFile));
             const parameterName = localName ? factory2.getGeneratedNameForNode(localName) : factory2.createUniqueName("");
-            const statements = [];
+            const statements2 = [];
             for (const entry of group2.externalImports) {
               const importVariableName = getLocalNameForExternalImport(factory2, entry, currentSourceFile);
               switch (entry.kind) {
@@ -125818,7 +125818,7 @@ ${lanes.join("\n")}
                 // falls through
                 case 272:
                   Debug.assert(importVariableName !== void 0);
-                  statements.push(
+                  statements2.push(
                     factory2.createExpressionStatement(
                       factory2.createAssignment(importVariableName, parameterName)
                     )
@@ -125828,7 +125828,7 @@ ${lanes.join("\n")}
                     32
                     /* Export */
                   )) {
-                    statements.push(
+                    statements2.push(
                       factory2.createExpressionStatement(
                         factory2.createCallExpression(
                           exportFunction,
@@ -125859,7 +125859,7 @@ ${lanes.join("\n")}
                           )
                         );
                       }
-                      statements.push(
+                      statements2.push(
                         factory2.createExpressionStatement(
                           factory2.createCallExpression(
                             exportFunction,
@@ -125874,7 +125874,7 @@ ${lanes.join("\n")}
                         )
                       );
                     } else {
-                      statements.push(
+                      statements2.push(
                         factory2.createExpressionStatement(
                           factory2.createCallExpression(
                             exportFunction,
@@ -125889,7 +125889,7 @@ ${lanes.join("\n")}
                       );
                     }
                   } else {
-                    statements.push(
+                    statements2.push(
                       factory2.createExpressionStatement(
                         factory2.createCallExpression(
                           exportStarFunction,
@@ -125923,7 +125923,7 @@ ${lanes.join("\n")}
                 /*type*/
                 void 0,
                 factory2.createBlock(
-                  statements,
+                  statements2,
                   /*multiLine*/
                   true
                 )
@@ -125951,11 +125951,11 @@ ${lanes.join("\n")}
           }
         }
         function visitImportDeclaration(node2) {
-          let statements;
+          let statements2;
           if (node2.importClause) {
             hoistVariableDeclaration(getLocalNameForExternalImport(factory2, node2, currentSourceFile));
           }
-          return singleOrMany(appendExportsOfImportDeclaration(statements, node2));
+          return singleOrMany(appendExportsOfImportDeclaration(statements2, node2));
         }
         function visitExportDeclaration(node2) {
           Debug.assertIsDefined(node2);
@@ -125963,9 +125963,9 @@ ${lanes.join("\n")}
         }
         function visitImportEqualsDeclaration(node2) {
           Debug.assert(isExternalModuleImportEqualsDeclaration(node2), "import= for internal module references should be handled in an earlier transformer.");
-          let statements;
+          let statements2;
           hoistVariableDeclaration(getLocalNameForExternalImport(factory2, node2, currentSourceFile));
-          return singleOrMany(appendExportsOfImportEqualsDeclaration(statements, node2));
+          return singleOrMany(appendExportsOfImportEqualsDeclaration(statements2, node2));
         }
         function visitExportAssignment(node2) {
           if (node2.isExportEquals) {
@@ -126013,11 +126013,11 @@ ${lanes.join("\n")}
           return void 0;
         }
         function visitClassDeclaration(node2) {
-          let statements;
+          let statements2;
           const name = factory2.getLocalName(node2);
           hoistVariableDeclaration(name);
-          statements = append(
-            statements,
+          statements2 = append(
+            statements2,
             setTextRange(
               factory2.createExpressionStatement(
                 factory2.createAssignment(
@@ -126038,14 +126038,14 @@ ${lanes.join("\n")}
               node2
             )
           );
-          statements = appendExportsOfHoistedDeclaration(statements, node2);
-          return singleOrMany(statements);
+          statements2 = appendExportsOfHoistedDeclaration(statements2, node2);
+          return singleOrMany(statements2);
         }
         function visitVariableStatement(node2) {
           if (!shouldHoistVariableDeclarationList(node2.declarationList)) {
             return visitNode(node2, visitor, isStatement);
           }
-          let statements;
+          let statements2;
           if (isVarUsing(node2.declarationList) || isVarAwaitUsing(node2.declarationList)) {
             const modifiers = visitNodes2(node2.modifiers, modifierVisitor, isModifierLike);
             const declarations = [];
@@ -126068,7 +126068,7 @@ ${lanes.join("\n")}
               node2.declarationList,
               declarations
             );
-            statements = append(statements, factory2.updateVariableStatement(node2, modifiers, declarationList));
+            statements2 = append(statements2, factory2.updateVariableStatement(node2, modifiers, declarationList));
           } else {
             let expressions;
             const isExportedDeclaration = hasSyntacticModifier(
@@ -126084,16 +126084,16 @@ ${lanes.join("\n")}
               }
             }
             if (expressions) {
-              statements = append(statements, setTextRange(factory2.createExpressionStatement(factory2.inlineExpressions(expressions)), node2));
+              statements2 = append(statements2, setTextRange(factory2.createExpressionStatement(factory2.inlineExpressions(expressions)), node2));
             }
           }
-          statements = appendExportsOfVariableStatement(
-            statements,
+          statements2 = appendExportsOfVariableStatement(
+            statements2,
             node2,
             /*exportSelf*/
             false
           );
-          return singleOrMany(statements);
+          return singleOrMany(statements2);
         }
         function hoistBindingElement(node2) {
           if (isBindingPattern(node2.name)) {
@@ -126143,72 +126143,72 @@ ${lanes.join("\n")}
           hoistVariableDeclaration(factory2.cloneNode(name));
           return isExportedDeclaration ? createExportExpression(name, preventSubstitution(setTextRange(factory2.createAssignment(name, value), location))) : preventSubstitution(setTextRange(factory2.createAssignment(name, value), location));
         }
-        function appendExportsOfImportDeclaration(statements, decl) {
+        function appendExportsOfImportDeclaration(statements2, decl) {
           if (moduleInfo.exportEquals) {
-            return statements;
+            return statements2;
           }
           const importClause = decl.importClause;
           if (!importClause) {
-            return statements;
+            return statements2;
           }
           if (importClause.name) {
-            statements = appendExportsOfDeclaration(statements, importClause);
+            statements2 = appendExportsOfDeclaration(statements2, importClause);
           }
           const namedBindings = importClause.namedBindings;
           if (namedBindings) {
             switch (namedBindings.kind) {
               case 275:
-                statements = appendExportsOfDeclaration(statements, namedBindings);
+                statements2 = appendExportsOfDeclaration(statements2, namedBindings);
                 break;
               case 276:
                 for (const importBinding of namedBindings.elements) {
-                  statements = appendExportsOfDeclaration(statements, importBinding);
+                  statements2 = appendExportsOfDeclaration(statements2, importBinding);
                 }
                 break;
             }
           }
-          return statements;
+          return statements2;
         }
-        function appendExportsOfImportEqualsDeclaration(statements, decl) {
+        function appendExportsOfImportEqualsDeclaration(statements2, decl) {
           if (moduleInfo.exportEquals) {
-            return statements;
+            return statements2;
           }
-          return appendExportsOfDeclaration(statements, decl);
+          return appendExportsOfDeclaration(statements2, decl);
         }
-        function appendExportsOfVariableStatement(statements, node2, exportSelf) {
+        function appendExportsOfVariableStatement(statements2, node2, exportSelf) {
           if (moduleInfo.exportEquals) {
-            return statements;
+            return statements2;
           }
           for (const decl of node2.declarationList.declarations) {
             if (decl.initializer || exportSelf) {
-              statements = appendExportsOfBindingElement(statements, decl, exportSelf);
+              statements2 = appendExportsOfBindingElement(statements2, decl, exportSelf);
             }
           }
-          return statements;
+          return statements2;
         }
-        function appendExportsOfBindingElement(statements, decl, exportSelf) {
+        function appendExportsOfBindingElement(statements2, decl, exportSelf) {
           if (moduleInfo.exportEquals) {
-            return statements;
+            return statements2;
           }
           if (isBindingPattern(decl.name)) {
             for (const element of decl.name.elements) {
               if (!isOmittedExpression(element)) {
-                statements = appendExportsOfBindingElement(statements, element, exportSelf);
+                statements2 = appendExportsOfBindingElement(statements2, element, exportSelf);
               }
             }
           } else if (!isGeneratedIdentifier(decl.name)) {
             let excludeName;
             if (exportSelf) {
-              statements = appendExportStatement(statements, decl.name, factory2.getLocalName(decl));
+              statements2 = appendExportStatement(statements2, decl.name, factory2.getLocalName(decl));
               excludeName = idText(decl.name);
             }
-            statements = appendExportsOfDeclaration(statements, decl, excludeName);
+            statements2 = appendExportsOfDeclaration(statements2, decl, excludeName);
           }
-          return statements;
+          return statements2;
         }
-        function appendExportsOfHoistedDeclaration(statements, decl) {
+        function appendExportsOfHoistedDeclaration(statements2, decl) {
           if (moduleInfo.exportEquals) {
-            return statements;
+            return statements2;
           }
           let excludeName;
           if (hasSyntacticModifier(
@@ -126221,32 +126221,32 @@ ${lanes.join("\n")}
               2048
               /* Default */
             ) ? factory2.createStringLiteral("default") : decl.name;
-            statements = appendExportStatement(statements, exportName, factory2.getLocalName(decl));
+            statements2 = appendExportStatement(statements2, exportName, factory2.getLocalName(decl));
             excludeName = getTextOfIdentifierOrLiteral(exportName);
           }
           if (decl.name) {
-            statements = appendExportsOfDeclaration(statements, decl, excludeName);
+            statements2 = appendExportsOfDeclaration(statements2, decl, excludeName);
           }
-          return statements;
+          return statements2;
         }
-        function appendExportsOfDeclaration(statements, decl, excludeName) {
+        function appendExportsOfDeclaration(statements2, decl, excludeName) {
           if (moduleInfo.exportEquals) {
-            return statements;
+            return statements2;
           }
           const name = factory2.getDeclarationName(decl);
           const exportSpecifiers = moduleInfo.exportSpecifiers.get(name);
           if (exportSpecifiers) {
             for (const exportSpecifier of exportSpecifiers) {
               if (moduleExportNameTextUnescaped(exportSpecifier.name) !== excludeName) {
-                statements = appendExportStatement(statements, exportSpecifier.name, name);
+                statements2 = appendExportStatement(statements2, exportSpecifier.name, name);
               }
             }
           }
-          return statements;
+          return statements2;
         }
-        function appendExportStatement(statements, exportName, expression, allowComments) {
-          statements = append(statements, createExportStatement(exportName, expression, allowComments));
-          return statements;
+        function appendExportStatement(statements2, exportName, expression, allowComments) {
+          statements2 = append(statements2, createExportStatement(exportName, expression, allowComments));
+          return statements2;
         }
         function createExportStatement(name, value, allowComments) {
           const statement = factory2.createExpressionStatement(createExportExpression(name, value));
@@ -126864,13 +126864,13 @@ ${lanes.join("\n")}
         function updateExternalModule(node2) {
           const externalHelpersImportDeclaration = createExternalHelpersImportDeclarationIfNeeded(factory2, emitHelpers(), node2, compilerOptions);
           if (externalHelpersImportDeclaration) {
-            const statements = [];
-            const statementOffset = factory2.copyPrologue(node2.statements, statements);
-            addRange(statements, visitArray([externalHelpersImportDeclaration], visitor, isStatement));
-            addRange(statements, visitNodes2(node2.statements, visitor, isStatement, statementOffset));
+            const statements2 = [];
+            const statementOffset = factory2.copyPrologue(node2.statements, statements2);
+            addRange(statements2, visitArray([externalHelpersImportDeclaration], visitor, isStatement));
+            addRange(statements2, visitNodes2(node2.statements, visitor, isStatement, statementOffset));
             return factory2.updateSourceFile(
               node2,
-              setTextRange(factory2.createNodeArray(statements), node2.statements)
+              setTextRange(factory2.createNodeArray(statements2), node2.statements)
             );
           } else {
             return visitEachChild(node2, visitor, context);
@@ -127011,9 +127011,9 @@ ${lanes.join("\n")}
         }
         function visitImportEqualsDeclaration(node2) {
           Debug.assert(isExternalModuleImportEqualsDeclaration(node2), "import= for internal module references should be handled in an earlier transformer.");
-          let statements;
-          statements = append(
-            statements,
+          let statements2;
+          statements2 = append(
+            statements2,
             setOriginalNode(
               setTextRange(
                 factory2.createVariableStatement(
@@ -127040,17 +127040,17 @@ ${lanes.join("\n")}
               node2
             )
           );
-          statements = appendExportsOfImportEqualsDeclaration(statements, node2);
-          return singleOrMany(statements);
+          statements2 = appendExportsOfImportEqualsDeclaration(statements2, node2);
+          return singleOrMany(statements2);
         }
-        function appendExportsOfImportEqualsDeclaration(statements, node2) {
+        function appendExportsOfImportEqualsDeclaration(statements2, node2) {
           if (hasSyntacticModifier(
             node2,
             32
             /* Export */
           )) {
-            statements = append(
-              statements,
+            statements2 = append(
+              statements2,
               factory2.createExportDeclaration(
                 /*modifiers*/
                 void 0,
@@ -127065,7 +127065,7 @@ ${lanes.join("\n")}
               )
             );
           }
-          return statements;
+          return statements2;
         }
         function visitExportAssignment(node2) {
           if (node2.isExportEquals) {
@@ -128009,7 +128009,7 @@ ${lanes.join("\n")}
                 if (isExternalOrCommonJsModule(sourceFile) || isJsonSourceFile(sourceFile)) {
                   resultHasExternalModuleIndicator = false;
                   needsDeclare = false;
-                  const statements = isSourceFileJS(sourceFile) ? factory2.createNodeArray(transformDeclarationsForJS(sourceFile)) : visitNodes2(sourceFile.statements, visitDeclarationStatements, isStatement);
+                  const statements2 = isSourceFileJS(sourceFile) ? factory2.createNodeArray(transformDeclarationsForJS(sourceFile)) : visitNodes2(sourceFile.statements, visitDeclarationStatements, isStatement);
                   const newFile = factory2.updateSourceFile(
                     sourceFile,
                     [factory2.createModuleDeclaration(
@@ -128018,7 +128018,7 @@ ${lanes.join("\n")}
                         /* DeclareKeyword */
                       )],
                       factory2.createStringLiteral(getResolvedExternalModuleName(context.getEmitHost(), sourceFile)),
-                      factory2.createModuleBlock(setTextRange(factory2.createNodeArray(transformAndReplaceLatePaintedStatements(statements)), sourceFile.statements))
+                      factory2.createModuleBlock(setTextRange(factory2.createNodeArray(transformAndReplaceLatePaintedStatements(statements2)), sourceFile.statements))
                     )],
                     /*isDeclarationFile*/
                     true,
@@ -128081,8 +128081,8 @@ ${lanes.join("\n")}
           if (isSourceFileJS(currentSourceFile)) {
             combinedStatements = factory2.createNodeArray(transformDeclarationsForJS(node2));
           } else {
-            const statements = visitNodes2(node2.statements, visitDeclarationStatements, isStatement);
-            combinedStatements = setTextRange(factory2.createNodeArray(transformAndReplaceLatePaintedStatements(statements)), node2.statements);
+            const statements2 = visitNodes2(node2.statements, visitDeclarationStatements, isStatement);
+            combinedStatements = setTextRange(factory2.createNodeArray(transformAndReplaceLatePaintedStatements(statements2)), node2.statements);
             if (isExternalModule(node2) && (!resultHasExternalModuleIndicator || needsScopeFixMarker && !resultHasScopeMarker)) {
               combinedStatements = setTextRange(factory2.createNodeArray([...combinedStatements, createEmptyExports(factory2)]), combinedStatements);
             }
@@ -128484,7 +128484,7 @@ ${lanes.join("\n")}
           const mode = getResolutionModeOverride(node2);
           return node2 && mode !== void 0 ? node2 : void 0;
         }
-        function transformAndReplaceLatePaintedStatements(statements) {
+        function transformAndReplaceLatePaintedStatements(statements2) {
           while (length(lateMarkedStatements)) {
             const i = lateMarkedStatements.shift();
             if (!isLateVisibilityPaintedStatement(i)) {
@@ -128496,7 +128496,7 @@ ${lanes.join("\n")}
             needsDeclare = priorNeedsDeclare;
             lateStatementReplacementMap.set(getOriginalNodeId(i), result);
           }
-          return visitNodes2(statements, visitLateVisibilityMarkedStatements, isStatement);
+          return visitNodes2(statements2, visitLateVisibilityMarkedStatements, isStatement);
           function visitLateVisibilityMarkedStatements(statement) {
             if (isLateVisibilityPaintedStatement(statement)) {
               const key = getOriginalNodeId(statement);
@@ -129141,8 +129141,8 @@ ${lanes.join("\n")}
                 const oldHasScopeFix = resultHasScopeMarker;
                 resultHasScopeMarker = false;
                 needsScopeFixMarker = false;
-                const statements = visitNodes2(inner.statements, visitDeclarationStatements, isStatement);
-                let lateStatements = transformAndReplaceLatePaintedStatements(statements);
+                const statements2 = visitNodes2(inner.statements, visitDeclarationStatements, isStatement);
+                let lateStatements = transformAndReplaceLatePaintedStatements(statements2);
                 if (input2.flags & 33554432) {
                   needsScopeFixMarker = false;
                 }
@@ -129423,8 +129423,8 @@ ${lanes.join("\n")}
         function isScopeMarker2(node2) {
           return isExportAssignment(node2) || isExportDeclaration(node2);
         }
-        function hasScopeMarker2(statements) {
-          return some(statements, isScopeMarker2);
+        function hasScopeMarker2(statements2) {
+          return some(statements2, isScopeMarker2);
         }
         function ensureModifiers(node2) {
           const currentFlags = getEffectiveModifierFlags(node2);
@@ -129841,10 +129841,10 @@ ${lanes.join("\n")}
           Debug.assert(state > 0, "Cannot modify the lexical environment during initialization.");
           Debug.assert(state < 2, "Cannot modify the lexical environment after transformation has completed.");
           Debug.assert(!lexicalEnvironmentSuspended, "Lexical environment is suspended.");
-          let statements;
+          let statements2;
           if (lexicalEnvironmentVariableDeclarations || lexicalEnvironmentFunctionDeclarations || lexicalEnvironmentStatements) {
             if (lexicalEnvironmentFunctionDeclarations) {
-              statements = [...lexicalEnvironmentFunctionDeclarations];
+              statements2 = [...lexicalEnvironmentFunctionDeclarations];
             }
             if (lexicalEnvironmentVariableDeclarations) {
               const statement = factory2.createVariableStatement(
@@ -129857,17 +129857,17 @@ ${lanes.join("\n")}
                 2097152
                 /* CustomPrologue */
               );
-              if (!statements) {
-                statements = [statement];
+              if (!statements2) {
+                statements2 = [statement];
               } else {
-                statements.push(statement);
+                statements2.push(statement);
               }
             }
             if (lexicalEnvironmentStatements) {
-              if (!statements) {
-                statements = [...lexicalEnvironmentStatements];
+              if (!statements2) {
+                statements2 = [...lexicalEnvironmentStatements];
               } else {
-                statements = [...statements, ...lexicalEnvironmentStatements];
+                statements2 = [...statements2, ...lexicalEnvironmentStatements];
               }
             }
           }
@@ -129882,7 +129882,7 @@ ${lanes.join("\n")}
             lexicalEnvironmentStatementsStack = [];
             lexicalEnvironmentFlagsStack = [];
           }
-          return statements;
+          return statements2;
         }
         function setLexicalEnvironmentFlags(flags, value) {
           lexicalEnvironmentFlags = value ? lexicalEnvironmentFlags | flags : lexicalEnvironmentFlags & ~flags;
@@ -129900,7 +129900,7 @@ ${lanes.join("\n")}
         function endBlockScope() {
           Debug.assert(state > 0, "Cannot end a block scope during initialization.");
           Debug.assert(state < 2, "Cannot end a block scope after transformation has completed.");
-          const statements = some(blockScopedVariableDeclarations) ? [
+          const statements2 = some(blockScopedVariableDeclarations) ? [
             factory2.createVariableStatement(
               /*modifiers*/
               void 0,
@@ -129916,7 +129916,7 @@ ${lanes.join("\n")}
           if (blockScopeStackOffset === 0) {
             blockScopedVariableDeclarationsStack = [];
           }
-          return statements;
+          return statements2;
         }
         function addBlockScopedVariable(name) {
           Debug.assert(blockScopeStackOffset > 0, "Cannot add a block scoped variable outside of an iteration body.");
@@ -133340,9 +133340,9 @@ ${lanes.join("\n")}
           const pos = emitTokenWithComment(90, node2.pos, writeKeyword, node2);
           emitCaseOrDefaultClauseRest(node2, node2.statements, pos);
         }
-        function emitCaseOrDefaultClauseRest(parentNode, statements, colonPos) {
-          const emitAsSingleStatement = statements.length === 1 && // treat synthesized nodes as located on the same line for emit purposes
-          (!currentSourceFile || nodeIsSynthesized(parentNode) || nodeIsSynthesized(statements[0]) || rangeStartPositionsAreOnSameLine(parentNode, statements[0], currentSourceFile));
+        function emitCaseOrDefaultClauseRest(parentNode, statements2, colonPos) {
+          const emitAsSingleStatement = statements2.length === 1 && // treat synthesized nodes as located on the same line for emit purposes
+          (!currentSourceFile || nodeIsSynthesized(parentNode) || nodeIsSynthesized(statements2[0]) || rangeStartPositionsAreOnSameLine(parentNode, statements2[0], currentSourceFile));
           let format = 163969;
           if (emitAsSingleStatement) {
             writeToken(59, colonPos, writePunctuation, parentNode);
@@ -133351,7 +133351,7 @@ ${lanes.join("\n")}
           } else {
             emitTokenWithComment(59, colonPos, writePunctuation, parentNode);
           }
-          emitList(parentNode, statements, format);
+          emitList(parentNode, statements2, format);
         }
         function emitHeritageClause(node2) {
           writeSpace();
@@ -133596,10 +133596,10 @@ ${lanes.join("\n")}
         }
         function emitSourceFile(node2) {
           writeLine();
-          const statements = node2.statements;
-          const shouldEmitDetachedComment = statements.length === 0 || !isPrologueDirective(statements[0]) || nodeIsSynthesized(statements[0]);
+          const statements2 = node2.statements;
+          const shouldEmitDetachedComment = statements2.length === 0 || !isPrologueDirective(statements2[0]) || nodeIsSynthesized(statements2[0]);
           if (shouldEmitDetachedComment) {
-            emitBodyWithDetachedComments(node2, statements, emitSourceFileWorker);
+            emitBodyWithDetachedComments(node2, statements2, emitSourceFileWorker);
             return;
           }
           emitSourceFileWorker(node2);
@@ -133638,19 +133638,19 @@ ${lanes.join("\n")}
           writeDirectives("lib", libs2);
         }
         function emitSourceFileWorker(node2) {
-          const statements = node2.statements;
+          const statements2 = node2.statements;
           pushNameGenerationScope(node2);
           forEach(node2.statements, generateNames);
           emitHelpers(node2);
-          const index = findIndex(statements, (statement) => !isPrologueDirective(statement));
+          const index = findIndex(statements2, (statement) => !isPrologueDirective(statement));
           emitTripleSlashDirectivesIfNeeded(node2);
           emitList(
             node2,
-            statements,
+            statements2,
             1,
             /*parenthesizerRule*/
             void 0,
-            index === -1 ? statements.length : index
+            index === -1 ? statements2.length : index
           );
           popNameGenerationScope(node2);
         }
@@ -133673,10 +133673,10 @@ ${lanes.join("\n")}
             void 0
           );
         }
-        function emitPrologueDirectives(statements, sourceFile, seenPrologueDirectives) {
+        function emitPrologueDirectives(statements2, sourceFile, seenPrologueDirectives) {
           let needsToSetSourceFile = !!sourceFile;
-          for (let i = 0; i < statements.length; i++) {
-            const statement = statements[i];
+          for (let i = 0; i < statements2.length; i++) {
+            const statement = statements2[i];
             if (isPrologueDirective(statement)) {
               const shouldEmitPrologueDirective = seenPrologueDirectives ? !seenPrologueDirectives.has(statement.expression.text) : true;
               if (shouldEmitPrologueDirective) {
@@ -133694,7 +133694,7 @@ ${lanes.join("\n")}
               return i;
             }
           }
-          return statements.length;
+          return statements2.length;
         }
         function emitPrologueDirectivesIfNeeded(sourceFileOrBundle) {
           if (isSourceFile(sourceFileOrBundle)) {
@@ -148991,8 +148991,8 @@ ${lanes.join("\n")}
       function indent22(str2) {
         return indentStr + str2.replace(/\n/g, indentStr);
       }
-      function stringifyIndented(json3) {
-        return indent22(JSON.stringify(json3, void 0, 2));
+      function stringifyIndented(json4) {
+        return indent22(JSON.stringify(json4, void 0, 2));
       }
       function isTypingUpToDate(cachedTyping, availableTypingVersions) {
         const availableVersion = new Version(getProperty(availableTypingVersions, `ts${versionMajorMinor}`) || getProperty(availableTypingVersions, "latest"));
@@ -157809,7 +157809,7 @@ interface Symbol {
         kinds: [moveToFileAction.kind],
         getAvailableActions: function getRefactorActionsToMoveToFile(context, interactiveRefactorArguments) {
           const file2 = context.file;
-          const statements = getStatementsToMove(context);
+          const statements2 = getStatementsToMove(context);
           if (!interactiveRefactorArguments) {
             return emptyArray;
           }
@@ -157820,10 +157820,10 @@ interface Symbol {
               return emptyArray;
             }
           }
-          if (context.preferences.allowTextChangesInNewFiles && statements) {
+          if (context.preferences.allowTextChangesInNewFiles && statements2) {
             const affectedTextRange = {
-              start: { line: getLineAndCharacterOfPosition(file2, statements.all[0].getStart(file2)).line, offset: getLineAndCharacterOfPosition(file2, statements.all[0].getStart(file2)).character },
-              end: { line: getLineAndCharacterOfPosition(file2, last(statements.all).end).line, offset: getLineAndCharacterOfPosition(file2, last(statements.all).end).character }
+              start: { line: getLineAndCharacterOfPosition(file2, statements2.all[0].getStart(file2)).line, offset: getLineAndCharacterOfPosition(file2, statements2.all[0].getStart(file2)).character },
+              end: { line: getLineAndCharacterOfPosition(file2, last(statements2.all).end).line, offset: getLineAndCharacterOfPosition(file2, last(statements2.all).end).character }
             };
             return [{ name: refactorNameForMoveToFile, description, actions: [{ ...moveToFileAction, range: affectedTextRange }] }];
           }
@@ -157834,7 +157834,7 @@ interface Symbol {
         },
         getEditsForAction: function getRefactorEditsToMoveToFile(context, actionName2, interactiveRefactorArguments) {
           Debug.assert(actionName2 === refactorNameForMoveToFile, "Wrong refactor invoked");
-          const statements = Debug.checkDefined(getStatementsToMove(context));
+          const statements2 = Debug.checkDefined(getStatementsToMove(context));
           const { host, program: program3 } = context;
           Debug.assert(interactiveRefactorArguments, "No interactive refactor arguments available");
           const targetFile = interactiveRefactorArguments.targetFile;
@@ -157842,7 +157842,7 @@ interface Symbol {
             if (host.fileExists(targetFile) && program3.getSourceFile(targetFile) === void 0) {
               return error62(getLocaleSpecificMessage(Diagnostics.Cannot_move_statements_to_the_selected_file));
             }
-            const edits = ts_textChanges_exports.ChangeTracker.with(context, (t) => doChange3(context, context.file, interactiveRefactorArguments.targetFile, context.program, statements, t, context.host, context.preferences));
+            const edits = ts_textChanges_exports.ChangeTracker.with(context, (t) => doChange3(context, context.file, interactiveRefactorArguments.targetFile, context.program, statements2, t, context.host, context.preferences));
             return { edits, renameFilename: void 0, renameLocation: void 0 };
           }
           return error62(getLocaleSpecificMessage(Diagnostics.Cannot_move_to_file_selected_file_is_invalid));
@@ -158319,25 +158319,25 @@ interface Symbol {
       function getRangeToMove(context) {
         const { file: file2 } = context;
         const range = createTextRangeFromSpan(getRefactorContextSpan(context));
-        const { statements } = file2;
-        let startNodeIndex = findIndex(statements, (s) => s.end > range.pos);
+        const { statements: statements2 } = file2;
+        let startNodeIndex = findIndex(statements2, (s) => s.end > range.pos);
         if (startNodeIndex === -1) return void 0;
-        const startStatement = statements[startNodeIndex];
+        const startStatement = statements2[startNodeIndex];
         const overloadRangeToMove = getOverloadRangeToMove(file2, startStatement);
         if (overloadRangeToMove) {
           startNodeIndex = overloadRangeToMove.start;
         }
-        let endNodeIndex = findIndex(statements, (s) => s.end >= range.end, startNodeIndex);
-        if (endNodeIndex !== -1 && range.end <= statements[endNodeIndex].getStart()) {
+        let endNodeIndex = findIndex(statements2, (s) => s.end >= range.end, startNodeIndex);
+        if (endNodeIndex !== -1 && range.end <= statements2[endNodeIndex].getStart()) {
           endNodeIndex--;
         }
-        const endingOverloadRangeToMove = getOverloadRangeToMove(file2, statements[endNodeIndex]);
+        const endingOverloadRangeToMove = getOverloadRangeToMove(file2, statements2[endNodeIndex]);
         if (endingOverloadRangeToMove) {
           endNodeIndex = endingOverloadRangeToMove.end;
         }
         return {
-          toMove: statements.slice(startNodeIndex, endNodeIndex === -1 ? statements.length : endNodeIndex + 1),
-          afterLast: endNodeIndex === -1 ? void 0 : statements[endNodeIndex + 1]
+          toMove: statements2.slice(startNodeIndex, endNodeIndex === -1 ? statements2.length : endNodeIndex + 1),
+          afterLast: endNodeIndex === -1 ? void 0 : statements2[endNodeIndex + 1]
         };
       }
       function getStatementsToMove(context) {
@@ -158352,8 +158352,8 @@ interface Symbol {
         });
         return all.length === 0 ? void 0 : { all, ranges };
       }
-      function containsJsx2(statements) {
-        return find(statements, (statement) => !!(statement.transformFlags & 2));
+      function containsJsx2(statements2) {
+        return find(statements2, (statement) => !!(statement.transformFlags & 2));
       }
       function isAllowedStatementToMove(statement) {
         return !isPureImport(statement) && !isPrologueDirective(statement);
@@ -158539,7 +158539,7 @@ interface Symbol {
             return false;
         }
       }
-      function moveStatementsToTargetFile(changes, program3, statements, targetFile, toMove) {
+      function moveStatementsToTargetFile(changes, program3, statements2, targetFile, toMove) {
         var _a3;
         const removedExports = /* @__PURE__ */ new Set();
         const targetExports = (_a3 = targetFile.symbol) == null ? void 0 : _a3.exports;
@@ -158582,12 +158582,12 @@ interface Symbol {
           changes.insertNodesBefore(
             targetFile,
             lastReExport,
-            statements,
+            statements2,
             /*blankLineBetween*/
             true
           );
         } else {
-          changes.insertNodesAfter(targetFile, targetFile.statements[targetFile.statements.length - 1], statements);
+          changes.insertNodesAfter(targetFile, targetFile.statements[targetFile.statements.length - 1], statements2);
         }
       }
       function getOverloadRangeToMove(sourceFile, statement) {
@@ -158605,7 +158605,7 @@ interface Symbol {
         }
         return void 0;
       }
-      function getExistingLocals(sourceFile, statements, checker) {
+      function getExistingLocals(sourceFile, statements2, checker) {
         const existingLocals = /* @__PURE__ */ new Set();
         for (const moduleSpecifier of sourceFile.imports) {
           const declaration = importFromModuleSpecifier(moduleSpecifier);
@@ -158626,7 +158626,7 @@ interface Symbol {
             }
           }
         }
-        for (const statement of statements) {
+        for (const statement of statements2) {
           forEachReference(
             statement,
             checker,
@@ -158846,7 +158846,7 @@ interface Symbol {
       registerRefactor(refactorName5, {
         kinds: [moveToNewFileAction.kind],
         getAvailableActions: function getRefactorActionsToMoveToNewFile(context) {
-          const statements = getStatementsToMove(context);
+          const statements2 = getStatementsToMove(context);
           const file2 = context.file;
           if (context.triggerReason === "implicit" && context.endPosition !== void 0) {
             const startNodeAncestor = findAncestor(getTokenAtPosition(file2, context.startPosition), isBlockLike);
@@ -158855,11 +158855,11 @@ interface Symbol {
               return emptyArray;
             }
           }
-          if (context.preferences.allowTextChangesInNewFiles && statements) {
+          if (context.preferences.allowTextChangesInNewFiles && statements2) {
             const file22 = context.file;
             const affectedTextRange = {
-              start: { line: getLineAndCharacterOfPosition(file22, statements.all[0].getStart(file22)).line, offset: getLineAndCharacterOfPosition(file22, statements.all[0].getStart(file22)).character },
-              end: { line: getLineAndCharacterOfPosition(file22, last(statements.all).end).line, offset: getLineAndCharacterOfPosition(file22, last(statements.all).end).character }
+              start: { line: getLineAndCharacterOfPosition(file22, statements2.all[0].getStart(file22)).line, offset: getLineAndCharacterOfPosition(file22, statements2.all[0].getStart(file22)).character },
+              end: { line: getLineAndCharacterOfPosition(file22, last(statements2.all).end).line, offset: getLineAndCharacterOfPosition(file22, last(statements2.all).end).character }
             };
             return [{ name: refactorName5, description: description2, actions: [{ ...moveToNewFileAction, range: affectedTextRange }] }];
           }
@@ -158870,8 +158870,8 @@ interface Symbol {
         },
         getEditsForAction: function getRefactorEditsToMoveToNewFile(context, actionName2) {
           Debug.assert(actionName2 === refactorName5, "Wrong refactor invoked");
-          const statements = Debug.checkDefined(getStatementsToMove(context));
-          const edits = ts_textChanges_exports.ChangeTracker.with(context, (t) => doChange4(context.file, context.program, statements, t, context.host, context, context.preferences));
+          const statements2 = Debug.checkDefined(getStatementsToMove(context));
+          const edits = ts_textChanges_exports.ChangeTracker.with(context, (t) => doChange4(context.file, context.program, statements2, t, context.host, context, context.preferences));
           return { edits, renameFilename: void 0, renameLocation: void 0 };
         }
       });
@@ -159431,8 +159431,8 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
       }
       function getEditInfoForConvertToArrowFunction(context, func) {
         const { file: file2 } = context;
-        const statements = func.body.statements;
-        const head = statements[0];
+        const statements2 = func.body.statements;
+        const head = statements2[0];
         let body;
         if (canBeConvertedToExpression(func.body, head)) {
           body = head.expression;
@@ -160663,23 +160663,23 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
           if (!isBlockLike(start.parent)) {
             return { errors: [createFileDiagnostic(sourceFile, span.start, length2, Messages.cannotExtractRange)] };
           }
-          const statements = [];
+          const statements2 = [];
           for (const statement of start.parent.statements) {
-            if (statement === start || statements.length) {
+            if (statement === start || statements2.length) {
               const errors2 = checkNode(statement);
               if (errors2) {
                 return { errors: errors2 };
               }
-              statements.push(statement);
+              statements2.push(statement);
             }
             if (statement === end) {
               break;
             }
           }
-          if (!statements.length) {
+          if (!statements2.length) {
             return { errors: [createFileDiagnostic(sourceFile, span.start, length2, Messages.cannotExtractRange)] };
           }
-          return { targetRange: { range: statements, facts: rangeFacts, thisNode } };
+          return { targetRange: { range: statements2, facts: rangeFacts, thisNode } };
         }
         if (isReturnStatement(start) && !start.expression) {
           return { errors: [createFileDiagnostic(sourceFile, span.start, length2, Messages.cannotExtractRange)] };
@@ -161676,9 +161676,9 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
         }
         let returnValueProperty;
         let ignoreReturns = false;
-        const statements = factory.createNodeArray(isBlock(body) ? body.statements.slice(0) : [isStatement(body) ? body : factory.createReturnStatement(skipParentheses(body))]);
+        const statements2 = factory.createNodeArray(isBlock(body) ? body.statements.slice(0) : [isStatement(body) ? body : factory.createReturnStatement(skipParentheses(body))]);
         if (hasWritesOrVariableDeclarations || substitutions.size) {
-          const rewrittenStatements = visitNodes2(statements, visitor, isStatement).slice();
+          const rewrittenStatements = visitNodes2(statements2, visitor, isStatement).slice();
           if (hasWritesOrVariableDeclarations && !hasReturn2 && isStatement(body)) {
             const assignments = getPropertyAssignmentsForWritesAndVariableDeclarations(exposedVariableDeclarations, writes);
             if (assignments.length === 1) {
@@ -161694,7 +161694,7 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
           ), returnValueProperty };
         } else {
           return { body: factory.createBlock(
-            statements,
+            statements2,
             /*multiLine*/
             true
           ), returnValueProperty: void 0 };
@@ -161828,9 +161828,9 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
         const expression = !isReadonlyArray(targetRange.range) ? targetRange.range : targetRange.range.length === 1 && isExpressionStatement(targetRange.range[0]) ? targetRange.range[0].expression : void 0;
         let expressionDiagnostic;
         if (expression === void 0) {
-          const statements = targetRange.range;
-          const start = first(statements).getStart();
-          const end = last(statements).end;
+          const statements2 = targetRange.range;
+          const start = first(statements2).getStart();
+          const end = last(statements2).end;
           expressionDiagnostic = createFileDiagnostic(sourceFile, start, end - start, Messages.expressionExpected);
         } else if (checker.getTypeAtLocation(expression).flags & (16 | 262144)) {
           expressionDiagnostic = createDiagnosticForNode(expression, Messages.uselessConstantType);
@@ -167567,7 +167567,7 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
         return possibleNameForVarDecl;
       }
       function finishCatchOrFinallyTransform(node2, transformer, tryStatement, possibleNameForVarDecl, continuationArgName) {
-        const statements = [];
+        const statements2 = [];
         let varDeclIdentifier;
         if (possibleNameForVarDecl && !shouldReturn(node2, transformer)) {
           varDeclIdentifier = getSynthesizedDeepClone(declareSynthIdentifier(possibleNameForVarDecl));
@@ -167599,11 +167599,11 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
               /* Let */
             )
           );
-          statements.push(varDeclList);
+          statements2.push(varDeclList);
         }
-        statements.push(tryStatement);
+        statements2.push(tryStatement);
         if (continuationArgName && varDeclIdentifier && isSynthBindingPattern(continuationArgName)) {
-          statements.push(factory.createVariableStatement(
+          statements2.push(factory.createVariableStatement(
             /*modifiers*/
             void 0,
             factory.createVariableDeclarationList(
@@ -167622,7 +167622,7 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
             )
           ));
         }
-        return statements;
+        return statements2;
       }
       function transformFinally(node2, onFinally, transformer, hasContinuation, continuationArgName) {
         if (!onFinally || isNullOrUndefined2(transformer, onFinally)) {
@@ -168266,7 +168266,7 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
         return false;
       }
       function tryChangeModuleExportsObject(object2, useSitesToUnqualify) {
-        const statements = mapAllOrFail(object2.properties, (prop) => {
+        const statements2 = mapAllOrFail(object2.properties, (prop) => {
           switch (prop.kind) {
             case 178:
             case 179:
@@ -168286,7 +168286,7 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
               Debug.assertNever(prop, `Convert to ES6 got invalid prop kind ${prop.kind}`);
           }
         });
-        return statements && [statements, false];
+        return statements2 && [statements2, false];
       }
       function convertNamedExport(sourceFile, assignment, changes, exports2) {
         const { text } = assignment.left.name;
@@ -170706,15 +170706,15 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
       }
       function getNewImports(moduleSpecifier, quotePreference, defaultImport, namedImports, namespaceLikeImport, compilerOptions, preferences) {
         const quotedModuleSpecifier = makeStringLiteral(moduleSpecifier, quotePreference);
-        let statements;
+        let statements2;
         if (defaultImport !== void 0 || (namedImports == null ? void 0 : namedImports.length)) {
           const topLevelTypeOnly = (!defaultImport || needsTypeOnly(defaultImport)) && every(namedImports, needsTypeOnly) || (compilerOptions.verbatimModuleSyntax || preferences.preferTypeOnlyAutoImports) && (defaultImport == null ? void 0 : defaultImport.addAsTypeOnly) !== 4 && !some(
             namedImports,
             (i) => i.addAsTypeOnly === 4
             /* NotAllowed */
           );
-          statements = combine(
-            statements,
+          statements2 = combine(
+            statements2,
             makeImport(
               defaultImport && factory.createIdentifier(defaultImport.name),
               namedImports == null ? void 0 : namedImports.map(
@@ -170750,13 +170750,13 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
             /*attributes*/
             void 0
           );
-          statements = combine(statements, declaration);
+          statements2 = combine(statements2, declaration);
         }
-        return Debug.checkDefined(statements);
+        return Debug.checkDefined(statements2);
       }
       function getNewRequires(moduleSpecifier, quotePreference, defaultImport, namedImports, namespaceLikeImport) {
         const quotedModuleSpecifier = makeStringLiteral(moduleSpecifier, quotePreference);
-        let statements;
+        let statements2;
         if (defaultImport || (namedImports == null ? void 0 : namedImports.length)) {
           const bindingElements = (namedImports == null ? void 0 : namedImports.map(({ name, propertyName: propertyName2 }) => factory.createBindingElement(
             /*dotDotDotToken*/
@@ -170773,13 +170773,13 @@ ${newComment.split("\n").map((c) => ` * ${c}`).join("\n")}
             ));
           }
           const declaration = createConstEqualsRequireDeclaration(factory.createObjectBindingPattern(bindingElements), quotedModuleSpecifier);
-          statements = combine(statements, declaration);
+          statements2 = combine(statements2, declaration);
         }
         if (namespaceLikeImport) {
           const declaration = createConstEqualsRequireDeclaration(namespaceLikeImport.name, quotedModuleSpecifier);
-          statements = combine(statements, declaration);
+          statements2 = combine(statements2, declaration);
         }
-        return Debug.checkDefined(statements);
+        return Debug.checkDefined(statements2);
       }
       function createConstEqualsRequireDeclaration(name, quotedModuleSpecifier) {
         return factory.createVariableStatement(
@@ -188042,22 +188042,22 @@ ${content}
       }
       function getTopLevelExportGroups(sourceFile) {
         const topLevelExportGroups = [];
-        const statements = sourceFile.statements;
-        const len = length(statements);
+        const statements2 = sourceFile.statements;
+        const len = length(statements2);
         let i = 0;
         let groupIndex = 0;
         while (i < len) {
-          if (isExportDeclaration(statements[i])) {
+          if (isExportDeclaration(statements2[i])) {
             if (topLevelExportGroups[groupIndex] === void 0) {
               topLevelExportGroups[groupIndex] = [];
             }
-            const exportDecl = statements[i];
+            const exportDecl = statements2[i];
             if (exportDecl.moduleSpecifier) {
               topLevelExportGroups[groupIndex].push(exportDecl);
               i++;
             } else {
-              while (i < len && isExportDeclaration(statements[i])) {
-                topLevelExportGroups[groupIndex].push(statements[i++]);
+              while (i < len && isExportDeclaration(statements2[i])) {
+                topLevelExportGroups[groupIndex].push(statements2[i++]);
               }
               groupIndex++;
             }
@@ -188558,24 +188558,24 @@ ${content}
       function addNodeOutliningSpans(sourceFile, cancellationToken, out) {
         let depthRemaining = 40;
         let current = 0;
-        const statements = sourceFile.statements;
-        const n = statements.length;
+        const statements2 = sourceFile.statements;
+        const n = statements2.length;
         while (current < n) {
-          while (current < n && !isAnyImportSyntax(statements[current])) {
-            visitNode3(statements[current]);
+          while (current < n && !isAnyImportSyntax(statements2[current])) {
+            visitNode3(statements2[current]);
             current++;
           }
           if (current === n) break;
           const firstImport = current;
-          while (current < n && isAnyImportSyntax(statements[current])) {
-            visitNode3(statements[current]);
+          while (current < n && isAnyImportSyntax(statements2[current])) {
+            visitNode3(statements2[current]);
             current++;
           }
           const lastImport = current - 1;
           if (lastImport !== firstImport) {
             out.push(createOutliningSpanFromBounds(
-              findChildOfKind(statements[firstImport], 102, sourceFile).getStart(sourceFile),
-              statements[lastImport].getEnd(),
+              findChildOfKind(statements2[firstImport], 102, sourceFile).getStart(sourceFile),
+              statements2[lastImport].getEnd(),
               "imports"
               /* Imports */
             ));
@@ -191186,11 +191186,11 @@ ${content}
           };
           this.insertNodesAt(sourceFile, pos, insert, options);
         }
-        insertStatementsInNewFile(fileName, statements, oldFile) {
+        insertStatementsInNewFile(fileName, statements2, oldFile) {
           if (!this.newFileChanges) {
             this.newFileChanges = createMultiMap();
           }
-          this.newFileChanges.add(fileName, { oldFile, statements });
+          this.newFileChanges.add(fileName, { oldFile, statements: statements2 });
         }
         insertFirstParameter(sourceFile, parameters, newParam) {
           const p0 = firstOrUndefined(parameters);
@@ -191330,9 +191330,9 @@ ${content}
             this.insertNodeAfter(sourceFile, lastStatement, newStatement);
           }
         }
-        replaceConstructorBody(sourceFile, ctr, statements) {
+        replaceConstructorBody(sourceFile, ctr, statements2) {
           this.replaceNode(sourceFile, ctr.body, factory.createBlock(
-            statements,
+            statements2,
             /*multiLine*/
             true
           ));
@@ -191620,8 +191620,8 @@ ${options.prefix}` : "\n" : options.prefix
           }
           return changes;
         }
-        createNewFile(oldFile, fileName, statements) {
-          this.insertStatementsInNewFile(fileName, statements, oldFile);
+        createNewFile(oldFile, fileName, statements2) {
+          this.insertStatementsInNewFile(fileName, statements2, oldFile);
         }
       };
       function updateJSDocHost(parent2) {
@@ -196233,7 +196233,7 @@ ${options.prefix}` : "\n" : options.prefix
         if (pastedText.length !== pasteLocations.length) {
           actualPastedText = pastedText.length === 1 ? pastedText[0] : pastedText.join(getNewLineOrDefaultFromHost(formatContext.host, formatContext.options));
         }
-        const statements = [];
+        const statements2 = [];
         let newText = targetFile.text;
         for (let i = pasteLocations.length - 1; i >= 0; i--) {
           const { pos, end } = pasteLocations[i];
@@ -196252,12 +196252,12 @@ ${options.prefix}` : "\n" : options.prefix
               if (endNodeIndex !== -1 && copy.end <= statementsInSourceFile[endNodeIndex].getStart()) {
                 endNodeIndex--;
               }
-              statements.push(...statementsInSourceFile.slice(startNodeIndex, endNodeIndex === -1 ? statementsInSourceFile.length : endNodeIndex + 1));
+              statements2.push(...statementsInSourceFile.slice(startNodeIndex, endNodeIndex === -1 ? statementsInSourceFile.length : endNodeIndex + 1));
             });
             Debug.assertIsDefined(originalProgram, "no original program found");
             const originalProgramTypeChecker = originalProgram.getTypeChecker();
             const usageInfoRange = getUsageInfoRangeForPasteEdits(copiedFrom);
-            const usage = getUsageInfo(copiedFrom.file, statements, originalProgramTypeChecker, getExistingLocals(updatedFile, statements, originalProgramTypeChecker), usageInfoRange);
+            const usage = getUsageInfo(copiedFrom.file, statements2, originalProgramTypeChecker, getExistingLocals(updatedFile, statements2, originalProgramTypeChecker), usageInfoRange);
             const useEsModuleSyntax = !fileShouldUseJavaScriptRequire(targetFile.fileName, originalProgram, host, !!copiedFrom.file.commonJsModuleIndicator);
             addExportsInOldFile(copiedFrom.file, usage.targetFileImportsFromOldFile, changes, useEsModuleSyntax);
             addTargetFileImports(copiedFrom.file, usage.oldImportsNeededByTargetFile, usage.targetFileImportsFromOldFile, originalProgramTypeChecker, updatedProgram, importAdder);
@@ -206720,14 +206720,14 @@ Dynamic files must always be opened with service's current directory or service 
           3
           /* verbose */
         );
-        const json3 = JSON.stringify(msg);
+        const json4 = JSON.stringify(msg);
         if (verboseLogging) {
           logger.info(`${msg.type}:${stringifyIndented(msg)}`);
         }
-        const len = byteLength(json3, "utf8");
+        const len = byteLength(json4, "utf8");
         return `Content-Length: ${1 + len}\r
 \r
-${json3}${newLine}`;
+${json4}${newLine}`;
       }
       var MultistepOperation = class {
         constructor(operationHost) {
@@ -212704,9 +212704,9 @@ var require_parse = __commonJS({
                 const idx = prev.value.lastIndexOf("[");
                 const pre = prev.value.slice(0, idx);
                 const rest2 = prev.value.slice(idx + 2);
-                const posix19 = POSIX_REGEX_SOURCE[rest2];
-                if (posix19) {
-                  prev.value = pre + posix19;
+                const posix20 = POSIX_REGEX_SOURCE[rest2];
+                if (posix20) {
+                  prev.value = pre + posix20;
                   state.backtrack = true;
                   advance();
                   if (!bos.output && tokens2.indexOf(prev) === 1) {
@@ -213223,7 +213223,7 @@ var require_picomatch = __commonJS({
         throw new TypeError("Expected pattern to be a non-empty string");
       }
       const opts = options || {};
-      const posix19 = opts.windows;
+      const posix20 = opts.windows;
       const regex = isState ? picomatch4.compileRe(glob, options) : picomatch4.makeRe(glob, options, false, true);
       const state = regex.state;
       delete regex.state;
@@ -213233,8 +213233,8 @@ var require_picomatch = __commonJS({
         isIgnored = picomatch4(opts.ignore, ignoreOpts, returnState);
       }
       const matcher2 = (input2, returnObject = false) => {
-        const { isMatch, match, output: output2 } = picomatch4.test(input2, regex, options, { glob, posix: posix19 });
-        const result = { glob, state, regex, posix: posix19, input: input2, output: output2, match, isMatch };
+        const { isMatch, match, output: output2 } = picomatch4.test(input2, regex, options, { glob, posix: posix20 });
+        const result = { glob, state, regex, posix: posix20, input: input2, output: output2, match, isMatch };
         if (typeof opts.onResult === "function") {
           opts.onResult(result);
         }
@@ -213259,7 +213259,7 @@ var require_picomatch = __commonJS({
       }
       return matcher2;
     };
-    picomatch4.test = (input2, regex, options, { glob, posix: posix19 } = {}) => {
+    picomatch4.test = (input2, regex, options, { glob, posix: posix20 } = {}) => {
       if (typeof input2 !== "string") {
         throw new TypeError("Expected input to be a string");
       }
@@ -213267,7 +213267,7 @@ var require_picomatch = __commonJS({
         return { isMatch: false, output: "" };
       }
       const opts = options || {};
-      const format = opts.format || (posix19 ? utils.toPosixSlashes : null);
+      const format = opts.format || (posix20 ? utils.toPosixSlashes : null);
       let match = input2 === glob;
       let output2 = match && format ? format(input2) : input2;
       if (match === false) {
@@ -213276,16 +213276,16 @@ var require_picomatch = __commonJS({
       }
       if (match === false || opts.capture === true) {
         if (opts.matchBase === true || opts.basename === true) {
-          match = picomatch4.matchBase(input2, regex, options, posix19);
+          match = picomatch4.matchBase(input2, regex, options, posix20);
         } else {
           match = regex.exec(output2);
         }
       }
       return { isMatch: Boolean(match), match, output: output2 };
     };
-    picomatch4.matchBase = (input2, glob, options, posix19 = options && options.windows) => {
+    picomatch4.matchBase = (input2, glob, options, posix20 = options && options.windows) => {
       const regex = glob instanceof RegExp ? glob : picomatch4.makeRe(glob, options);
-      return regex.test(utils.basename(input2, { windows: posix19 }));
+      return regex.test(utils.basename(input2, { windows: posix20 }));
     };
     picomatch4.isMatch = (str2, patterns, options) => picomatch4(patterns, options)(str2);
     picomatch4.parse = (pattern, options) => {
@@ -213355,7 +213355,7 @@ var require_picomatch2 = __commonJS({
 });
 
 // src/cli/program.ts
-import { existsSync as existsSync6 } from "fs";
+import { existsSync as existsSync8 } from "fs";
 import { dirname as dirname4, resolve as resolve10 } from "path";
 
 // node_modules/commander/lib/error.js
@@ -232377,13 +232377,13 @@ function initializeContext(params) {
     external: params?.external ?? void 0
   };
 }
-function handleUnrepresentable(schema, ctx, json3, params, message) {
+function handleUnrepresentable(schema, ctx, json4, params, message) {
   const result = typeof ctx.unrepresentable === "function" ? ctx.unrepresentable({ zodSchema: schema, path: params.path, message }) : ctx.unrepresentable;
   if (result === "any")
     return false;
   if (result === void 0 || result === "throw")
     throw new Error(message);
-  Object.assign(json3, result);
+  Object.assign(json4, result);
   return true;
 }
 function processSchema(schema, ctx, _params = { path: [], schemaPath: [] }) {
@@ -232619,12 +232619,12 @@ function foldObjects(members3) {
   }
   return folded;
 }
-function foldIntersection(json3) {
-  const allOf = json3.allOf;
+function foldIntersection(json4) {
+  const allOf = json4.allOf;
   if (!Array.isArray(allOf) || allOf.length < 2)
     return;
   for (const key of FOLDABLE_KEYS)
-    if (key in json3)
+    if (key in json4)
       return;
   const unions = allOf.filter((m) => UNION_KEYS.some((k) => Array.isArray(m[k])));
   let folded = null;
@@ -232643,8 +232643,8 @@ function foldIntersection(json3) {
   }
   if (!folded)
     return;
-  delete json3.allOf;
-  assignProps(json3, folded);
+  delete json4.allOf;
+  assignProps(json4, folded);
 }
 function finalize(ctx, schema) {
   const root = ctx.seen.get(schema);
@@ -232726,20 +232726,20 @@ function finalize(ctx, schema) {
     if (ctx.intersections.length) {
       const carriers = /* @__PURE__ */ new Map();
       for (const seen of ctx.seen.values()) {
-        for (const json3 of [seen.schema, seen.def]) {
-          const allOf = json3?.allOf;
+        for (const json4 of [seen.schema, seen.def]) {
+          const allOf = json4?.allOf;
           if (!Array.isArray(allOf))
             continue;
           const existing = carriers.get(allOf);
           if (existing)
-            existing.push(json3);
+            existing.push(json4);
           else
-            carriers.set(allOf, [json3]);
+            carriers.set(allOf, [json4]);
         }
       }
       for (const allOf of ctx.intersections) {
-        for (const json3 of carriers.get(allOf) ?? [])
-          foldIntersection(json3);
+        for (const json4 of carriers.get(allOf) ?? [])
+          foldIntersection(json4);
       }
     }
   }
@@ -232974,29 +232974,29 @@ var exactPatterns = /* @__PURE__ */ new Map([
 ]);
 var exactPattern = (p) => exactPatterns.get(p) ?? p;
 var stringProcessor = (schema, ctx, _json, _params) => {
-  const json3 = _json;
-  json3.type = "string";
+  const json4 = _json;
+  json4.type = "string";
   const { minimum, maximum, format, patterns, contentEncoding, laxFormat } = aggregateChecks(schema);
   if (typeof minimum === "number")
-    json3.minLength = minimum;
+    json4.minLength = minimum;
   if (typeof maximum === "number")
-    json3.maxLength = maximum;
+    json4.maxLength = maximum;
   if (format) {
-    json3.format = formatMap[format] ?? format;
-    if (json3.format === "")
-      delete json3.format;
+    json4.format = formatMap[format] ?? format;
+    if (json4.format === "")
+      delete json4.format;
     if (format === "time" || laxFormat) {
-      delete json3.format;
+      delete json4.format;
     }
   }
   if (contentEncoding)
-    json3.contentEncoding = contentEncoding;
+    json4.contentEncoding = contentEncoding;
   if (patterns && patterns.size > 0) {
     const patternList = [...patterns].map(exactPattern);
     if (patternList.length === 1)
-      json3.pattern = patternList[0].source;
+      json4.pattern = patternList[0].source;
     else if (patternList.length > 1) {
-      json3.allOf = [
+      json4.allOf = [
         ...patternList.map((regex) => ({
           ...ctx.target === "draft-07" || ctx.target === "draft-04" || ctx.target === "openapi-3.0" ? { type: "string" } : {},
           pattern: regex.source
@@ -233006,31 +233006,31 @@ var stringProcessor = (schema, ctx, _json, _params) => {
   }
 };
 var numberProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json4 = _json;
   const { minimum, maximum, multipleOf, exclusiveMaximum, exclusiveMinimum, isInt } = aggregateChecks(schema);
-  json3.type = isInt ? "integer" : "number";
+  json4.type = isInt ? "integer" : "number";
   const exMin = typeof exclusiveMinimum === "number" && exclusiveMinimum >= (minimum ?? Number.NEGATIVE_INFINITY);
   const exMax = typeof exclusiveMaximum === "number" && exclusiveMaximum <= (maximum ?? Number.POSITIVE_INFINITY);
   const legacy = ctx.target === "draft-04" || ctx.target === "openapi-3.0";
   if (exMin) {
     if (legacy) {
-      json3.minimum = exclusiveMinimum;
-      json3.exclusiveMinimum = true;
+      json4.minimum = exclusiveMinimum;
+      json4.exclusiveMinimum = true;
     } else {
-      json3.exclusiveMinimum = exclusiveMinimum;
+      json4.exclusiveMinimum = exclusiveMinimum;
     }
   } else if (typeof minimum === "number") {
-    json3.minimum = minimum;
+    json4.minimum = minimum;
   }
   if (exMax) {
     if (legacy) {
-      json3.maximum = exclusiveMaximum;
-      json3.exclusiveMaximum = true;
+      json4.maximum = exclusiveMaximum;
+      json4.exclusiveMaximum = true;
     } else {
-      json3.exclusiveMaximum = exclusiveMaximum;
+      json4.exclusiveMaximum = exclusiveMaximum;
     }
   } else if (typeof maximum === "number") {
-    json3.maximum = maximum;
+    json4.maximum = maximum;
   }
   if (multipleOf) {
     const divisors = /* @__PURE__ */ new Set();
@@ -233038,75 +233038,75 @@ var numberProcessor = (schema, ctx, _json, params) => {
       if (Number.isFinite(divisor) && divisor !== 0)
         divisors.add(Math.abs(divisor));
       else
-        handleUnrepresentable(schema, ctx, json3, params, `A multipleOf divisor of ${divisor} cannot be represented in JSON Schema`);
+        handleUnrepresentable(schema, ctx, json4, params, `A multipleOf divisor of ${divisor} cannot be represented in JSON Schema`);
     }
     const [first, ...rest] = divisors;
     if (first !== void 0)
-      json3.multipleOf = first;
+      json4.multipleOf = first;
     if (rest.length)
-      json3.allOf = [...json3.allOf ?? [], ...rest.map((m) => ({ multipleOf: m }))];
+      json4.allOf = [...json4.allOf ?? [], ...rest.map((m) => ({ multipleOf: m }))];
   }
 };
-var booleanProcessor = (_schema, _ctx, json3, _params) => {
-  json3.type = "boolean";
+var booleanProcessor = (_schema, _ctx, json4, _params) => {
+  json4.type = "boolean";
 };
-var bigintProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "BigInt cannot be represented in JSON Schema");
+var bigintProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "BigInt cannot be represented in JSON Schema");
 };
-var symbolProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Symbols cannot be represented in JSON Schema");
+var symbolProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Symbols cannot be represented in JSON Schema");
 };
-var nullProcessor = (_schema, ctx, json3, _params) => {
+var nullProcessor = (_schema, ctx, json4, _params) => {
   if (ctx.target === "openapi-3.0") {
-    json3.type = "string";
-    json3.nullable = true;
-    json3.enum = [null];
+    json4.type = "string";
+    json4.nullable = true;
+    json4.enum = [null];
   } else {
-    json3.type = "null";
+    json4.type = "null";
   }
 };
-var undefinedProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Undefined cannot be represented in JSON Schema");
+var undefinedProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Undefined cannot be represented in JSON Schema");
 };
-var voidProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Void cannot be represented in JSON Schema");
+var voidProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Void cannot be represented in JSON Schema");
 };
-var neverProcessor = (_schema, _ctx, json3, _params) => {
-  json3.not = {};
+var neverProcessor = (_schema, _ctx, json4, _params) => {
+  json4.not = {};
 };
 var anyProcessor = (_schema, _ctx, _json, _params) => {
 };
 var unknownProcessor = (_schema, _ctx, _json, _params) => {
 };
-var dateProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Date cannot be represented in JSON Schema");
+var dateProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Date cannot be represented in JSON Schema");
 };
-var enumProcessor = (schema, _ctx, json3, _params) => {
+var enumProcessor = (schema, _ctx, json4, _params) => {
   const def = schema._zod.def;
   const values = getEnumValues(def.entries);
   if (values.length === 0) {
-    json3.not = {};
+    json4.not = {};
     return;
   }
   if (values.every((v) => typeof v === "number"))
-    json3.type = "number";
+    json4.type = "number";
   if (values.every((v) => typeof v === "string"))
-    json3.type = "string";
-  json3.enum = values;
+    json4.type = "string";
+  json4.enum = values;
 };
-var literalProcessor = (schema, ctx, json3, params) => {
+var literalProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   if (def.values.length === 0) {
-    json3.not = {};
+    json4.not = {};
     return;
   }
   const vals = [];
   for (const val of def.values) {
     if (val === void 0) {
-      if (handleUnrepresentable(schema, ctx, json3, params, "Literal `undefined` cannot be represented in JSON Schema"))
+      if (handleUnrepresentable(schema, ctx, json4, params, "Literal `undefined` cannot be represented in JSON Schema"))
         return;
     } else if (typeof val === "bigint") {
-      if (handleUnrepresentable(schema, ctx, json3, params, "BigInt literals cannot be represented in JSON Schema"))
+      if (handleUnrepresentable(schema, ctx, json4, params, "BigInt literals cannot be represented in JSON Schema"))
         return;
       vals.push(Number(val));
     } else {
@@ -233116,37 +233116,37 @@ var literalProcessor = (schema, ctx, json3, params) => {
   if (vals.length === 0) {
   } else if (vals.length === 1) {
     const val = vals[0];
-    json3.type = val === null ? "null" : typeof val;
+    json4.type = val === null ? "null" : typeof val;
     if (ctx.target === "draft-04" || ctx.target === "openapi-3.0") {
-      json3.enum = [val];
+      json4.enum = [val];
     } else {
-      json3.const = val;
+      json4.const = val;
     }
   } else {
     if (vals.every((v) => typeof v === "number"))
-      json3.type = "number";
+      json4.type = "number";
     if (vals.every((v) => typeof v === "string"))
-      json3.type = "string";
+      json4.type = "string";
     if (vals.every((v) => typeof v === "boolean"))
-      json3.type = "boolean";
+      json4.type = "boolean";
     if (vals.every((v) => v === null))
-      json3.type = "null";
-    json3.enum = vals;
+      json4.type = "null";
+    json4.enum = vals;
   }
 };
-var nanProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "NaN cannot be represented in JSON Schema");
+var nanProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "NaN cannot be represented in JSON Schema");
 };
-var templateLiteralProcessor = (schema, _ctx, json3, _params) => {
-  const _json = json3;
+var templateLiteralProcessor = (schema, _ctx, json4, _params) => {
+  const _json = json4;
   const pattern = schema._zod.pattern;
   if (!pattern)
     throw new Error("Pattern not found in template literal");
   _json.type = "string";
   _json.pattern = pattern.source;
 };
-var fileProcessor = (schema, _ctx, json3, _params) => {
-  const _json = json3;
+var fileProcessor = (schema, _ctx, json4, _params) => {
+  const _json = json4;
   _json.type = "string";
   _json.format = "binary";
   _json.contentEncoding = "binary";
@@ -233164,34 +233164,34 @@ var fileProcessor = (schema, _ctx, json3, _params) => {
   else
     _json.anyOf = mime.map((m) => ({ contentMediaType: m }));
 };
-var successProcessor = (_schema, _ctx, json3, _params) => {
-  json3.type = "boolean";
+var successProcessor = (_schema, _ctx, json4, _params) => {
+  json4.type = "boolean";
 };
-var customProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Custom types cannot be represented in JSON Schema");
+var customProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Custom types cannot be represented in JSON Schema");
 };
-var functionProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Function types cannot be represented in JSON Schema");
+var functionProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Function types cannot be represented in JSON Schema");
 };
-var transformProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Transforms cannot be represented in JSON Schema");
+var transformProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Transforms cannot be represented in JSON Schema");
 };
-var mapProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Map cannot be represented in JSON Schema");
+var mapProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Map cannot be represented in JSON Schema");
 };
-var setProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Set cannot be represented in JSON Schema");
+var setProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Set cannot be represented in JSON Schema");
 };
 var arrayProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json4 = _json;
   const def = schema._zod.def;
   const { minimum, maximum } = aggregateChecks(schema);
   if (typeof minimum === "number")
-    json3.minItems = minimum;
+    json4.minItems = minimum;
   if (typeof maximum === "number")
-    json3.maxItems = maximum;
-  json3.type = "array";
-  json3.items = processSchema(def.element, ctx, {
+    json4.maxItems = maximum;
+  json4.type = "array";
+  json4.items = processSchema(def.element, ctx, {
     ...params,
     path: [...params.path, "items"]
   });
@@ -233207,17 +233207,17 @@ function inputOptin(schema) {
   return schema._zod.optin;
 }
 var objectProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json4 = _json;
   const def = schema._zod.def;
   const shape = def.shape;
   const symbolKeys = Object.getOwnPropertySymbols(shape);
-  if (symbolKeys.length && handleUnrepresentable(schema, ctx, json3, params, "Symbol keys cannot be represented in JSON Schema")) {
+  if (symbolKeys.length && handleUnrepresentable(schema, ctx, json4, params, "Symbol keys cannot be represented in JSON Schema")) {
     return;
   }
-  json3.type = "object";
-  json3.properties = {};
+  json4.type = "object";
+  json4.properties = {};
   for (const key in shape) {
-    assignProp(json3.properties, key, processSchema(shape[key], ctx, {
+    assignProp(json4.properties, key, processSchema(shape[key], ctx, {
       ...params,
       path: [...params.path, "properties", key]
     }));
@@ -233230,21 +233230,21 @@ var objectProcessor = (schema, ctx, _json, params) => {
     }
   }
   if (requiredKeys.length > 0) {
-    json3.required = requiredKeys;
+    json4.required = requiredKeys;
   }
   if (def.catchall?._zod.def.type === "never") {
-    json3.additionalProperties = false;
+    json4.additionalProperties = false;
   } else if (!def.catchall) {
     if (ctx.io === "output")
-      json3.additionalProperties = false;
+      json4.additionalProperties = false;
   } else if (def.catchall) {
-    json3.additionalProperties = processSchema(def.catchall, ctx, {
+    json4.additionalProperties = processSchema(def.catchall, ctx, {
       ...params,
       path: [...params.path, "additionalProperties"]
     });
   }
 };
-var unionProcessor = (schema, ctx, json3, params) => {
+var unionProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   const isExclusive = def.inclusive === false;
   const options = def.options.map((x, i) => processSchema(x, ctx, {
@@ -233252,12 +233252,12 @@ var unionProcessor = (schema, ctx, json3, params) => {
     path: [...params.path, isExclusive ? "oneOf" : "anyOf", i]
   }));
   if (isExclusive) {
-    json3.oneOf = options;
+    json4.oneOf = options;
   } else {
-    json3.anyOf = options;
+    json4.anyOf = options;
   }
 };
-var intersectionProcessor = (schema, ctx, json3, params) => {
+var intersectionProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   const a = processSchema(def.left, ctx, {
     ...params,
@@ -233272,13 +233272,13 @@ var intersectionProcessor = (schema, ctx, json3, params) => {
     ...isSimpleIntersection(a) ? a.allOf : [a],
     ...isSimpleIntersection(b) ? b.allOf : [b]
   ];
-  json3.allOf = allOf;
+  json4.allOf = allOf;
   ctx.intersections.push(allOf);
 };
 var tupleProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json4 = _json;
   const def = schema._zod.def;
-  json3.type = "array";
+  json4.type = "array";
   const prefixPath = ctx.target === "draft-2020-12" ? "prefixItems" : "items";
   const restPath = ctx.target === "draft-2020-12" ? "items" : ctx.target === "openapi-3.0" ? "items" : "additionalItems";
   const prefixItems = def.items.map((x, i) => processSchema(x, ctx, {
@@ -233300,70 +233300,70 @@ var tupleProcessor = (schema, ctx, _json, params) => {
   const maxItems = def.items.length;
   const isClosed = !def.rest;
   if (ctx.target === "draft-2020-12") {
-    json3.prefixItems = prefixItems;
+    json4.prefixItems = prefixItems;
     if (isClosed) {
-      json3.items = false;
+      json4.items = false;
     } else if (rest) {
-      json3.items = rest;
+      json4.items = rest;
     }
     if (minItems > 0)
-      json3.minItems = minItems;
+      json4.minItems = minItems;
     if (isClosed)
-      json3.maxItems = maxItems;
+      json4.maxItems = maxItems;
   } else if (ctx.target === "openapi-3.0") {
-    json3.items = {
+    json4.items = {
       anyOf: prefixItems
     };
     if (rest) {
-      json3.items.anyOf.push(rest);
+      json4.items.anyOf.push(rest);
     }
     if (minItems > 0)
-      json3.minItems = minItems;
+      json4.minItems = minItems;
     if (isClosed)
-      json3.maxItems = maxItems;
+      json4.maxItems = maxItems;
   } else {
-    json3.items = prefixItems;
+    json4.items = prefixItems;
     if (isClosed) {
-      json3.additionalItems = false;
+      json4.additionalItems = false;
     } else if (rest) {
-      json3.additionalItems = rest;
+      json4.additionalItems = rest;
     }
     if (minItems > 0)
-      json3.minItems = minItems;
+      json4.minItems = minItems;
     if (isClosed)
-      json3.maxItems = maxItems;
+      json4.maxItems = maxItems;
   }
   const { minimum, maximum } = aggregateChecks(schema);
   if (typeof minimum === "number")
-    json3.minItems = minimum;
+    json4.minItems = minimum;
   if (typeof maximum === "number")
-    json3.maxItems = maximum;
+    json4.maxItems = maximum;
 };
-function stringifyKeyNames(bySchema, json3, visited) {
-  if (json3.$ref) {
-    if (visited.has(json3))
-      return json3;
-    visited.add(json3);
-    const def = bySchema.get(json3)?.def;
+function stringifyKeyNames(bySchema, json4, visited) {
+  if (json4.$ref) {
+    if (visited.has(json4))
+      return json4;
+    visited.add(json4);
+    const def = bySchema.get(json4)?.def;
     if (!def)
-      return json3;
+      return json4;
     const inlined = stringifyKeyNames(bySchema, def, visited);
-    return inlined === def ? json3 : inlined;
+    return inlined === def ? json4 : inlined;
   }
   for (const keyword of ["anyOf", "oneOf"]) {
-    const branches = json3[keyword];
+    const branches = json4[keyword];
     if (!Array.isArray(branches))
       continue;
     const mapped = branches.map((branch) => stringifyKeyNames(bySchema, branch, visited));
     if (mapped.some((branch, i) => branch !== branches[i]))
-      json3 = { ...json3, [keyword]: mapped };
+      json4 = { ...json4, [keyword]: mapped };
   }
-  const types = Array.isArray(json3.type) ? json3.type : [json3.type];
+  const types = Array.isArray(json4.type) ? json4.type : [json4.type];
   const numericType = !types.includes("string") && types.some((t) => t === "number" || t === "integer");
-  const values = json3.enum ?? (json3.const !== void 0 ? [json3.const] : void 0);
+  const values = json4.enum ?? (json4.const !== void 0 ? [json4.const] : void 0);
   if (!numericType && !values?.some((v) => typeof v === "number"))
-    return json3;
-  const { minimum, maximum, exclusiveMinimum, exclusiveMaximum, multipleOf, format, id, ...rest } = json3;
+    return json4;
+  const { minimum, maximum, exclusiveMinimum, exclusiveMaximum, multipleOf, format, id, ...rest } = json4;
   if (rest.enum)
     rest.enum = rest.enum.map((v) => typeof v === "number" ? String(v) : v);
   else if (typeof rest.const === "number")
@@ -233403,9 +233403,9 @@ function rewriteKeyNames(ctx) {
   }
 }
 var recordProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json4 = _json;
   const def = schema._zod.def;
-  json3.type = "object";
+  json4.type = "object";
   const keyType = def.keyType;
   const patterns = aggregateChecks(keyType).patterns;
   if (def.mode === "loose" && patterns && patterns.size > 0) {
@@ -233413,13 +233413,13 @@ var recordProcessor = (schema, ctx, _json, params) => {
       ...params,
       path: [...params.path, "patternProperties", "*"]
     });
-    json3.patternProperties = {};
+    json4.patternProperties = {};
     for (const pattern of patterns) {
-      assignProp(json3.patternProperties, exactPattern(pattern).source, valueSchema);
+      assignProp(json4.patternProperties, exactPattern(pattern).source, valueSchema);
     }
   } else {
     if (ctx.target === "draft-07" || ctx.target === "draft-2020-12") {
-      json3.propertyNames = processSchema(def.keyType, ctx, {
+      json4.propertyNames = processSchema(def.keyType, ctx, {
         ...params,
         path: [...params.path, "propertyNames"]
       });
@@ -233431,7 +233431,7 @@ var recordProcessor = (schema, ctx, _json, params) => {
       }
       pending.push(schema);
     }
-    json3.additionalProperties = processSchema(def.valueType, ctx, {
+    json4.additionalProperties = processSchema(def.valueType, ctx, {
       ...params,
       path: [...params.path, "additionalProperties"]
     });
@@ -233441,19 +233441,19 @@ var recordProcessor = (schema, ctx, _json, params) => {
   if (keyValues && !def.partial && !omittableOnInput) {
     const validKeyValues = [...keyValues].filter((v) => typeof v === "string" || typeof v === "number");
     if (validKeyValues.length > 0) {
-      json3.required = validKeyValues.map(String);
+      json4.required = validKeyValues.map(String);
     }
   }
 };
-var nullableProcessor = (schema, ctx, json3, params) => {
+var nullableProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   const inner = processSchema(def.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
   if (ctx.target === "openapi-3.0") {
     seen.ref = def.innerType;
-    json3.nullable = true;
+    json4.nullable = true;
   } else {
-    json3.anyOf = [inner, { type: "null" }];
+    json4.anyOf = [inner, { type: "null" }];
   }
 };
 var nonoptionalProcessor = (schema, ctx, _json, params) => {
@@ -233463,7 +233463,7 @@ var nonoptionalProcessor = (schema, ctx, _json, params) => {
   seen.ref = def.innerType;
 };
 var UNREPRESENTABLE_DEFAULT = /* @__PURE__ */ Symbol();
-function serializeDefaultValue(value, schema, ctx, json3, params) {
+function serializeDefaultValue(value, schema, ctx, json4, params) {
   let unrepresentable = false;
   const serialized = JSON.stringify(value, (_, val) => {
     if (typeof val !== "bigint")
@@ -233473,30 +233473,30 @@ function serializeDefaultValue(value, schema, ctx, json3, params) {
   });
   if (!unrepresentable)
     return JSON.parse(serialized);
-  handleUnrepresentable(schema, ctx, json3, params, "BigInt defaults cannot be represented in JSON Schema");
+  handleUnrepresentable(schema, ctx, json4, params, "BigInt defaults cannot be represented in JSON Schema");
   return UNREPRESENTABLE_DEFAULT;
 }
-var defaultProcessor = (schema, ctx, json3, params) => {
+var defaultProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   processSchema(def.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
   seen.ref = def.innerType;
-  const value = serializeDefaultValue(def.defaultValue, schema, ctx, json3, params);
+  const value = serializeDefaultValue(def.defaultValue, schema, ctx, json4, params);
   if (value !== UNREPRESENTABLE_DEFAULT)
-    json3.default = value;
+    json4.default = value;
 };
-var prefaultProcessor = (schema, ctx, json3, params) => {
+var prefaultProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   processSchema(def.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
   seen.ref = def.innerType;
   if (ctx.io !== "input")
     return;
-  const value = serializeDefaultValue(def.defaultValue, schema, ctx, json3, params);
+  const value = serializeDefaultValue(def.defaultValue, schema, ctx, json4, params);
   if (value !== UNREPRESENTABLE_DEFAULT)
-    json3._prefault = value;
+    json4._prefault = value;
 };
-var catchProcessor = (schema, ctx, json3, params) => {
+var catchProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   processSchema(def.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
@@ -233505,10 +233505,10 @@ var catchProcessor = (schema, ctx, json3, params) => {
   try {
     catchValue = def.catchValue(void 0);
   } catch {
-    handleUnrepresentable(schema, ctx, json3, params, "Dynamic catch values are not supported in JSON Schema");
+    handleUnrepresentable(schema, ctx, json4, params, "Dynamic catch values are not supported in JSON Schema");
     return;
   }
-  json3.default = catchValue;
+  json4.default = catchValue;
 };
 var pipeProcessor = (schema, ctx, _json, params) => {
   const def = schema._zod.def;
@@ -233518,12 +233518,12 @@ var pipeProcessor = (schema, ctx, _json, params) => {
   const seen = ctx.seen.get(schema);
   seen.ref = innerType;
 };
-var readonlyProcessor = (schema, ctx, json3, params) => {
+var readonlyProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   processSchema(def.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
   seen.ref = def.innerType;
-  json3.readOnly = true;
+  json4.readOnly = true;
 };
 var promiseProcessor = (schema, ctx, _json, params) => {
   const def = schema._zod.def;
@@ -234165,7 +234165,7 @@ var _ZodString = /* @__PURE__ */ $constructor(
   (inst, def) => {
     $ZodString.init(inst, def);
     ZodType.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json3, params) => stringProcessor(inst, ctx, json3, params);
+    inst._zod.processJSONSchema = (ctx, json4, params) => stringProcessor(inst, ctx, json4, params);
   },
   /* @__PURE__ */ util_exports.derived({
     format: (inst) => aggregateChecks(inst).format ?? null,
@@ -234524,7 +234524,7 @@ var ZodNumber = /* @__PURE__ */ $constructor(
   (inst, def) => {
     $ZodNumber.init(inst, def);
     ZodType.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json3, params) => numberProcessor(inst, ctx, json3, params);
+    inst._zod.processJSONSchema = (ctx, json4, params) => numberProcessor(inst, ctx, json4, params);
     inst.isFinite = true;
   },
   /* @__PURE__ */ util_exports.derived({
@@ -234614,7 +234614,7 @@ function uint32(params) {
 var ZodBoolean = /* @__PURE__ */ $constructor("ZodBoolean", (inst, def) => {
   $ZodBoolean.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => booleanProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => booleanProcessor(inst, ctx, json4, params);
 });
 function boolean2(params) {
   return _boolean(ZodBoolean, params);
@@ -234624,7 +234624,7 @@ var ZodBigInt = /* @__PURE__ */ $constructor(
   (inst, def) => {
     $ZodBigInt.init(inst, def);
     ZodType.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json3, params) => bigintProcessor(inst, ctx, json3, params);
+    inst._zod.processJSONSchema = (ctx, json4, params) => bigintProcessor(inst, ctx, json4, params);
   },
   /* @__PURE__ */ util_exports.derived({
     minValue: (inst) => aggregateChecks(inst).minimum ?? null,
@@ -234682,7 +234682,7 @@ function uint64(params) {
 var ZodSymbol = /* @__PURE__ */ $constructor("ZodSymbol", (inst, def) => {
   $ZodSymbol.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => symbolProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => symbolProcessor(inst, ctx, json4, params);
 });
 function symbol(params) {
   return _symbol(ZodSymbol, params);
@@ -234690,7 +234690,7 @@ function symbol(params) {
 var ZodUndefined = /* @__PURE__ */ $constructor("ZodUndefined", (inst, def) => {
   $ZodUndefined.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => undefinedProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => undefinedProcessor(inst, ctx, json4, params);
 });
 function _undefined3(params) {
   return _undefined2(ZodUndefined, params);
@@ -234698,7 +234698,7 @@ function _undefined3(params) {
 var ZodNull = /* @__PURE__ */ $constructor("ZodNull", (inst, def) => {
   $ZodNull.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => nullProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => nullProcessor(inst, ctx, json4, params);
 });
 function _null3(params) {
   return _null2(ZodNull, params);
@@ -234706,7 +234706,7 @@ function _null3(params) {
 var ZodAny = /* @__PURE__ */ $constructor("ZodAny", (inst, def) => {
   $ZodAny.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => anyProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => anyProcessor(inst, ctx, json4, params);
 });
 function any() {
   return _any(ZodAny);
@@ -234714,7 +234714,7 @@ function any() {
 var ZodUnknown = /* @__PURE__ */ $constructor("ZodUnknown", (inst, def) => {
   $ZodUnknown.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => unknownProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => unknownProcessor(inst, ctx, json4, params);
 });
 function unknown() {
   return _unknown(ZodUnknown);
@@ -234722,7 +234722,7 @@ function unknown() {
 var ZodNever = /* @__PURE__ */ $constructor("ZodNever", (inst, def) => {
   $ZodNever.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => neverProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => neverProcessor(inst, ctx, json4, params);
 });
 function never(params) {
   return _never(ZodNever, params);
@@ -234730,7 +234730,7 @@ function never(params) {
 var ZodVoid = /* @__PURE__ */ $constructor("ZodVoid", (inst, def) => {
   $ZodVoid.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => voidProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => voidProcessor(inst, ctx, json4, params);
 });
 function _void2(params) {
   return _void(ZodVoid, params);
@@ -234740,7 +234740,7 @@ var ZodDate = /* @__PURE__ */ $constructor(
   (inst, def) => {
     $ZodDate.init(inst, def);
     ZodType.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json3, params) => dateProcessor(inst, ctx, json3, params);
+    inst._zod.processJSONSchema = (ctx, json4, params) => dateProcessor(inst, ctx, json4, params);
     inst.min = (value, params) => inst.check(_gte(value, params));
     inst.max = (value, params) => inst.check(_lte(value, params));
   },
@@ -234762,7 +234762,7 @@ var ZodArray = /* @__PURE__ */ $constructor("ZodArray", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodArray.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => arrayProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => arrayProcessor(inst, ctx, json4, params);
   inst.element = def.element;
 }, {
   min(n, params) {
@@ -234792,7 +234792,7 @@ var ZodObject = /* @__PURE__ */ $constructor("ZodObject", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodObjectJIT.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => objectProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => objectProcessor(inst, ctx, json4, params);
   util_exports.installLazyProp(inst, "shape", (self) => self._zod.def.shape, false);
 }, {
   keyof() {
@@ -234865,7 +234865,7 @@ function looseObject(shape, params) {
 var ZodUnion = /* @__PURE__ */ $constructor("ZodUnion", (inst, def) => {
   $ZodUnion.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => unionProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => unionProcessor(inst, ctx, json4, params);
   inst.options = def.options;
 });
 function union(options, params) {
@@ -234878,7 +234878,7 @@ function union(options, params) {
 var ZodXor = /* @__PURE__ */ $constructor("ZodXor", (inst, def) => {
   ZodUnion.init(inst, def);
   $ZodXor.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => unionProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => unionProcessor(inst, ctx, json4, params);
   inst.options = def.options;
 });
 function xor(options, params) {
@@ -234904,7 +234904,7 @@ function discriminatedUnion(discriminator, options, params) {
 var ZodIntersection = /* @__PURE__ */ $constructor("ZodIntersection", (inst, def) => {
   $ZodIntersection.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => intersectionProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => intersectionProcessor(inst, ctx, json4, params);
 });
 function intersection(left, right) {
   return new ZodIntersection({
@@ -234917,7 +234917,7 @@ var ZodTuple = /* @__PURE__ */ $constructor("ZodTuple", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodTuple.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => tupleProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => tupleProcessor(inst, ctx, json4, params);
 }, {
   rest(rest) {
     return this.clone({
@@ -234950,7 +234950,7 @@ var ZodRecord = /* @__PURE__ */ $constructor("ZodRecord", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodRecord.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => recordProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => recordProcessor(inst, ctx, json4, params);
   inst.keyType = def.keyType;
   inst.valueType = def.valueType;
 });
@@ -234992,7 +234992,7 @@ var ZodMap = /* @__PURE__ */ $constructor("ZodMap", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodMap.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => mapProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => mapProcessor(inst, ctx, json4, params);
   inst.keyType = def.keyType;
   inst.valueType = def.valueType;
   inst.min = (...args) => inst.check(_minSize(...args));
@@ -235012,7 +235012,7 @@ var ZodSet = /* @__PURE__ */ $constructor("ZodSet", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodSet.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => setProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => setProcessor(inst, ctx, json4, params);
   inst.min = (...args) => inst.check(_minSize(...args));
   inst.nonempty = (params) => inst.check(_minSize(1, params));
   inst.max = (...args) => inst.check(_maxSize(...args));
@@ -235028,7 +235028,7 @@ function set(valueType, params) {
 var ZodEnum = /* @__PURE__ */ $constructor("ZodEnum", (inst, def) => {
   $ZodEnum.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => enumProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => enumProcessor(inst, ctx, json4, params);
   inst.enum = def.entries;
   inst.options = [...inst._zod.values];
   const keys = new Set(Object.keys(def.entries));
@@ -235081,7 +235081,7 @@ function nativeEnum(entries, params) {
 var ZodLiteral = /* @__PURE__ */ $constructor("ZodLiteral", (inst, def) => {
   $ZodLiteral.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => literalProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => literalProcessor(inst, ctx, json4, params);
   inst.values = new Set(def.values);
   Object.defineProperty(inst, "value", {
     get() {
@@ -235102,7 +235102,7 @@ function literal(value, params) {
 var ZodFile = /* @__PURE__ */ $constructor("ZodFile", (inst, def) => {
   $ZodFile.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => fileProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => fileProcessor(inst, ctx, json4, params);
   inst.min = (size, params) => inst.check(_minSize(size, params));
   inst.max = (size, params) => inst.check(_maxSize(size, params));
   inst.mime = (types, params) => inst.check(_mime(Array.isArray(types) ? types : [types], params));
@@ -235114,7 +235114,7 @@ var ZodTransform = /* @__PURE__ */ $constructor("ZodTransform", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodTransform.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => transformProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => transformProcessor(inst, ctx, json4, params);
   inst._zod.parse = (payload, _ctx) => {
     if (_ctx.direction === "backward") {
       throw new $ZodEncodeError(inst.constructor.name);
@@ -235153,7 +235153,7 @@ function transform(fn) {
 var ZodOptional = /* @__PURE__ */ $constructor("ZodOptional", (inst, def) => {
   $ZodOptional.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => optionalProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => optionalProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function optional(innerType) {
@@ -235165,7 +235165,7 @@ function optional(innerType) {
 var ZodExactOptional = /* @__PURE__ */ $constructor("ZodExactOptional", (inst, def) => {
   $ZodExactOptional.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => optionalProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => optionalProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function exactOptional(innerType) {
@@ -235177,7 +235177,7 @@ function exactOptional(innerType) {
 var ZodNullable = /* @__PURE__ */ $constructor("ZodNullable", (inst, def) => {
   $ZodNullable.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => nullableProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => nullableProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function nullable(innerType) {
@@ -235192,7 +235192,7 @@ function nullish2(innerType) {
 var ZodDefault = /* @__PURE__ */ $constructor("ZodDefault", (inst, def) => {
   $ZodDefault.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => defaultProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => defaultProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
   inst.removeDefault = inst.unwrap;
 });
@@ -235208,7 +235208,7 @@ function _default2(innerType, defaultValue) {
 var ZodPrefault = /* @__PURE__ */ $constructor("ZodPrefault", (inst, def) => {
   $ZodPrefault.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => prefaultProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => prefaultProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function prefault(innerType, defaultValue) {
@@ -235223,7 +235223,7 @@ function prefault(innerType, defaultValue) {
 var ZodNonOptional = /* @__PURE__ */ $constructor("ZodNonOptional", (inst, def) => {
   $ZodNonOptional.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => nonoptionalProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => nonoptionalProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function nonoptional(innerType, params) {
@@ -235236,7 +235236,7 @@ function nonoptional(innerType, params) {
 var ZodSuccess = /* @__PURE__ */ $constructor("ZodSuccess", (inst, def) => {
   $ZodSuccess.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => successProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => successProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function success(innerType) {
@@ -235248,7 +235248,7 @@ function success(innerType) {
 var ZodCatch = /* @__PURE__ */ $constructor("ZodCatch", (inst, def) => {
   $ZodCatch.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => catchProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => catchProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
   inst.removeCatch = inst.unwrap;
 });
@@ -235262,7 +235262,7 @@ function _catch2(innerType, catchValue) {
 var ZodNaN = /* @__PURE__ */ $constructor("ZodNaN", (inst, def) => {
   $ZodNaN.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => nanProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => nanProcessor(inst, ctx, json4, params);
 });
 function nan(params) {
   return _nan(ZodNaN, params);
@@ -235270,7 +235270,7 @@ function nan(params) {
 var ZodPipe = /* @__PURE__ */ $constructor("ZodPipe", (inst, def) => {
   $ZodPipe.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => pipeProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => pipeProcessor(inst, ctx, json4, params);
   inst.in = def.in;
   inst.out = def.out;
 });
@@ -235312,7 +235312,7 @@ var ZodPreprocess = /* @__PURE__ */ $constructor("ZodPreprocess", (inst, def) =>
 var ZodReadonly = /* @__PURE__ */ $constructor("ZodReadonly", (inst, def) => {
   $ZodReadonly.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => readonlyProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => readonlyProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function readonly(innerType) {
@@ -235324,7 +235324,7 @@ function readonly(innerType) {
 var ZodTemplateLiteral = /* @__PURE__ */ $constructor("ZodTemplateLiteral", (inst, def) => {
   $ZodTemplateLiteral.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => templateLiteralProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => templateLiteralProcessor(inst, ctx, json4, params);
 });
 function templateLiteral(parts, params) {
   return new ZodTemplateLiteral({
@@ -235336,7 +235336,7 @@ function templateLiteral(parts, params) {
 var ZodLazy = /* @__PURE__ */ $constructor("ZodLazy", (inst, def) => {
   $ZodLazy.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => lazyProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => lazyProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.getter();
 });
 function lazy(getter) {
@@ -235348,7 +235348,7 @@ function lazy(getter) {
 var ZodPromise = /* @__PURE__ */ $constructor("ZodPromise", (inst, def) => {
   $ZodPromise.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => promiseProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => promiseProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function promise(innerType) {
@@ -235360,7 +235360,7 @@ function promise(innerType) {
 var ZodFunction = /* @__PURE__ */ $constructor("ZodFunction", (inst, def) => {
   $ZodFunction.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => functionProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => functionProcessor(inst, ctx, json4, params);
 });
 function _function(params) {
   return new ZodFunction({
@@ -235372,7 +235372,7 @@ function _function(params) {
 var ZodCustom = /* @__PURE__ */ $constructor("ZodCustom", (inst, def) => {
   $ZodCustom.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => customProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => customProcessor(inst, ctx, json4, params);
 });
 function check(fn) {
   const ch = new $ZodCheck({
@@ -236447,6 +236447,40 @@ function date4(params) {
   return _coercedDate(ZodDate, params);
 }
 
+// src/config/languages.ts
+var LANGUAGES = ["typescript", "go", "python", "csharp"];
+var HELPER_LANGUAGES = {
+  go: {
+    label: "Go",
+    helper: "go-helper",
+    extensions: [".go"],
+    lintTool: "golangci-lint",
+    securityHint: "Go files are checked by gosec: give a golangci-lint JSON report (with gosec enabled) as the lint report"
+  },
+  python: {
+    label: "Python",
+    helper: "py-helper",
+    extensions: [".py"],
+    lintTool: "ruff",
+    securityHint: "Python files are checked by flake8-bandit: give a ruff JSON report (with the S rules selected) as the lint report"
+  },
+  csharp: {
+    label: "C#",
+    helper: "cs-helper",
+    extensions: [".cs", ".cshtml", ".proto"],
+    lintTool: "SARIF",
+    securityHint: "C# files are checked by the .NET security analyzers (CA2100, CA3xxx, CA5xxx) or Security Code Scan: give their SARIF report as the lint report"
+  }
+};
+function isHelperLanguage(language) {
+  return language !== "typescript";
+}
+var SCRIPT_EXTENSIONS = [".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs"];
+var HELPER_EXTENSIONS = Object.values(HELPER_LANGUAGES).flatMap((l) => l.extensions);
+function isHelperSource(language, path3) {
+  return HELPER_LANGUAGES[language].extensions.some((e) => path3.endsWith(e));
+}
+
 // src/config/schema.ts
 var globs = external_exports.array(external_exports.string().min(1, "glob patterns cannot be empty"));
 var DEFAULT_INFRA = [
@@ -236491,6 +236525,7 @@ var DEFAULT_INFRA = [
   "**/.python-version"
 ];
 var DEFAULT_ROLES = {
+  client: [],
   barrel: ["**/index.ts"],
   i18n: ["src/locales/**/*.json"],
   test: ["**/*.test.ts", "**/*.test.tsx"],
@@ -236498,9 +236533,19 @@ var DEFAULT_ROLES = {
   global: ["src/App.tsx", "src/main.tsx", "package.json", "package-lock.json", "tsconfig*.json", "eslint.config.*", "vite.config.ts"],
   infra: DEFAULT_INFRA
 };
-var GO_DEFAULT_ROLES = { barrel: [], i18n: [], test: ["**/*_test.go"], story: [], global: [], infra: DEFAULT_INFRA };
+var GO_DEFAULT_ROLES = { client: [], barrel: [], i18n: [], test: ["**/*_test.go"], story: [], global: [], infra: DEFAULT_INFRA };
 var GO_DEFAULT_EXCLUDE = ["**/mock/**", "**/mocks/**", "**/*_mock.go", "**/mock_*.go"];
-var PYTHON_DEFAULT_ROLES = { barrel: [], i18n: [], test: ["tests/**", "**/tests/**", "**/test/**", "**/test_*.py", "**/*_test.py", "**/conftest.py"], story: [], global: [], infra: DEFAULT_INFRA };
+var PYTHON_DEFAULT_ROLES = { client: [], barrel: [], i18n: [], test: ["tests/**", "**/tests/**", "**/test/**", "**/test_*.py", "**/*_test.py", "**/conftest.py"], story: [], global: [], infra: DEFAULT_INFRA };
+var CSHARP_DEFAULT_ROLES = {
+  client: ["**/wwwroot/**"],
+  barrel: [],
+  i18n: ["**/*.resx"],
+  test: ["**/*.Tests/**", "**/*.Test/**", "**/*.UnitTests/**", "**/*.IntegrationTests/**", "**/test/**", "**/tests/**", "**/*Tests.cs", "**/*Test.cs"],
+  story: [],
+  global: ["**/Directory.Build.props", "**/Directory.Build.targets", "**/global.json", "**/NuGet.config", "**/nuget.config", "**/NuGet.Config", "**/.editorconfig"],
+  infra: [...DEFAULT_INFRA, "**/appsettings*.json", "**/web.config", "**/Web.config", "**/launchSettings.json", "**/*.pubxml", "**/*.sql", "**/*.sln", "**/*.slnx"]
+};
+var CSHARP_DEFAULT_EXCLUDE = ["**/bin/**", "**/obj/**", "**/*.g.cs", "**/*.g.i.cs", "**/*.Designer.cs", "**/*.AssemblyInfo.cs", "**/*ModelSnapshot.cs", "**/wwwroot/lib/**", "**/*.min.js", "**/*.min.css", "**/*.map"];
 var DATADOG_SITES = ["datadoghq.com", "us3.datadoghq.com", "us5.datadoghq.com", "datadoghq.eu", "ap1.datadoghq.com", "ap2.datadoghq.com", "ddog-gov.com"];
 var ddName = external_exports.string().regex(/^[A-Za-z0-9_.:\-/]+$/, "only letters, digits and _ . : - / are allowed");
 var DatadogSchema = external_exports.object({
@@ -236518,9 +236563,11 @@ var DatadogSchema = external_exports.object({
    */
   apm: external_exports.object({ service: external_exports.union([ddName, external_exports.array(ddName).min(1)]), operations: external_exports.array(ddName).min(1) }).strict().optional()
 }).strict().refine((d) => d.rum !== void 0 || d.apm !== void 0, { message: "set datadog.rum (pages) or datadog.apm (operations)" });
-var LANGUAGE_ROLES = { typescript: DEFAULT_ROLES, go: GO_DEFAULT_ROLES, python: PYTHON_DEFAULT_ROLES };
+var LANGUAGE_ROLES = { typescript: DEFAULT_ROLES, go: GO_DEFAULT_ROLES, python: PYTHON_DEFAULT_ROLES, csharp: CSHARP_DEFAULT_ROLES };
+var LANGUAGE_EXCLUDE = { typescript: [], go: GO_DEFAULT_EXCLUDE, python: [], csharp: CSHARP_DEFAULT_EXCLUDE };
 function rolesWithDefaults(given, defaults) {
   return {
+    client: given.client ?? defaults.client,
     barrel: given.barrel ?? defaults.barrel,
     i18n: given.i18n ?? defaults.i18n,
     test: given.test ?? defaults.test,
@@ -236534,10 +236581,22 @@ var ConfigSchema = external_exports.object({
    * typescript: the TypeScript compiler reads the project; go: the Go toolchain does (a helper built from go-helper/);
    * python: Python's own parser does (py-helper/, run with python3).
    */
-  language: external_exports.enum(["typescript", "go", "python"]).default("typescript"),
+  language: external_exports.enum(LANGUAGES).default("typescript"),
   python: external_exports.object({
     /** Import roots, relative to the project: `src` for a src layout (`from orders_api import x` is src/orders_api/x.py). */
     roots: external_exports.array(external_exports.string().min(1)).min(1).default(["src", "."])
+  }).strict().prefault({}),
+  csharp: external_exports.object({
+    /** .csproj globs relative to the project directory; default: every project below it (test projects are left out). */
+    projects: globs.default([]),
+    /** Build configurations to compile (their #if symbols); default: Debug, Release and every one the projects declare. */
+    configurations: external_exports.array(external_exports.string().min(1)).default([]),
+    /** Extra preprocessor symbols for every configuration. */
+    defines: external_exports.array(external_exports.string().regex(/^[A-Za-z_][A-Za-z0-9_]*$/, "a preprocessor symbol is a C# identifier")).default([]),
+    /** Fully qualified methods (Namespace.Type.Method) whose delegate arguments are background entry points (TASK). */
+    entryCalls: external_exports.array(external_exports.string().min(1)).default([]),
+    /** Directories holding views by controller name, besides Views/ and Areas/<area>/Views/ (project-relative). */
+    viewRoots: external_exports.array(external_exports.string().min(1)).default([])
   }).strict().prefault({}),
   /** frontend: React routes are the entry points; backend: GraphQL operations and REST endpoints are. */
   surface: external_exports.enum(["frontend", "backend"]).default("frontend"),
@@ -236585,7 +236644,9 @@ var ConfigSchema = external_exports.object({
     story: globs.optional(),
     global: globs.optional(),
     /** Environment, infrastructure and CI files (repo-relative globs; source code files never match). */
-    infra: globs.optional()
+    infra: globs.optional(),
+    /** Client files the app serves (scripts, styles) that no helper reads: wwwroot of a C# web project. */
+    client: globs.optional()
   }).strict().prefault({}),
   signals: external_exports.object({
     coverage: external_exports.string().min(1).optional(),
@@ -236598,7 +236659,7 @@ var ConfigSchema = external_exports.object({
     coverageIgnore: globs.default([])
   }).strict().prefault({})
 }).strict().superRefine((config2, ctx) => {
-  if (config2.language !== "typescript" && config2.surface !== "backend") ctx.addIssue({ code: "custom", path: ["surface"], message: `a ${config2.language === "go" ? "Go" : "Python"} project is a backend: set "surface": "backend"` });
+  if (isHelperLanguage(config2.language) && config2.surface !== "backend") ctx.addIssue({ code: "custom", path: ["surface"], message: `a ${HELPER_LANGUAGES[config2.language].label} project is a backend: set "surface": "backend"` });
   if (config2.surface === "frontend" && config2.routes === void 0) ctx.addIssue({ code: "custom", path: ["routes"], message: 'routes is required for a frontend (routes.file for React Router, or routes.adapter "next" / "tanstack-router"), or set "surface": "backend"' });
 }).transform((config2) => ({
   ...config2,
@@ -236606,7 +236667,7 @@ var ConfigSchema = external_exports.object({
   // Every role the configuration leaves out takes the default of the project's language, key by key: setting
   // roles.global in a Python project keeps the Python test globs.
   roles: rolesWithDefaults(config2.roles, LANGUAGE_ROLES[config2.language]),
-  exclude: config2.language === "go" && config2.exclude.length === 0 ? GO_DEFAULT_EXCLUDE : config2.exclude
+  exclude: config2.exclude.length === 0 ? LANGUAGE_EXCLUDE[config2.language] : config2.exclude
 }));
 
 // src/config/load.ts
@@ -236654,7 +236715,7 @@ function loadConfig(projectDir, configPath) {
 var package_default = {
   name: "@winninjs/farol",
   version: "0.2.1",
-  description: "Tells code reviewers how much attention a pull request needs and where to look first: what the change reaches, a merge risk score and a review plan. TypeScript/React, Go and Python. Shadow mode: never blocks.",
+  description: "Tells code reviewers how much attention a pull request needs and where to look first: what the change reaches, a merge risk score and a review plan. TypeScript/React, Go, Python and C#/.NET. Shadow mode: never blocks.",
   keywords: [
     "code-review",
     "pull-request",
@@ -236665,6 +236726,7 @@ var package_default = {
     "react",
     "go",
     "python",
+    "csharp",
     "diff-coverage"
   ],
   author: "Winnin",
@@ -236685,7 +236747,10 @@ var package_default = {
     "dist",
     "go-helper",
     "py-helper",
-    "!**/__pycache__"
+    "cs-helper",
+    "!**/__pycache__",
+    "!cs-helper/bin",
+    "!cs-helper/obj"
   ],
   engines: {
     node: ">=22"
@@ -237124,8 +237189,8 @@ async function loadContext(options) {
 }
 
 // src/cli/analyze.ts
-import { readFileSync as readFileSync4 } from "fs";
-import { posix as posix14, resolve as resolve3 } from "path";
+import { readFileSync as readFileSync5 } from "fs";
+import { posix as posix15, resolve as resolve3 } from "path";
 
 // src/classify/classify.ts
 import { posix } from "path";
@@ -237398,6 +237463,7 @@ var REASONS = {
   "existing-file-renamed": "touches-existing",
   "existing-file-deleted": "touches-existing",
   "infra-file-changed": "touches-existing",
+  "client-file-changed": "touches-existing",
   "new-file-reached-by-existing-route": "touches-existing",
   "tests-modified": "info",
   "type-only-change": "info",
@@ -237412,6 +237478,7 @@ var REASONS = {
   "i18n-additive": "info",
   "new-file-in-new-route": "info",
   "new-file-disconnected": "info",
+  "client-file-added": "info",
   "file-excluded": "info",
   "outside-project": "info",
   "no-existing-code-touched": "info"
@@ -237476,13 +237543,20 @@ function computeRisk(input2) {
 // src/classify/dependencies.ts
 import { isDeepStrictEqual as isDeepStrictEqual2 } from "util";
 var DEPENDENCY_SECTIONS = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
-var LOCKFILES = /* @__PURE__ */ new Set(["package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb", "go.sum", "uv.lock", "poetry.lock", "Pipfile.lock", "pdm.lock"]);
-var MANIFESTS = /* @__PURE__ */ new Set(["package.json", "go.mod", "pyproject.toml", "requirements.txt"]);
+var LOCKFILES = /* @__PURE__ */ new Set(["package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb", "go.sum", "uv.lock", "poetry.lock", "Pipfile.lock", "pdm.lock", "packages.lock.json"]);
+var MANIFESTS = /* @__PURE__ */ new Set(["package.json", "go.mod", "pyproject.toml", "requirements.txt", "Directory.Packages.props"]);
+function isManifestName(name) {
+  return MANIFESTS.has(name) || name.endsWith(".csproj");
+}
 var ECOSYSTEM_FILES = {
   typescript: /* @__PURE__ */ new Set(["package.json", "package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb"]),
   go: /* @__PURE__ */ new Set(["go.mod", "go.sum"]),
-  python: /* @__PURE__ */ new Set(["pyproject.toml", "requirements.txt", "uv.lock", "poetry.lock", "Pipfile.lock", "pdm.lock"])
+  python: /* @__PURE__ */ new Set(["pyproject.toml", "requirements.txt", "uv.lock", "poetry.lock", "Pipfile.lock", "pdm.lock"]),
+  csharp: /* @__PURE__ */ new Set(["Directory.Packages.props", "packages.lock.json"])
 };
+function isEcosystemFile(language, name) {
+  return ECOSYSTEM_FILES[language].has(name) || language === "csharp" && name.endsWith(".csproj");
+}
 var ManifestParseError = class extends Error {
 };
 var PROTOCOLS = ["workspace:", "catalog:", "file:", "link:", "portal:", "git", "http:", "https:", "github:"];
@@ -237725,6 +237799,13 @@ function classify(input2) {
       reasons.push(reason("infra-file-changed", `environment, infrastructure or CI file ${file2.status}`, file2.path));
       continue;
     }
+    if (role === "client") {
+      const loaded = file2.status === "added" ? void 0 : impactOf(file2.path);
+      const by = [...loaded?.affected.keys() ?? []];
+      reasons.push(file2.status === "added" ? reason("client-file-added", "new client file (served to browsers)", file2.path) : reason("client-file-changed", `existing client file ${file2.status} (served to browsers)${by.length > 0 ? `: loaded by ${by.length} existing ${entryWord}(s): ${by.slice(0, 3).join("; ")}${by.length > 3 ? `; and ${by.length - 3} more` : ""}` : ""}`, file2.path));
+      if (loaded) addImpact(file2.path);
+      continue;
+    }
     if (role === "test") {
       if (file2.status !== "added") reasons.push(reason("tests-modified", `existing test ${file2.status}, ${file2.removed.length} line(s) removed`, file2.path));
       continue;
@@ -237795,8 +237876,8 @@ function classify(input2) {
         const result = checkBarrelAdditive(file2.path, baseText, headText);
         additive = result.additive;
         for (const p of result.problems) reasons.push(reason("barrel-not-additive", p, file2.path));
-      } else if (!file2.path.endsWith(".json")) {
-        reasons.push(reason("i18n-not-additive", "the i18n rule only applies to JSON files", file2.path));
+      } else if (!file2.path.endsWith(".json") && !file2.path.endsWith(".resx")) {
+        reasons.push(reason("i18n-not-additive", "the i18n rule only applies to JSON and .resx files", file2.path));
       } else {
         try {
           const result = checkI18nAdditive(baseText, headText);
@@ -238146,7 +238227,7 @@ var FileSchema = external_exports.object({
   path: path2,
   oldPath: path2.optional(),
   status: external_exports.enum(["added", "modified", "deleted", "renamed"]),
-  role: external_exports.enum(["global", "manifest", "lockfile", "routes", "schema", "resolvers", "test", "story", "infra", "barrel", "i18n", "source", "excluded"]),
+  role: external_exports.enum(["global", "manifest", "lockfile", "routes", "schema", "resolvers", "test", "story", "infra", "client", "barrel", "i18n", "source", "excluded"]),
   /** Only for modified routes, barrel and i18n files: whether the additive rule holds. */
   additive: external_exports.boolean().optional(),
   linesAdded: count,
@@ -238185,7 +238266,7 @@ var LintSignalSchema = external_exports.object({
   findings: external_exports.array(LintFindingSchema).max(50),
   omittedFindings: count
 }).strict();
-var SUPPRESSION_KINDS = ["eslint-disable", "eslint-disable-line", "eslint-disable-next-line", "ts-ignore", "ts-expect-error", "ts-nocheck", "as-any", "any-annotation", "nolint", "lint-ignore", "nosec", "noqa", "type-ignore", "no-cover", "pyright-ignore", "pylint-disable"];
+var SUPPRESSION_KINDS = ["eslint-disable", "eslint-disable-line", "eslint-disable-next-line", "ts-ignore", "ts-expect-error", "ts-nocheck", "as-any", "any-annotation", "nolint", "lint-ignore", "nosec", "noqa", "type-ignore", "no-cover", "pyright-ignore", "pylint-disable", "pragma-warning-disable", "nullable-disable", "resharper-disable", "suppress-message", "exclude-from-coverage", "null-forgiving"];
 var SuppressionsSignalSchema = external_exports.object({
   status,
   message: external_exports.string().optional(),
@@ -238218,7 +238299,7 @@ var VulnerabilitiesSignalSchema = external_exports.object({
   /** Every advisory of the report, by severity (context: most predate the PR). */
   total: external_exports.object({ critical: count, high: count, moderate: count, low: count, info: count }).strict().nullable()
 }).strict();
-var SECURITY_RULES = ["dangerously-set-inner-html", "inner-html", "eval", "string-timer", "document-write", "postmessage-wildcard", "hardcoded-secret", "javascript-url", "target-blank", "insecure-url", "gosec", "bandit"];
+var SECURITY_RULES = ["dangerously-set-inner-html", "inner-html", "eval", "string-timer", "document-write", "postmessage-wildcard", "hardcoded-secret", "javascript-url", "target-blank", "insecure-url", "gosec", "bandit", "dotnet-analyzer", "sql-destructive"];
 var SecurityFindingSchema = external_exports.object({ path: path2, line, rule: external_exports.enum(SECURITY_RULES), severity: external_exports.enum(["high", "medium", "low"]), message: external_exports.string(), text: external_exports.string() }).strict();
 var SecuritySignalSchema = external_exports.object({ status, message: external_exports.string().optional(), findings: external_exports.array(SecurityFindingSchema), summary: external_exports.object({ high: count, medium: count, low: count }).strict() }).strict();
 var SignalsSchema = external_exports.object({
@@ -238560,7 +238641,7 @@ import { isAbsolute as isAbsolute3 } from "path";
 
 // src/signals/paths.ts
 import { isAbsolute as isAbsolute2, posix as posix5 } from "path";
-var CODE_EXTENSIONS = /* @__PURE__ */ new Set([".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs", ".go", ".py"]);
+var CODE_EXTENSIONS = new Set([...SCRIPT_EXTENSIONS, ...HELPER_EXTENSIONS].filter((e) => e !== ".cshtml" && e !== ".proto"));
 function isCodeFile(path3) {
   return CODE_EXTENSIONS.has(posix5.extname(path3)) && !path3.endsWith(".d.ts");
 }
@@ -238608,18 +238689,18 @@ function parseCoverageReport(text, repoRoot2, projectPrefix, canonical2) {
   for (const [key, entry] of Object.entries(parsed.data)) {
     const path3 = reportPathToRepo(entry.path ?? key, repoRoot2, projectPrefix, canonical2);
     if (path3 === void 0) continue;
-    const statements = [];
+    const statements2 = [];
     const functions = entry.fnMap === void 0 ? void 0 : Object.values(entry.fnMap).filter((f) => f.name !== EMPTY_REPORT).map((f) => f.loc);
     for (const [id, loc] of Object.entries(entry.statementMap)) {
       const onLoad = functions !== void 0 && !functions.some((f) => f.start.line <= loc.start.line && loc.end.line <= f.end.line);
-      statements.push({ start: loc.start.line, end: loc.end.line, count: entry.s[id] ?? 0, ...onLoad ? { onLoad: true } : {} });
+      statements2.push({ start: loc.start.line, end: loc.end.line, count: entry.s[id] ?? 0, ...onLoad ? { onLoad: true } : {} });
     }
-    result.set(path3, statements);
+    result.set(path3, statements2);
   }
   return result;
 }
 function listsUnloadedFiles(report) {
-  return [...report.values()].some((statements) => statements.some((s) => s.onLoad === true) && statements.every((s) => s.count === 0));
+  return [...report.values()].some((statements2) => statements2.some((s) => s.onLoad === true) && statements2.every((s) => s.count === 0));
 }
 function coverageSignal(report, files, roleOf, ignored = () => false, options = {}) {
   const out = [];
@@ -238634,16 +238715,16 @@ function coverageSignal(report, files, roleOf, ignored = () => false, options = 
       continue;
     }
     const lines = file2.added.map((l) => l.line);
-    const statements = report.get(file2.path);
-    if (statements === void 0 && options.declarationsOnly?.(file2.path) === true) {
+    const statements2 = report.get(file2.path);
+    if (statements2 === void 0 && options.declarationsOnly?.(file2.path) === true) {
       out.push({ path: file2.path, changedExecutableLines: 0, coveredLines: 0, uncovered: [], missingFromReport: false });
       continue;
     }
-    if (statements === void 0 && options.missingIsExcluded === true) {
+    if (statements2 === void 0 && options.missingIsExcluded === true) {
       excluded.push(file2.path);
       continue;
     }
-    if (statements === void 0) {
+    if (statements2 === void 0) {
       out.push({ path: file2.path, changedExecutableLines: lines.length, coveredLines: 0, uncovered: toRanges(lines), missingFromReport: true });
       continue;
     }
@@ -238651,7 +238732,7 @@ function coverageSignal(report, files, roleOf, ignored = () => false, options = 
     let covered = 0;
     const uncovered = [];
     for (const line3 of lines) {
-      const hits = statements.filter((s) => s.start <= line3 && line3 <= s.end);
+      const hits = statements2.filter((s) => s.start <= line3 && line3 <= s.end);
       if (hits.length === 0) continue;
       executable++;
       if (hits.every((s) => s.count > 0)) covered++;
@@ -238757,6 +238838,266 @@ function pythonSuppressions(files, comments) {
     for (const [pattern, kind] of DIRECTIVES) if (pattern.test(c.text)) items.push({ path: c.file, line: c.line, kind, text: c.text.slice(0, 200) });
   }
   return items.sort((a, b) => compareStrings(a.path, b.path) || a.line - b.line);
+}
+
+// src/signals/dotnet.ts
+import { fileURLToPath } from "url";
+var CSHARP_SUPPRESSIONS = [
+  [/^#\s*pragma\s+warning\s+disable\b/, "pragma-warning-disable"],
+  [/^#\s*nullable\s+disable\b/, "nullable-disable"],
+  [/^\/\/\s*ReSharper\s+disable\b/, "resharper-disable"],
+  [/^\[(System\.Diagnostics\.CodeAnalysis\.)?SuppressMessage/, "suppress-message"],
+  [/^\[(System\.Diagnostics\.CodeAnalysis\.)?ExcludeFromCodeCoverage/, "exclude-from-coverage"],
+  // The helper prints null-forgiving expressions (`user!`) as written: code, not a comment.
+  [/^(?!\/\/|\/\*|#|\[).*!$/, "null-forgiving"]
+];
+function csharpSuppressions(files, comments) {
+  const added = new Map(files.map((f) => [f.path, new Set(f.added.map((l) => l.line))]));
+  const items = [];
+  for (const c of comments) {
+    if (!added.get(c.file)?.has(c.line)) continue;
+    const kind = CSHARP_SUPPRESSIONS.find(([pattern]) => pattern.test(c.text))?.[1];
+    if (kind) items.push({ path: c.file, line: c.line, kind, text: c.text.slice(0, 200) });
+  }
+  return items.sort((a, b) => compareStrings(a.path, b.path) || a.line - b.line);
+}
+function json3(text, label2) {
+  try {
+    return JSON.parse(text);
+  } catch (error62) {
+    throw new ReportError(`the ${label2} report is not valid JSON (${error62 instanceof Error ? error62.message : String(error62)})`);
+  }
+}
+var Coverlet = external_exports.record(external_exports.string(), external_exports.record(external_exports.string(), external_exports.record(external_exports.string(), external_exports.record(external_exports.string(), external_exports.object({ Lines: external_exports.record(external_exports.string(), external_exports.number()) }).loose()))));
+function isCoverletReport(text) {
+  return text.trimStart().startsWith("{") && text.includes('"Lines"') && !text.includes('"statementMap"');
+}
+function linesToStatements(files, repoRoot2, projectPrefix, canonical2) {
+  const out = /* @__PURE__ */ new Map();
+  for (const [raw, lines] of files) {
+    const path3 = reportPathToRepo(raw, repoRoot2, projectPrefix, canonical2);
+    if (path3 === void 0) continue;
+    const perFile = out.get(path3) ?? /* @__PURE__ */ new Map();
+    for (const [line3, hits] of lines) perFile.set(line3, Math.max(perFile.get(line3) ?? 0, hits));
+    out.set(path3, perFile);
+  }
+  return new Map([...out].map(([path3, lines]) => [path3, [...lines].sort(([a], [b]) => a - b).map(([line3, count2]) => ({ start: line3, end: line3, count: count2 }))]));
+}
+function parseCoverletReport(text, repoRoot2, projectPrefix, canonical2) {
+  const parsed = Coverlet.safeParse(json3(text, "coverlet"));
+  if (!parsed.success) throw new ReportError("the coverage report is not coverlet JSON");
+  const files = [];
+  for (const module of Object.values(parsed.data))
+    for (const [file2, classes] of Object.entries(module))
+      for (const methods of Object.values(classes)) for (const method of Object.values(methods)) files.push([file2, Object.entries(method.Lines).map(([l, h]) => [Number(l), h])]);
+  return linesToStatements(files, repoRoot2, projectPrefix, canonical2);
+}
+var CoberturaJson = external_exports.array(external_exports.object({ path: external_exports.string(), lines: external_exports.record(external_exports.string(), external_exports.number()) }));
+function isCoberturaJson(text) {
+  return text.trimStart().startsWith("[") && text.includes('"lines"') && text.includes('"path"');
+}
+function parseCoberturaJson(text, repoRoot2, projectPrefix, canonical2) {
+  const parsed = CoberturaJson.safeParse(json3(text, "Cobertura"));
+  if (!parsed.success) throw new ReportError("the coverage report is not Cobertura XML");
+  return linesToStatements(parsed.data.map((f) => [f.path, Object.entries(f.lines).map(([l, h]) => [Number(l), h])]), repoRoot2, projectPrefix, canonical2);
+}
+var SarifLocation = external_exports.object({
+  physicalLocation: external_exports.object({ artifactLocation: external_exports.object({ uri: external_exports.string(), uriBaseId: external_exports.string().optional() }).loose(), region: external_exports.object({ startLine: external_exports.number().int().optional() }).loose().optional() }).loose().optional(),
+  resultFile: external_exports.object({ uri: external_exports.string(), region: external_exports.object({ startLine: external_exports.number().int().optional() }).loose().optional() }).loose().optional()
+}).loose();
+var Sarif = external_exports.object({
+  runs: external_exports.array(external_exports.object({
+    originalUriBaseIds: external_exports.record(external_exports.string(), external_exports.object({ uri: external_exports.string() }).loose()).optional(),
+    results: external_exports.array(external_exports.object({
+      ruleId: external_exports.string().optional(),
+      level: external_exports.string().optional(),
+      message: external_exports.union([external_exports.string(), external_exports.object({ text: external_exports.string().optional() }).loose()]).optional(),
+      locations: external_exports.array(SarifLocation).optional()
+    }).loose()).optional()
+  }).loose())
+}).loose();
+function isSarifReport(text) {
+  return text.trimStart().startsWith("{") && text.includes('"runs"') && (text.includes("sarif") || text.includes('"results"'));
+}
+var SECURITY_RULE = /^(CA2100|CA21(09|53)|CA23\d\d|CA30\d\d|CA31\d\d|CA53\d\d|CA54\d\d|SCS\d{4})$/;
+var SECURITY_HIGH = /^(CA2100|CA300[1-9]|CA301[0-2]|CA23\d\d|CA5360|SCS000[1-3]|SCS0018|SCS0026|SCS0028|SCS0029)$/;
+function sarifPath(uri, base) {
+  const joined = base !== void 0 && !/^[a-z]+:/i.test(uri) ? `${base.replace(/\/$/, "")}/${uri}` : uri;
+  return joined.startsWith("file:") ? fileURLToPath(joined) : decodeURIComponent(joined);
+}
+function parseSarifReport(text, repoRoot2, projectPrefix, canonical2) {
+  const parsed = Sarif.safeParse(json3(text, "SARIF"));
+  if (!parsed.success) throw new ReportError("the lint report is not SARIF (runs[].results[])");
+  const messages = [];
+  const sast = [];
+  for (const run2 of parsed.data.runs) {
+    for (const result of run2.results ?? []) {
+      const level = result.level ?? "warning";
+      if (level === "none" || level === "note") continue;
+      const location = result.locations?.[0];
+      const uri = location?.physicalLocation?.artifactLocation.uri ?? location?.resultFile?.uri;
+      if (uri === void 0) continue;
+      const baseId = location?.physicalLocation?.artifactLocation.uriBaseId;
+      const raw = sarifPath(uri, baseId === void 0 ? void 0 : run2.originalUriBaseIds?.[baseId]?.uri);
+      const path3 = reportPathToRepo(raw, repoRoot2, projectPrefix, canonical2) ?? raw;
+      const line3 = location?.physicalLocation?.region?.startLine ?? location?.resultFile?.region?.startLine;
+      const rule = result.ruleId ?? "sarif";
+      const message = typeof result.message === "string" ? result.message : result.message?.text ?? rule;
+      messages.push({ path: path3, line: line3, rule, severity: level === "error" ? "error" : "warning", message });
+      if (line3 !== void 0 && SECURITY_RULE.test(rule)) sast.push({ path: path3, line: line3, rule: "dotnet-analyzer", severity: SECURITY_HIGH.test(rule) ? "high" : "medium", message: `${rule}: ${message}` });
+    }
+  }
+  return { messages, sast };
+}
+var DotnetPackage = external_exports.object({
+  id: external_exports.string(),
+  resolvedVersion: external_exports.string().optional(),
+  vulnerabilities: external_exports.array(external_exports.object({ severity: external_exports.string(), advisoryurl: external_exports.string() }).loose()).optional()
+}).loose();
+var DotnetAudit = external_exports.object({
+  projects: external_exports.array(external_exports.object({
+    frameworks: external_exports.array(external_exports.object({ topLevelPackages: external_exports.array(DotnetPackage).optional(), transitivePackages: external_exports.array(DotnetPackage).optional() }).loose()).optional()
+  }).loose())
+}).loose();
+function isDotnetAuditReport(text) {
+  return text.includes('"projects"') && (text.includes('"topLevelPackages"') || text.includes('"frameworks"'));
+}
+var SEVERITY = { low: "low", moderate: "moderate", medium: "moderate", high: "high", critical: "critical" };
+function parseDotnetAuditReport(text) {
+  const parsed = DotnetAudit.safeParse(json3(text, "dotnet list package"));
+  if (!parsed.success) throw new ReportError("the audit report is not `dotnet list package --vulnerable --format json` output");
+  const advisories = /* @__PURE__ */ new Map();
+  for (const project of parsed.data.projects)
+    for (const framework of project.frameworks ?? [])
+      for (const pkg of [...framework.topLevelPackages ?? [], ...framework.transitivePackages ?? []])
+        for (const v of pkg.vulnerabilities ?? []) {
+          const id = v.advisoryurl.split("/").filter((x) => x !== "").pop() ?? v.advisoryurl;
+          const severity = SEVERITY[v.severity.toLowerCase()] ?? "moderate";
+          advisories.set(`${pkg.id}\0${id}`, { package: pkg.id, severity, title: `${pkg.id} ${pkg.resolvedVersion ?? ""}: ${severity} vulnerability`.replace("  ", " "), id, url: v.advisoryurl, cves: [], vulnerableRange: pkg.resolvedVersion ?? null, patchedVersions: null, paths: [] });
+        }
+  return { advisories: [...advisories.values()].sort((a, b) => compareStrings(a.package, b.package) || compareStrings(a.id, b.id)), dependsOn: /* @__PURE__ */ new Map() };
+}
+
+// src/signals/sql.ts
+function sqlTokens(text) {
+  const tokens2 = [];
+  let line3 = 1;
+  let i = 0;
+  while (i < text.length) {
+    const c = text[i] ?? "";
+    if (c === "\n") {
+      line3++;
+      i++;
+      continue;
+    }
+    if (/\s/.test(c)) {
+      i++;
+      continue;
+    }
+    if (text.startsWith("--", i)) {
+      while (i < text.length && text[i] !== "\n") i++;
+      continue;
+    }
+    if (text.startsWith("/*", i)) {
+      let depth = 0;
+      while (i < text.length) {
+        if (text.startsWith("/*", i)) {
+          depth++;
+          i += 2;
+          continue;
+        }
+        if (text.startsWith("*/", i)) {
+          depth--;
+          i += 2;
+          if (depth === 0) break;
+          continue;
+        }
+        if (text[i] === "\n") line3++;
+        i++;
+      }
+      continue;
+    }
+    if (c === "'" || c === '"' || c === "[" || c === "`") {
+      const close = c === "[" ? "]" : c;
+      const at = line3;
+      i++;
+      while (i < text.length) {
+        if (text[i] === "\n") line3++;
+        if (text[i] === close) {
+          if (text[i + 1] === close) {
+            i += 2;
+            continue;
+          }
+          break;
+        }
+        i++;
+      }
+      i++;
+      tokens2.push({ word: c === "'" ? "'" : "ID", line: at });
+      continue;
+    }
+    const word = /^[A-Za-z_@#][\w@#$.]*/.exec(text.slice(i, i + 200))?.[0];
+    if (word !== void 0) {
+      tokens2.push({ word: word.toUpperCase(), line: line3 });
+      i += word.length;
+      continue;
+    }
+    if (c === ";" || c === "(" || c === ")") tokens2.push({ word: c, line: line3 });
+    i++;
+  }
+  return tokens2;
+}
+function statements(tokens2) {
+  const out = [[]];
+  for (const t of tokens2) {
+    if (t.word === ";" || t.word === "GO") out.push([]);
+    else out[out.length - 1]?.push(t);
+  }
+  return out.filter((s) => s.length > 0);
+}
+var VERBS = /* @__PURE__ */ new Set(["DROP", "TRUNCATE", "DELETE", "UPDATE", "ALTER", "EXEC", "EXECUTE", "SP_RENAME"]);
+var DML = /* @__PURE__ */ new Set(["INSERT", "SELECT", "MERGE", "CREATE"]);
+var DROP_HIGH = /* @__PURE__ */ new Set(["TABLE", "DATABASE", "SCHEMA"]);
+function destructive(statement) {
+  let depth = 0;
+  const top = [];
+  for (const t of statement) {
+    if (t.word === "(") depth++;
+    else if (t.word === ")") depth = Math.max(0, depth - 1);
+    else if (depth === 0) top.push(t.word);
+  }
+  const start = top.findIndex((w) => VERBS.has(w) || DML.has(w));
+  const verb = top[start];
+  if (verb === void 0 || DML.has(verb)) return null;
+  const next = top[start + 1] ?? "";
+  const has2 = (w) => top.includes(w);
+  if (verb === "DROP") return DROP_HIGH.has(next) ? { severity: "high", message: `DROP ${next} removes it and its data` } : { severity: "medium", message: `DROP ${next} removes a database object` };
+  if (verb === "TRUNCATE") return { severity: "high", message: "TRUNCATE removes every row" };
+  if (verb === "DELETE" && !has2("WHERE")) return { severity: "high", message: "DELETE without WHERE removes every row" };
+  if (verb === "UPDATE" && has2("SET") && !has2("WHERE")) return { severity: "high", message: "UPDATE without WHERE changes every row" };
+  if (verb === "ALTER" && next === "TABLE") {
+    const drop = top.indexOf("DROP");
+    if (drop >= 0) return top[drop + 1] === "CONSTRAINT" ? { severity: "medium", message: "ALTER TABLE \u2026 DROP CONSTRAINT removes a constraint" } : { severity: "high", message: "ALTER TABLE \u2026 DROP removes a column and its data" };
+    if (top.includes("ALTER", start + 1) && top[top.indexOf("ALTER", start + 1) + 1] === "COLUMN") return { severity: "medium", message: "ALTER COLUMN changes a column's type or nullability" };
+  }
+  if (verb === "SP_RENAME" || (verb === "EXEC" || verb === "EXECUTE") && /SP_RENAME$/.test(next)) return { severity: "medium", message: "sp_rename renames an object its users still name" };
+  return null;
+}
+function sqlFindings(files, readHead, skip) {
+  const findings = [];
+  for (const f of files) {
+    if (f.status === "deleted" || !f.path.toLowerCase().endsWith(".sql") || skip(f.path)) continue;
+    const text = readHead(f.path);
+    if (text === void 0) continue;
+    const added = new Set(f.added.map((l) => l.line));
+    const lines = text.split("\n");
+    for (const statement of statements(sqlTokens(text))) {
+      const line3 = statement.map((t) => t.line).find((l) => added.has(l));
+      const found = line3 === void 0 ? null : destructive(statement);
+      if (found && line3 !== void 0) findings.push({ path: f.path, line: line3, rule: "sql-destructive", severity: found.severity, message: found.message, text: (lines[line3 - 1] ?? "").trim().slice(0, 200) });
+    }
+  }
+  return findings;
 }
 
 // src/signals/go.ts
@@ -239387,13 +239728,13 @@ var UsageFileSchema = external_exports.object({
 }).strict();
 var MAX_LINKED_ISSUES = 20;
 function parseUsageFile(text) {
-  let json3;
+  let json4;
   try {
-    json3 = JSON.parse(text);
+    json4 = JSON.parse(text);
   } catch (error62) {
     throw new ReportError(`usage report is not JSON: ${error62 instanceof Error ? error62.message : String(error62)}`);
   }
-  const parsed = UsageFileSchema.safeParse(json3);
+  const parsed = UsageFileSchema.safeParse(json4);
   if (!parsed.success) throw new ReportError(`usage report is not a farol usage file (run "farol usage"): ${parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`);
   return parsed.data;
 }
@@ -239541,6 +239882,7 @@ function usageSignal(file2, input2) {
 }
 
 // src/cli/signals.ts
+var LANGUAGE_SUPPRESSIONS = { go: goSuppressions, python: pythonSuppressions, csharp: csharpSuppressions };
 function readReport(path3, label2, option) {
   if (path3 === void 0) return { kind: "missing", message: `no ${label2} report given (--${option} or signals.${option})` };
   if (!existsSync2(path3)) return { kind: "missing", message: `${label2} report not found at ${path3}` };
@@ -239564,13 +239906,14 @@ function asError(error62) {
 }
 var SEVERITY_RANK = { high: 0, medium: 1, low: 2 };
 function langSecurity(base, gosec, files, readHead, skip, language) {
-  if (gosec === void 0) {
-    const message = language === "go" ? "Go files are checked by gosec: give a golangci-lint JSON report (with gosec enabled) as the lint report" : "Python files are checked by flake8-bandit: give a ruff JSON report (with the S rules selected) as the lint report";
-    return { ...base, status: "not-provided", message };
-  }
+  if (gosec === void 0) return { ...base, status: "not-provided", message: HELPER_LANGUAGES[language].securityHint };
   const added = new Map(files.map((f) => [f.path, new Set(f.added.map((l) => l.line))]));
   const found = gosec.filter((g) => added.get(g.path)?.has(g.line) && !skip(g.path)).map((g) => ({ ...g, text: (readHead(g.path)?.split("\n")[g.line - 1] ?? "").trim().slice(0, 200) }));
   const findings = [...base.findings, ...found].sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || compareStrings(a.path, b.path) || a.line - b.line);
+  return { ...base, findings, summary: { high: findings.filter((f) => f.severity === "high").length, medium: findings.filter((f) => f.severity === "medium").length, low: findings.filter((f) => f.severity === "low").length } };
+}
+function withFindings(base, extra) {
+  const findings = [...base.findings, ...extra].sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || compareStrings(a.path, b.path) || a.line - b.line);
   return { ...base, findings, summary: { high: findings.filter((f) => f.severity === "high").length, medium: findings.filter((f) => f.severity === "medium").length, low: findings.filter((f) => f.severity === "low").length } };
 }
 function computeSignals(ctx, inputs) {
@@ -239581,7 +239924,7 @@ function computeSignals(ctx, inputs) {
   else {
     try {
       const goProfile = inputs.lang !== void 0 && cov.text.startsWith("mode:");
-      const report = goProfile ? parseGoCoverProfile(cov.text, inputs.lang?.module ?? "", ctx.projectPrefix) : isCoveragePyReport(cov.text) ? parseCoveragePyReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical) : parseCoverageReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical);
+      const report = goProfile ? parseGoCoverProfile(cov.text, inputs.lang?.module ?? "", ctx.projectPrefix) : isCoverletReport(cov.text) ? parseCoverletReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical) : isCoberturaJson(cov.text) ? parseCoberturaJson(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical) : isCoveragePyReport(cov.text) ? parseCoveragePyReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical) : parseCoverageReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical);
       coverage = coverageSignal(report, inputs.files, inputs.roleOf, inputs.coverageIgnored, {
         missingIsExcluded: !goProfile && listsUnloadedFiles(report),
         declarationsOnly: (p) => isScriptFile(p) && isDeclarationsOnlyModule(p, inputs.readHead(p) ?? "x(")
@@ -239592,7 +239935,7 @@ function computeSignals(ctx, inputs) {
   }
   let lint;
   let gosec;
-  const es = readReport(inputs.eslint, inputs.lang ? inputs.lang.language === "go" ? "golangci-lint" : "ruff" : "ESLint", "eslint");
+  const es = readReport(inputs.eslint, inputs.lang ? HELPER_LANGUAGES[inputs.lang.language].lintTool : "ESLint", "eslint");
   if (es.kind === "missing") lint = lintNotProvided(es.message);
   else if (es.kind === "error") lint = { ...lintNotProvided(es.message), status: "error" };
   else {
@@ -239600,6 +239943,10 @@ function computeSignals(ctx, inputs) {
       if (isGolangciReport(es.text)) {
         const parsed = parseGolangciReport(es.text, ctx.repoRoot, ctx.projectPrefix, canonical);
         gosec = parsed.gosec;
+        lint = lintSignal(parsed.messages, inputs.files);
+      } else if (isSarifReport(es.text)) {
+        const parsed = parseSarifReport(es.text, ctx.repoRoot, ctx.projectPrefix, canonical);
+        gosec = parsed.sast;
         lint = lintSignal(parsed.messages, inputs.files);
       } else if (isRuffReport(es.text)) {
         const parsed = parseRuffReport(es.text, ctx.repoRoot, ctx.projectPrefix, canonical);
@@ -239616,7 +239963,7 @@ function computeSignals(ctx, inputs) {
   else if (au.kind === "error") vulnerabilities = { ...vulnerabilitiesNotProvided(au.message), status: "error" };
   else {
     try {
-      const report = isGovulncheckReport(au.text) ? parseGovulncheckReport(au.text) : isPipAuditReport(au.text) ? parsePipAuditReport(au.text) : parseAuditReport(au.text);
+      const report = isGovulncheckReport(au.text) ? parseGovulncheckReport(au.text) : isPipAuditReport(au.text) ? parsePipAuditReport(au.text) : isDotnetAuditReport(au.text) ? parseDotnetAuditReport(au.text) : parseAuditReport(au.text);
       vulnerabilities = vulnerabilitiesSignal(report, inputs.changedPackages);
     } catch (error62) {
       vulnerabilities = { ...vulnerabilitiesNotProvided(asError(error62)), status: "error" };
@@ -239626,11 +239973,13 @@ function computeSignals(ctx, inputs) {
     const role = inputs.roleOf(path3);
     return role === "test" || role === "story" || role === "excluded";
   };
-  const notGo = inputs.files.filter((f) => !f.path.endsWith(".go") && !f.path.endsWith(".py"));
-  const suppressions = suppressionsSignal(notGo, inputs.readHead);
-  let security = securitySignal(notGo, inputs.readHead, notCode);
+  const scripts = inputs.files.filter((f) => !HELPER_EXTENSIONS.some((e) => f.path.endsWith(e)));
+  const suppressions = suppressionsSignal(scripts, inputs.readHead);
+  let security = securitySignal(scripts, inputs.readHead, notCode);
+  const sql = sqlFindings(inputs.files, inputs.readHead, notCode);
+  if (sql.length > 0) security = withFindings(security, sql);
   if (inputs.lang) {
-    const own2 = inputs.lang.language === "go" ? goSuppressions(inputs.files, inputs.lang.comments) : pythonSuppressions(inputs.files, inputs.lang.comments);
+    const own2 = LANGUAGE_SUPPRESSIONS[inputs.lang.language](inputs.files, inputs.lang.comments);
     suppressions.items = [...suppressions.items, ...own2].sort((a, b) => compareStrings(a.path, b.path) || a.line - b.line);
     security = langSecurity(security, gosec, inputs.files, inputs.readHead, notCode, inputs.lang.language);
   }
@@ -249041,12 +249390,12 @@ function createDiskFileSystem() {
 }
 
 // src/cli/lang-workspace.ts
-import { execFile as execFile3 } from "child_process";
-import { createHash } from "crypto";
-import { existsSync as existsSync3, mkdirSync as mkdirSync2, mkdtempSync, readdirSync as readdirSync2, readFileSync as readFileSync3, realpathSync as realpathSync4, rmSync as rmSync2, statSync as statSync3, writeFileSync as writeFileSync2 } from "fs";
+import { execFile as execFile4 } from "child_process";
+import { createHash as createHash2 } from "crypto";
+import { existsSync as existsSync4, mkdirSync as mkdirSync3, mkdtempSync, readdirSync as readdirSync2, readFileSync as readFileSync3, realpathSync as realpathSync4, rmSync as rmSync3, statSync as statSync3, writeFileSync as writeFileSync2 } from "fs";
 import { homedir, tmpdir } from "os";
-import { dirname as dirname2, join as join3 } from "path";
-import { fileURLToPath } from "url";
+import { dirname as dirname2, join as join4 } from "path";
+import { fileURLToPath as fileURLToPath2 } from "url";
 
 // src/decls/impact.ts
 var DeclGraph = class {
@@ -249250,8 +249599,52 @@ var DeclHelperSchema = external_exports.object({
   comments: external_exports.array(external_exports.object({ file: external_exports.string(), line: line2, text: external_exports.string() }))
 });
 
-// src/cli/lang-workspace.ts
+// src/cli/cs-helper.ts
+import { execFile as execFile3 } from "child_process";
+import { createHash } from "crypto";
+import { cpSync, existsSync as existsSync3, mkdirSync as mkdirSync2, rmSync as rmSync2 } from "fs";
+import { join as join3 } from "path";
 var MAX_BUFFER2 = 1024 * 1024 * 1024;
+var MISSING = "the .NET SDK (dotnet) is required to analyze a C# project; install it or put it on PATH";
+function dotnetEnv() {
+  return { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: "1", DOTNET_NOLOGO: "1", DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1", DOTNET_GENERATE_ASPNET_CERTIFICATE: "false", MSBUILDDISABLENODEREUSE: "1", DOTNET_CLI_UI_LANGUAGE: "en" };
+}
+function dotnet(args, cwd, input2) {
+  return new Promise((resolve11, reject) => {
+    const child = execFile3("dotnet", [...args], { cwd, env: dotnetEnv(), maxBuffer: MAX_BUFFER2, encoding: "utf8" }, (error62, stdout, stderr) => {
+      if (error62 && /ENOENT/.test(error62.message)) reject(new UsageError(MISSING));
+      else if (error62) reject(new Error(`dotnet ${args[0] ?? ""} failed: ${stderr.trim() || stdout.trim() || error62.message}`, { cause: error62 }));
+      else resolve11(stdout);
+    });
+    if (input2 !== void 0) child.stdin?.end(input2);
+  });
+}
+async function csHelperAssembly(src, sourceHash2, cacheDir) {
+  const sdk = (await dotnet(["--version"], src)).trim();
+  const key = createHash("sha256").update(`${sourceHash2}
+${sdk}
+${process.platform}-${process.arch}`).digest("hex").slice(0, 24);
+  const dir = join3(cacheDir, "cs-helper", key);
+  const assembly = join3(dir, "bin", "cshelper.dll");
+  if (existsSync3(assembly)) return assembly;
+  rmSync2(dir, { recursive: true, force: true });
+  mkdirSync2(dir, { recursive: true });
+  cpSync(join3(src, "cs-helper.csproj"), join3(dir, "src", "cs-helper.csproj"));
+  cpSync(join3(src, "src"), join3(dir, "src", "src"), { recursive: true });
+  try {
+    await dotnet(["build", join3(dir, "src", "cs-helper.csproj"), "-c", "Release", "-o", join3(dir, "bin"), "-v", "q", "-nologo", "-noAutoResponse", "-p:ImportDirectoryBuildProps=false", "-p:ImportDirectoryBuildTargets=false", "-p:ImportDirectoryPackagesProps=false"], dir);
+  } catch (error62) {
+    rmSync2(dir, { recursive: true, force: true });
+    throw error62;
+  }
+  return assembly;
+}
+function runCsHelper(assembly, args, cwd, input2) {
+  return dotnet([assembly, ...args], cwd, input2);
+}
+
+// src/cli/lang-workspace.ts
+var MAX_BUFFER3 = 1024 * 1024 * 1024;
 function goEnv() {
   const env = { ...process.env, GOPROXY: "off", GOTOOLCHAIN: "local", GOFLAGS: "", CGO_ENABLED: "0", GOWORK: "off" };
   delete env.PWD;
@@ -249262,7 +249655,7 @@ function pythonEnv() {
 }
 function run(command, args, cwd, env, input2) {
   return new Promise((resolve11, reject) => {
-    const child = execFile3(command, [...args], { cwd, env, maxBuffer: MAX_BUFFER2, encoding: "utf8" }, (error62, stdout, stderr) => {
+    const child = execFile4(command, [...args], { cwd, env, maxBuffer: MAX_BUFFER3, encoding: "utf8" }, (error62, stdout, stderr) => {
       if (error62) reject(new Error(`${command} failed: ${stderr.trim() || error62.message}`, { cause: error62 }));
       else resolve11(stdout);
     });
@@ -249274,19 +249667,19 @@ function missingTool(error62, message) {
   throw error62;
 }
 function helperDir(name) {
-  let dir = dirname2(fileURLToPath(import.meta.url));
+  let dir = dirname2(fileURLToPath2(import.meta.url));
   for (let i = 0; i < 5; i++) {
-    if (existsSync3(join3(dir, name))) return join3(dir, name);
+    if (existsSync4(join4(dir, name))) return join4(dir, name);
     dir = dirname2(dir);
   }
   throw new Error(`internal: ${name}/ not found next to farol`);
 }
 function sourceHash(dir) {
-  const hash2 = createHash("sha256");
+  const hash2 = createHash2("sha256");
   const walk = (d) => {
     for (const name of readdirSync2(d).sort()) {
-      if (name === "__pycache__") continue;
-      const full = join3(d, name);
+      if (name === "__pycache__" || name === "bin" || name === "obj") continue;
+      const full = join4(d, name);
       if (statSync3(full).isDirectory()) walk(full);
       else hash2.update(full.slice(dir.length)).update(readFileSync3(full));
     }
@@ -249302,13 +249695,13 @@ async function goHelperBinary() {
   } catch (error62) {
     missingTool(error62, "the Go toolchain (go) is required to analyze a Go project; install it or put it on PATH");
   }
-  const key = createHash("sha256").update(`${sourceHash(src)}
+  const key = createHash2("sha256").update(`${sourceHash(src)}
 ${goVersion}
 ${process.platform}-${process.arch}`).digest("hex").slice(0, 24);
-  const dir = join3(defaultCacheDir(), "go-helper", key);
-  const binary = join3(dir, process.platform === "win32" ? "gohelper.exe" : "gohelper");
-  if (existsSync3(binary)) return binary;
-  mkdirSync2(dir, { recursive: true });
+  const dir = join4(defaultCacheDir(), "go-helper", key);
+  const binary = join4(dir, process.platform === "win32" ? "gohelper.exe" : "gohelper");
+  if (existsSync4(binary)) return binary;
+  mkdirSync3(dir, { recursive: true });
   try {
     await run("go", ["build", "-o", binary, "."], src, { ...goEnv(), GOTOOLCHAIN: "local" });
   } catch (error62) {
@@ -249324,12 +249717,10 @@ function runPythonHelper(args, cwd, input2) {
 async function readToml(text) {
   return JSON.parse(await runPythonHelper(["toml"], tmpdir(), text));
 }
-async function readerFor(ctx) {
-  if (ctx.config.language === "go") {
+var READERS = {
+  go: async () => {
     const binary = await goHelperBinary();
     return {
-      label: "Go",
-      version: sourceHash(helperDir("go-helper")),
       read: async (dir, project, comments) => {
         try {
           return await run(binary, ["-root", dir, "-project", project, ...comments.length > 0 ? ["-comments", comments.join(",")] : []], dir, goEnv());
@@ -249339,43 +249730,65 @@ async function readerFor(ctx) {
         }
       }
     };
+  },
+  python: (ctx) => {
+    const roots = ctx.config.python.roots.join(",");
+    return Promise.resolve({ read: (dir, project, comments) => runPythonHelper(["analyze", "--root", dir, "--project", project, "--roots", roots, "--comments", comments.join(",")], dir) });
+  },
+  csharp: async (ctx) => {
+    const assembly = await csHelperAssembly(helperDir("cs-helper"), sourceHash(helperDir("cs-helper")), defaultCacheDir());
+    const { projects, configurations, defines, entryCalls, viewRoots } = ctx.config.csharp;
+    const lists = Object.entries({ projects, configurations, defines, "entry-calls": entryCalls, "view-roots": viewRoots }).flatMap(([flag, values]) => values.length > 0 ? [`--${flag}`, values.join(",")] : []);
+    return { read: (dir, project, comments) => runCsHelper(assembly, ["analyze", "--root", dir, "--project", project, "--comments", comments.join(","), "--assets-root", ctx.repoRoot, ...lists], dir) };
   }
-  const roots = ctx.config.python.roots.join(",");
-  return { label: "Python", version: sourceHash(helperDir("py-helper")), read: (dir, project, comments) => runPythonHelper(["analyze", "--root", dir, "--project", project, "--roots", roots, "--comments", comments.join(",")], dir) };
+};
+async function readCsXml(command, text) {
+  const assembly = await csHelperAssembly(helperDir("cs-helper"), sourceHash(helperDir("cs-helper")), defaultCacheDir());
+  return JSON.parse(await runCsHelper(assembly, [command], tmpdir(), text));
+}
+function helperLanguage(ctx) {
+  const { language } = ctx.config;
+  if (!isHelperLanguage(language)) throw new Error("internal: a TypeScript project has no language helper");
+  return language;
+}
+async function readerFor(ctx) {
+  const language = helperLanguage(ctx);
+  const info = HELPER_LANGUAGES[language];
+  return { label: info.label, version: sourceHash(helperDir(info.helper)), ...await READERS[language](ctx) };
 }
 function defaultCacheDir(env = process.env) {
-  return env.FAROL_CACHE_DIR ?? env.REVSCOPE_CACHE_DIR ?? join3(env.XDG_CACHE_HOME ?? join3(homedir(), ".cache"), "farol");
+  return env.FAROL_CACHE_DIR ?? env.REVSCOPE_CACHE_DIR ?? join4(env.XDG_CACHE_HOME ?? join4(homedir(), ".cache"), "farol");
 }
 var CACHE_ENTRIES = 200;
 function prune(dir) {
-  const entries = readdirSync2(dir).filter((n) => n.endsWith(".json")).map((n) => ({ n, t: statSync3(join3(dir, n)).mtimeMs })).sort((a, b) => b.t - a.t);
-  for (const e of entries.slice(CACHE_ENTRIES)) rmSync2(join3(dir, e.n), { force: true });
+  const entries = readdirSync2(dir).filter((n) => n.endsWith(".json")).map((n) => ({ n, t: statSync3(join4(dir, n)).mtimeMs })).sort((a, b) => b.t - a.t);
+  for (const e of entries.slice(CACHE_ENTRIES)) rmSync3(join4(dir, e.n), { force: true });
 }
 async function readTree(ctx, reader, sha, comments, cache) {
   const project = ctx.projectPrefix === "" ? "." : ctx.projectPrefix;
-  const key = cache === null ? null : createHash("sha256").update(JSON.stringify([TOOL_VERSION, reader.label, reader.version, await treeOf(ctx.repoRoot, sha), project, ctx.config.python.roots, [...comments].sort()])).digest("hex");
-  const file2 = key === null || cache === null ? null : join3(cache, `${key}.json`);
-  if (file2 !== null && existsSync3(file2)) {
+  const key = cache === null ? null : createHash2("sha256").update(JSON.stringify([TOOL_VERSION, reader.label, reader.version, await treeOf(ctx.repoRoot, sha), project, ctx.config.python.roots, ctx.config.csharp, [...comments].sort()])).digest("hex");
+  const file2 = key === null || cache === null ? null : join4(cache, `${key}.json`);
+  if (file2 !== null && existsSync4(file2)) {
     const cached2 = DeclHelperSchema.safeParse(JSON.parse(readFileSync3(file2, "utf8")));
     if (cached2.success) {
       ctx.log(`${reader.label}: ${sha.slice(0, 12)} read from the cache`);
       return cached2.data;
     }
   }
-  const dir = realpathSync4(mkdtempSync(join3(tmpdir(), "farol-tree-")));
+  const dir = realpathSync4(mkdtempSync(join4(tmpdir(), "farol-tree-")));
   try {
     await exportTree(ctx.repoRoot, sha, dir);
     const stdout = await reader.read(dir, project, comments);
     const parsed = DeclHelperSchema.safeParse(JSON.parse(stdout));
     if (!parsed.success) throw new Error(`internal: unexpected ${reader.label} helper output: ${parsed.error.issues[0]?.message ?? ""}`);
     if (file2 !== null && cache !== null) {
-      mkdirSync2(cache, { recursive: true });
+      mkdirSync3(cache, { recursive: true });
       writeFileSync2(file2, stdout);
       prune(cache);
     }
     return parsed.data;
   } finally {
-    rmSync2(dir, { recursive: true, force: true });
+    rmSync3(dir, { recursive: true, force: true });
   }
 }
 async function readLangTree(ctx, ref, cache = null) {
@@ -249386,15 +249799,14 @@ async function readLangTree(ctx, ref, cache = null) {
   if (!parsed.success) throw new Error(`internal: unexpected ${label2} helper output: ${parsed.error.issues[0]?.message ?? ""}`);
   return parsed.data;
 }
-var EXTENSIONS = { go: ".go", python: ".py" };
 async function loadLangWorkspace(ctx, files, mergeBaseSha, headSha, isSource2, timings, clock, cache = null) {
   let t = clock();
   const reader = await readerFor(ctx);
   const { label: label2 } = reader;
   timings.helperSetup = Math.round(clock() - t);
   t = clock();
-  const ext = ctx.config.language === "go" ? EXTENSIONS.go : EXTENSIONS.python;
-  const changed = files.filter((f) => f.status !== "deleted" && f.path.endsWith(ext)).map((f) => f.path);
+  const language = helperLanguage(ctx);
+  const changed = files.filter((f) => f.status !== "deleted" && isHelperSource(language, f.path)).map((f) => f.path);
   const [base, head] = await Promise.all([readTree(ctx, reader, mergeBaseSha, [], cache), readTree(ctx, reader, headSha, changed, cache)]);
   timings.helperRead = Math.round(clock() - t);
   ctx.log(`${label2}: ${head.files.length} files, ${head.decls.length} declarations, ${head.entries.length} entry points`);
@@ -249408,6 +249820,115 @@ async function loadLangWorkspace(ctx, files, mergeBaseSha, headSha, isSource2, t
     baseRoutes: { ...headRoutes, routes: headRoutes.routes.filter((r) => baseKeys.has(r.key)), dynamic: [] },
     impacts: declImpacts(base, head, files, isSource2)
   };
+}
+
+// src/cli/csharp-inputs.ts
+import { existsSync as existsSync5, mkdtempSync as mkdtempSync2, readFileSync as readFileSync4, writeFileSync as writeFileSync3 } from "fs";
+import { tmpdir as tmpdir2 } from "os";
+import { join as join5, posix as posix7 } from "path";
+
+// src/dotnet/nuget.ts
+var CsManifestSchema = external_exports.object({
+  packages: external_exports.array(external_exports.object({ name: external_exports.string(), version: external_exports.string(), section: external_exports.enum(["dependencies", "devDependencies"]) })),
+  other: external_exports.record(external_exports.string(), external_exports.string())
+});
+var TEST_PACKAGES = /* @__PURE__ */ new Set(["Microsoft.NET.Test.Sdk", "xunit", "xunit.v3", "NUnit", "MSTest.TestFramework", "MSTest"]);
+function isTestProject(manifest) {
+  const parsed = CsManifestSchema.safeParse(manifest);
+  if (!parsed.success) return false;
+  return parsed.data.other["property:IsTestProject"]?.toLowerCase() === "true" || parsed.data.packages.some((p) => TEST_PACKAGES.has(p.name));
+}
+var ADDITIVE_ITEMS = ["Compile", "Content", "None", "EmbeddedResource", "Folder", "Using", "ProjectReference"];
+function nugetSpec(version2) {
+  const v = version2.trim();
+  if (v === "" || v.includes("*") || v.includes("$(")) return `unknown:${v}`;
+  if (v.startsWith("[") || v.startsWith("(")) return v.slice(1).split(",")[0]?.trim() || `unknown:${v}`;
+  return v;
+}
+function diffNuGet(manifest, base, head) {
+  const parse4 = (value, label2) => {
+    if (value === null) return { packages: [], other: {} };
+    const parsed = CsManifestSchema.safeParse(value);
+    if (!parsed.success) throw new ManifestParseError(`the ${label2} version could not be read`);
+    return parsed.data;
+  };
+  const before = parse4(base, "base");
+  const after = parse4(head, "head");
+  const key = (p) => p.name.toLowerCase();
+  const beforeByName = new Map(before.packages.map((p) => [key(p), p]));
+  const afterByName = new Map(after.packages.map((p) => [key(p), p]));
+  const changes = [];
+  for (const [name, b] of beforeByName) {
+    const a = afterByName.get(name);
+    if (!a) {
+      changes.push({ manifest, name: b.name, section: b.section, change: "removed", from: b.version, to: null, bump: null, direction: null, critical: true });
+      continue;
+    }
+    if (a.section !== b.section) {
+      changes.push({ manifest, name: a.name, section: a.section, change: "moved", from: b.version, to: a.version, fromSection: b.section, bump: null, direction: null, critical: b.section === "dependencies" });
+      continue;
+    }
+    if (a.version === b.version) continue;
+    const from = nugetSpec(b.version);
+    const to = nugetSpec(a.version);
+    changes.push({ manifest, name: a.name, section: a.section, change: "updated", from: b.version, to: a.version, ...compareSpecs(from, to), ...from.startsWith("unknown:") || to.startsWith("unknown:") ? { note: "floating or computed version: compare the resolved packages" } : {} });
+  }
+  for (const [name, a] of afterByName) {
+    if (!beforeByName.has(name)) changes.push({ manifest, name: a.name, section: a.section, change: "added", from: null, to: a.version, bump: null, direction: null, critical: false });
+  }
+  const otherFields = /* @__PURE__ */ new Set();
+  for (const [k, v] of Object.entries(before.other)) if (after.other[k] !== v) otherFields.add(k);
+  for (const k of Object.keys(after.other)) {
+    if (k in before.other) continue;
+    const item = /^item:([^:]+):Include=/.exec(k)?.[1];
+    if (item === void 0 || !ADDITIVE_ITEMS.includes(item)) otherFields.add(k);
+  }
+  return { manifest, changes: sortChanges(changes), otherFields: [...otherFields].sort(compareStrings) };
+}
+
+// src/cli/csharp-inputs.ts
+async function coberturaAsJson(path3) {
+  if (path3 === void 0 || !existsSync5(path3)) return path3;
+  const text = readFileSync4(path3, "utf8");
+  if (!text.trimStart().startsWith("<")) return path3;
+  const out = join5(mkdtempSync2(join5(tmpdir2(), "farol-cobertura-")), "cobertura.json");
+  writeFileSync3(out, JSON.stringify(await readCsXml("cobertura", text)));
+  return out;
+}
+async function resxAsJson(ctx, files, roleOf, baseSha, headSha) {
+  const resx = files.filter((f) => f.status === "modified" && f.path.endsWith(".resx") && roleOf(f.path) === "i18n");
+  const convert = async (texts) => new Map(await Promise.all([...texts].map(async ([path3, text]) => [path3, await readCsXml("resx", text).then((j) => JSON.stringify(j), () => text)])));
+  return {
+    base: await convert(await readFiles(ctx.repoRoot, baseSha, resx.map((f) => f.path))),
+    head: await convert(await readFiles(ctx.repoRoot, headSha, resx.map((f) => f.path)))
+  };
+}
+async function testOnlyBuildFiles(ctx, files, roleOf, baseSha, headSha) {
+  const candidates = files.filter((f) => DIRECTORY_BUILD.has(posix7.basename(f.path)) && roleOf(f.path) === "global");
+  const result = /* @__PURE__ */ new Set();
+  if (candidates.length === 0) return result;
+  const sides = await Promise.all([baseSha, headSha].map(async (sha) => {
+    const projects = (await listFiles(ctx.repoRoot, sha)).filter((p) => p.endsWith(".csproj"));
+    const texts = await readFiles(ctx.repoRoot, sha, projects.filter((p) => roleOf(p) !== "test"));
+    return new Map(await Promise.all(projects.map(async (p) => [p, roleOf(p) === "test" || isTestProject(await manifestOf(texts.get(p)))])));
+  }));
+  for (const f of candidates) {
+    const dirs = [posix7.dirname(f.oldPath ?? f.path), posix7.dirname(f.path)];
+    const below = (p) => dirs.some((d) => d === "." || p.startsWith(`${d}/`));
+    const projects = sides.flatMap((side) => [...side].filter(([p]) => below(p)));
+    if (projects.length > 0 && projects.every(([, test]) => test)) result.add(f.path);
+  }
+  return result;
+}
+var DIRECTORY_BUILD = /* @__PURE__ */ new Set(["Directory.Build.props", "Directory.Build.targets"]);
+async function manifestOf(text) {
+  if (text === void 0) return null;
+  try {
+    return await readCsXml("manifest", text);
+  } catch (error62) {
+    if (error62 instanceof UsageError) throw error62;
+    return null;
+  }
 }
 
 // src/python/pyproject.ts
@@ -249549,10 +250070,10 @@ function writeStdout(text) {
 
 // src/cli/workspace.ts
 import { readdirSync as readdirSync3 } from "fs";
-import { posix as posix12 } from "path";
+import { posix as posix13 } from "path";
 
 // src/backend/entrypoints.ts
-import { posix as posix7 } from "path";
+import { posix as posix8 } from "path";
 
 // src/backend/globals.ts
 var import_typescript12 = __toESM(require_typescript(), 1);
@@ -249587,7 +250108,7 @@ function usesGlobal(sf, name, checker) {
 var import_picomatch2 = __toESM(require_picomatch2(), 1);
 function buildBackendTable(input2) {
   const root = input2.repoRoot.replaceAll("\\", "/");
-  const rel = (fileName) => posix7.relative(root, fileName.replaceAll("\\", "/"));
+  const rel = (fileName) => posix8.relative(root, fileName.replaceAll("\\", "/"));
   const isProjectFile = (fileName) => {
     const p = fileName.replaceAll("\\", "/");
     return p.startsWith(`${root}/`) && !p.includes("/node_modules/");
@@ -249692,7 +250213,7 @@ function globalUses(project, globals, rel, isProjectFile) {
 
 // src/classify/roles.ts
 var import_picomatch3 = __toESM(require_picomatch2(), 1);
-var SOURCE_CODE = /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs|go|py|graphql|gql)$/;
+var SOURCE_CODE = /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs|go|py|cs|cshtml|graphql|gql)$/;
 function createInfraMatcher(config2) {
   const match = matcher(config2.roles.infra);
   return (repoPath) => !SOURCE_CODE.test(repoPath) && match(repoPath);
@@ -249707,6 +250228,7 @@ function createRoleMatcher(config2) {
   const isStory = matcher(config2.roles.story);
   const isBarrel = matcher(config2.roles.barrel);
   const isI18n = matcher(config2.roles.i18n);
+  const isClient = matcher(config2.roles.client);
   const isExcluded = matcher(config2.exclude);
   const routesFile = normalizeProjectPath(config2.routes.file);
   const isExtraRoutes = matcher(config2.routes.extraFiles);
@@ -249716,6 +250238,7 @@ function createRoleMatcher(config2) {
     if (isTest(path3)) return "test";
     if (isStory(path3)) return "story";
     if (isExcluded(path3)) return "excluded";
+    if (isClient(path3)) return "client";
     if (isBarrel(path3)) return "barrel";
     if (isI18n(path3)) return "i18n";
     return "source";
@@ -249737,7 +250260,7 @@ function createIgnoreMatcher(globs3) {
 
 // src/project/graph.ts
 var import_typescript13 = __toESM(require_typescript(), 1);
-import { posix as posix8 } from "path";
+import { posix as posix9 } from "path";
 function lineOf(sf, node2) {
   return sf.getLineAndCharacterOfPosition(node2.getStart(sf)).line + 1;
 }
@@ -249757,7 +250280,7 @@ var GraphBuilder = class {
   unresolved = [];
   checker;
   rel(file2) {
-    return posix8.relative(this.options.repoRoot, toPosix(file2));
+    return posix9.relative(this.options.repoRoot, toPosix(file2));
   }
   isProjectFile(file2) {
     const p = toPosix(file2);
@@ -249897,7 +250420,7 @@ function buildImportGraph(project, options) {
 
 // src/project/program.ts
 var import_typescript14 = __toESM(require_typescript(), 1);
-import { posix as posix9 } from "path";
+import { posix as posix10 } from "path";
 var ProjectError = class extends Error {
   constructor(message) {
     super(message);
@@ -249933,7 +250456,7 @@ function selectConfig(rootConfig, anchorFile, fs2, cwd) {
   const parsed = parseTsconfig(rootConfig, fs2, cwd);
   if (anchorFile === void 0 || parsed.fileNames.includes(anchorFile) || !parsed.projectReferences?.length) return { parsed, configPath: rootConfig };
   for (const ref of parsed.projectReferences) {
-    const refPath = fs2.directoryExists(ref.path) ? posix9.join(ref.path, "tsconfig.json") : ref.path;
+    const refPath = fs2.directoryExists(ref.path) ? posix10.join(ref.path, "tsconfig.json") : ref.path;
     const child = parseTsconfig(refPath, fs2, cwd);
     if (child.fileNames.includes(anchorFile)) return { parsed: child, configPath: refPath };
   }
@@ -249962,7 +250485,7 @@ function createProjectProgram(input2) {
   host.getCurrentDirectory = () => projectDir;
   host.useCaseSensitiveFileNames = () => true;
   host.getCanonicalFileName = (f) => f;
-  host.getDefaultLibFileName = () => posix9.join(projectDir, "__farol_no_lib__.d.ts");
+  host.getDefaultLibFileName = () => posix10.join(projectDir, "__farol_no_lib__.d.ts");
   host.writeFile = () => void 0;
   host.getSourceFile = (fileName, languageVersionOrOptions) => {
     const text = fs2.readFile(fileName);
@@ -249975,13 +250498,13 @@ function createProjectProgram(input2) {
 }
 
 // src/routes/next/index.ts
-import { posix as posix11 } from "path";
+import { posix as posix12 } from "path";
 
 // src/routes/files.ts
-import { posix as posix10 } from "path";
+import { posix as posix11 } from "path";
 var ROUTE_EXTENSIONS = [".tsx", ".ts", ".jsx", ".js"];
 function isNonRouteFile(file2) {
-  const name = posix10.basename(file2);
+  const name = posix11.basename(file2);
   if (name.endsWith(".d.ts") || /\.(test|spec|stories)\.[cm]?[jt]sx?$/.test(name)) return true;
   return file2.split("/").some((part) => part === "__tests__" || part === "__mocks__");
 }
@@ -250089,7 +250612,7 @@ function extract(input2) {
   const middleware = ["middleware", "proxy"].map((n) => moduleIn(fileSet, root, n)).filter((m) => m !== null);
   const routes = [...pagesRoutes(root, input2.files, fileSet, middleware), ...appRoutes(root, input2.files, fileSet, middleware)];
   const dynamic = [];
-  if (routes.length === 0) dynamic.push({ file: root === "" ? "." : root, line: 1, detail: `no Next.js route found: expected modules under ${posix11.join(root, "pages")} or page/route modules under ${posix11.join(root, "app")}` });
+  if (routes.length === 0) dynamic.push({ file: root === "" ? "." : root, line: 1, detail: `no Next.js route found: expected modules under ${posix12.join(root, "pages")} or page/route modules under ${posix12.join(root, "app")}` });
   return routeTable(routes, dynamic, routes.flatMap((r) => [...r.entry === null ? [] : [r.entry], ...r.modules, ...r.layouts]));
 }
 var nextAdapter = { name: "next", source: "directory", extract };
@@ -250828,7 +251351,7 @@ function createRepoRoleOf(ctx) {
   const roleOf = createRoleMatcher(ctx.config);
   const isInfra = createInfraMatcher(ctx.config);
   return (repoPath) => {
-    const rel = ctx.projectPrefix === "" ? repoPath : posix12.relative(ctx.projectPrefix, repoPath);
+    const rel = ctx.projectPrefix === "" ? repoPath : posix13.relative(ctx.projectPrefix, repoPath);
     if (rel.startsWith("../") || rel === "..") {
       if (roleOf(rel) === "global") return "global";
       return isInfra(repoPath) ? "infra" : "outside";
@@ -250838,7 +251361,7 @@ function createRepoRoleOf(ctx) {
   };
 }
 function projectRelative(ctx, repoPath) {
-  return ctx.projectPrefix === "" ? repoPath : posix12.relative(ctx.projectPrefix, repoPath);
+  return ctx.projectPrefix === "" ? repoPath : posix13.relative(ctx.projectPrefix, repoPath);
 }
 function createIgnoreOf(ctx, extra, base = ctx.config.ignore) {
   const ignored = createIgnoreMatcher([...base, ...extra]);
@@ -250854,37 +251377,38 @@ function createAnalysisRoleOf(ctx, graphNodes, backend) {
   };
   const prefix = ctx.projectPrefix;
   const nodeDirs = /* @__PURE__ */ new Set();
-  for (const node2 of graphNodes) for (let d = posix12.dirname(node2); d !== "." && !nodeDirs.has(d); d = posix12.dirname(d)) nodeDirs.add(d);
+  for (const node2 of graphNodes) for (let d = posix13.dirname(node2); d !== "." && !nodeDirs.has(d); d = posix13.dirname(d)) nodeDirs.add(d);
   return (repoPath) => {
-    const name = posix12.basename(repoPath);
-    const dir = posix12.dirname(repoPath) === "." ? "" : posix12.dirname(repoPath);
+    const name = posix13.basename(repoPath);
+    const dir = posix13.dirname(repoPath) === "." ? "" : posix13.dirname(repoPath);
     const inside = prefix === "" || dir === prefix || dir.startsWith(`${prefix}/`);
     const aboveOrSelf = dir === "" || dir === prefix || prefix.startsWith(`${dir}/`);
-    const ours = inside || ECOSYSTEM_FILES[ctx.config.language].has(name);
-    if (MANIFESTS.has(name) && ours && (aboveOrSelf || inside || nodeDirs.has(dir))) return "manifest";
+    const ours = inside || isEcosystemFile(ctx.config.language, name);
+    if (name.endsWith(".csproj") && config2(repoPath) === "test") return "test";
+    if (isManifestName(name) && ours && (aboveOrSelf || inside || nodeDirs.has(dir))) return "manifest";
     if (LOCKFILES.has(name) && ours && (aboveOrSelf || inside)) return "lockfile";
     return base(repoPath);
   };
 }
 function toRepoPath(ctx, absolute) {
-  return posix12.relative(toPosix(ctx.repoRoot), toPosix(absolute));
+  return posix13.relative(toPosix(ctx.repoRoot), toPosix(absolute));
 }
 function projectToRepoPath(ctx, projectPath) {
-  return posix12.normalize(posix12.join(ctx.projectPrefix, toPosix(projectPath)));
+  return posix13.normalize(posix13.join(ctx.projectPrefix, toPosix(projectPath)));
 }
 async function createFileSystem(ctx, ref) {
   const disk = createDiskFileSystem();
   if (ref === void 0) return { fs: disk };
   const treeFiles = await listFiles(ctx.repoRoot, ref);
-  const wanted = treeFiles.filter((f) => SOURCE_EXTENSIONS.has(posix12.extname(f)));
+  const wanted = treeFiles.filter((f) => SOURCE_EXTENSIONS.has(posix13.extname(f)));
   const contents = await readFiles(ctx.repoRoot, ref, wanted);
   return { fs: createTreeFileSystem({ repoRoot: ctx.repoRoot, files: treeFiles, contents, fallback: disk }), treeFiles };
 }
 function moduleResolver(ctx, resolver) {
   const repoRoot2 = toPosix(ctx.repoRoot);
   return (specifier, fromFile) => {
-    const r = resolveSpecifier(resolver, repoRoot2, posix12.join(repoRoot2, fromFile), specifier, void 0);
-    if (r.kind === "module" || r.kind === "asset") return { kind: "module", file: posix12.relative(repoRoot2, r.file) };
+    const r = resolveSpecifier(resolver, repoRoot2, posix13.join(repoRoot2, fromFile), specifier, void 0);
+    if (r.kind === "module" || r.kind === "asset") return { kind: "module", file: posix13.relative(repoRoot2, r.file) };
     if (r.kind === "external") return { kind: "external", specifier };
     return { kind: "unresolved" };
   };
@@ -250896,14 +251420,14 @@ function extractRoutes(ctx, resolver, routesFile, code2, files = []) {
     code: code2,
     files,
     resolve: moduleResolver(ctx, resolver),
-    read: (file2) => resolver.fs.readFile(posix12.join(repoRoot2, file2))
+    read: (file2) => resolver.fs.readFile(posix13.join(repoRoot2, file2))
   });
 }
 function routesFromDirectory(ctx) {
   return getRouteAdapter(ctx.config.routes.adapter).source === "directory";
 }
 function routesDirectory(ctx) {
-  const dir = posix12.normalize(posix12.join(ctx.projectPrefix, ctx.config.routes.dir ?? ""));
+  const dir = posix13.normalize(posix13.join(ctx.projectPrefix, ctx.config.routes.dir ?? ""));
   return dir === "." ? "" : dir;
 }
 function filesUnder(files, dir) {
@@ -250916,7 +251440,7 @@ var RoutesFileMissingError = class extends Error {
   }
 };
 async function loadWorkspace(ctx, ref, timings, now = () => performance.now()) {
-  if (ctx.config.language !== "typescript") throw new UsageError("internal: the TypeScript workspace was asked for a Go or Python project");
+  if (ctx.config.language !== "typescript") throw new UsageError("internal: the TypeScript workspace was asked for a project read by a language helper");
   let t = now();
   const lap = (name) => {
     const current = now();
@@ -250928,10 +251452,10 @@ async function loadWorkspace(ctx, ref, timings, now = () => performance.now()) {
   const projectDir = toPosix(ctx.projectDir);
   if (ctx.config.surface === "backend") return loadBackendWorkspace(ctx, fs2, treeFiles, lap);
   if (routesFromDirectory(ctx)) return loadDirectoryRoutesWorkspace(ctx, fs2, treeFiles, lap);
-  const routesAbs = posix12.join(projectDir, ctx.config.routes.file);
+  const routesAbs = posix13.join(projectDir, ctx.config.routes.file);
   const routesCode = fs2.readFile(routesAbs);
   if (routesCode === void 0) throw new RoutesFileMissingError(ctx.config.routes.file, ref);
-  const project = createProjectProgram({ fs: fs2, projectDir, tsconfigPath: posix12.join(projectDir, ctx.config.tsconfig), anchorFile: routesAbs });
+  const project = createProjectProgram({ fs: fs2, projectDir, tsconfigPath: posix13.join(projectDir, ctx.config.tsconfig), anchorFile: routesAbs });
   lap("program");
   const roleOf = createRepoRoleOf(ctx);
   const graph = buildImportGraph(project, {
@@ -250951,7 +251475,7 @@ function loadDirectoryRoutesWorkspace(ctx, fs2, treeFiles, lap) {
   const repoRoot2 = toPosix(ctx.repoRoot);
   const dir = routesDirectory(ctx);
   const files = filesUnder(treeFiles ?? diskFiles(projectDir, repoRoot2), dir);
-  const project = createProjectProgram({ fs: fs2, projectDir, tsconfigPath: posix12.join(projectDir, ctx.config.tsconfig) });
+  const project = createProjectProgram({ fs: fs2, projectDir, tsconfigPath: posix13.join(projectDir, ctx.config.tsconfig) });
   lap("program");
   const roleOf = createRepoRoleOf(ctx);
   const graph = buildImportGraph(project, {
@@ -250971,9 +251495,9 @@ function diskFiles(dir, repoRoot2) {
   const walk = (d) => {
     for (const entry of readdirSync3(d, { withFileTypes: true })) {
       if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
-      const full = posix12.join(d, entry.name);
+      const full = posix13.join(d, entry.name);
       if (entry.isDirectory()) walk(full);
-      else out.push(posix12.relative(repoRoot2, full));
+      else out.push(posix13.relative(repoRoot2, full));
     }
   };
   walk(dir);
@@ -250985,7 +251509,7 @@ function projectGlobs(ctx, context) {
 function loadBackendWorkspace(ctx, fs2, treeFiles, lap) {
   const projectDir = toPosix(ctx.projectDir);
   const repoRoot2 = toPosix(ctx.repoRoot);
-  const project = createProjectProgram({ fs: fs2, projectDir, tsconfigPath: posix12.join(projectDir, ctx.config.tsconfig) });
+  const project = createProjectProgram({ fs: fs2, projectDir, tsconfigPath: posix13.join(projectDir, ctx.config.tsconfig) });
   lap("program");
   const roleOf = createRepoRoleOf(ctx);
   const isOrigin = (path3) => {
@@ -250995,8 +251519,8 @@ function loadBackendWorkspace(ctx, fs2, treeFiles, lap) {
   const graph = buildImportGraph(project, { repoRoot: ctx.repoRoot, isOrigin: (path3) => isOrigin(path3) || roleOf(path3) === "outside" });
   lap("graph");
   const files = (treeFiles ?? diskFiles(projectDir, repoRoot2)).filter((f) => ctx.projectPrefix === "" || f.startsWith(`${ctx.projectPrefix}/`));
-  const backend = buildBackendTable({ project, repoRoot: repoRoot2, files, read: (f) => fs2.readFile(posix12.join(repoRoot2, f)), isOrigin, graphql: ctx.config.backend.graphql, rest: ctx.config.backend.rest, cli: ctx.config.backend.cli, context: projectGlobs(ctx, ctx.config.backend.context) });
-  const rel = (fileName) => posix12.relative(repoRoot2, toPosix(fileName));
+  const backend = buildBackendTable({ project, repoRoot: repoRoot2, files, read: (f) => fs2.readFile(posix13.join(repoRoot2, f)), isOrigin, graphql: ctx.config.backend.graphql, rest: ctx.config.backend.rest, cli: ctx.config.backend.cli, context: projectGlobs(ctx, ctx.config.backend.context) });
+  const rel = (fileName) => posix13.relative(repoRoot2, toPosix(fileName));
   const isProjectFile = (fileName) => toPosix(fileName).startsWith(`${repoRoot2}/`) && !toPosix(fileName).includes("/node_modules/");
   const extra = globalUses(project, backend.globals, rel, isProjectFile);
   if (extra.length > 0) {
@@ -251241,12 +251765,12 @@ function diffGoMod(manifest, baseText, headText) {
 
 // src/project/decls.ts
 var import_typescript21 = __toESM(require_typescript(), 1);
-import { createHash as createHash2 } from "crypto";
-import { posix as posix13 } from "path";
+import { createHash as createHash3 } from "crypto";
+import { posix as posix14 } from "path";
 function tokenHash(sf, node2) {
   const text = sf.text.slice(node2.getStart(sf), node2.end);
   const scanner = import_typescript21.default.createScanner(import_typescript21.default.ScriptTarget.Latest, true, sf.languageVariant, text);
-  const hash2 = createHash2("sha1");
+  const hash2 = createHash3("sha1");
   for (let kind = scanner.scan(); kind !== import_typescript21.default.SyntaxKind.EndOfFileToken; kind = scanner.scan()) hash2.update(`${kind}:${scanner.getTokenText()}\0`);
   return hash2.digest("hex").slice(0, 16);
 }
@@ -251287,13 +251811,13 @@ function declHash(sf, d) {
   if (d.kind !== "module") {
     if (import_typescript21.default.isClassDeclaration(d.node)) {
       const parts = [d.node.name?.text ?? "", ...(d.node.heritageClauses ?? []).map((h) => tokenHash(sf, h)), ...d.node.members.filter((m) => !import_typescript21.default.isMethodDeclaration(m) && !import_typescript21.default.isConstructorDeclaration(m) && !import_typescript21.default.isGetAccessor(m) && !import_typescript21.default.isSetAccessor(m)).map((m) => tokenHash(sf, m))];
-      return createHash2("sha1").update(parts.join("\0")).digest("hex").slice(0, 16);
+      return createHash3("sha1").update(parts.join("\0")).digest("hex").slice(0, 16);
     }
     return tokenHash(sf, import_typescript21.default.isVariableDeclaration(d.node) ? d.node.parent.parent : d.node).concat(import_typescript21.default.isVariableDeclaration(d.node) ? `:${d.node.name.getText(sf)}` : "");
   }
   const names = new Set(moduleDecls(sf).filter((x) => x.kind !== "module").map((x) => import_typescript21.default.isVariableDeclaration(x.node) ? x.node.parent.parent : x.node));
   const code2 = sf.statements.filter((s) => !names.has(s) && !import_typescript21.default.isImportDeclaration(s) && !(import_typescript21.default.isExportDeclaration(s) && s.moduleSpecifier !== void 0));
-  return createHash2("sha1").update(code2.map((s) => tokenHash(sf, s)).join("\0")).digest("hex").slice(0, 16);
+  return createHash3("sha1").update(code2.map((s) => tokenHash(sf, s)).join("\0")).digest("hex").slice(0, 16);
 }
 function toDecl(sf, file2, d) {
   const start = sf.getLineAndCharacterOfPosition(d.node.getStart(sf)).line + 1;
@@ -251307,7 +251831,7 @@ function baseDecls(file2, code2) {
 }
 function tsDeclGraph(input2) {
   const root = input2.repoRoot.replaceAll("\\", "/");
-  const rel = (f) => posix13.relative(root, f.replaceAll("\\", "/"));
+  const rel = (f) => posix14.relative(root, f.replaceAll("\\", "/"));
   const isProject = (f) => f.replaceAll("\\", "/").startsWith(`${root}/`) && !f.includes("/node_modules/") && input2.isOrigin(rel(f));
   const checker = input2.project.program.getTypeChecker();
   const decls = [];
@@ -251398,7 +251922,7 @@ function prFromEvent(env) {
   const path3 = env.GITHUB_EVENT_PATH;
   if (!path3) return null;
   try {
-    const event = JSON.parse(readFileSync4(path3, "utf8"));
+    const event = JSON.parse(readFileSync5(path3, "utf8"));
     const n = event.pull_request?.number ?? event.number;
     return typeof n === "number" && Number.isInteger(n) && n > 0 ? n : null;
   } catch {
@@ -251431,7 +251955,7 @@ async function baseRouteTable(ctx, ws, mergeBaseSha, basePath) {
   const files = await listFiles(ctx.repoRoot, mergeBaseSha);
   const routeFiles = ws.routesFromDirectory ? filesUnder(files, basePath) : [];
   if (ws.routesFromDirectory ? routeFiles.length === 0 : !files.includes(basePath)) return { routes: [], dynamic: [], sources: [] };
-  const contents = await readFiles(ctx.repoRoot, mergeBaseSha, files.filter((f) => SOURCE_EXTENSIONS.has(posix14.extname(f)) || f === basePath));
+  const contents = await readFiles(ctx.repoRoot, mergeBaseSha, files.filter((f) => SOURCE_EXTENSIONS.has(posix15.extname(f)) || f === basePath));
   const code2 = ws.routesFromDirectory ? "" : contents.get(basePath);
   if (code2 === void 0) throw new Error(`internal: base content of ${basePath} was not read`);
   const fs2 = createTreeFileSystem({ repoRoot: ctx.repoRoot, files, contents, fallback: createDiskFileSystem() });
@@ -251446,9 +251970,10 @@ async function manifestDiffs(ctx, files, roleOf, baseSha, headSha) {
     try {
       const before = f.status === "added" ? null : base.get(f.oldPath ?? f.path) ?? null;
       const after = f.status === "deleted" ? null : head.get(f.path) ?? null;
-      const name = posix14.basename(f.path);
+      const name = posix15.basename(f.path);
       if (name === "pyproject.toml") return diffPyproject(f.path, before === null ? null : await parseToml(before), after === null ? null : await parseToml(after));
       if (name === "requirements.txt") return diffRequirementsTxt(f.path, before, after);
+      if (name.endsWith(".csproj") || name === "Directory.Packages.props") return diffNuGet(f.path, before === null ? null : await parseCsManifest(before), after === null ? null : await parseCsManifest(after));
       return (name === "go.mod" ? diffGoMod : diffManifest)(f.path, before, after);
     } catch (error62) {
       if (error62 instanceof ManifestParseError) return { manifest: f.path, error: error62.message };
@@ -251462,6 +251987,14 @@ async function parseToml(text) {
   } catch (error62) {
     if (error62 instanceof UsageError) throw error62;
     throw new ManifestParseError(`invalid TOML: ${(error62 instanceof Error ? error62.message : String(error62)).split("\n").slice(-1)[0] ?? ""}`);
+  }
+}
+async function parseCsManifest(text) {
+  try {
+    return await readCsXml("manifest", text);
+  } catch (error62) {
+    if (error62 instanceof UsageError) throw error62;
+    throw new ManifestParseError((error62 instanceof Error ? error62.message : String(error62)).split("\n").slice(-1)[0]?.replace(/^.*cshelper: /, "") ?? "invalid project file");
   }
 }
 function reportPath(ctx, flag, configured) {
@@ -251511,30 +252044,36 @@ async function runAnalyze(ctx, options, deps) {
     let lang;
     let headRoutes;
     let contracts;
-    if (ctx.config.language !== "typescript") {
+    const { language } = ctx.config;
+    if (isHelperLanguage(language)) {
       const baseRole = createAnalysisRoleOf(ctx, []);
-      const ext = ctx.config.language === "go" ? ".go" : ".py";
       const cache = options.cache === false ? null : resolve3(options.cacheDir ?? defaultCacheDir(deps.env));
-      const langWs = await loadLangWorkspace(ctx, files, mb, meta3.head.sha, (p) => p.endsWith(ext) && baseRole(p) === "source", wsTimings, deps.clock, cache);
+      const langWs = await loadLangWorkspace(ctx, files, mb, meta3.head.sha, (p) => isHelperSource(language, p) && baseRole(p) === "source" || language === "csharp" && baseRole(p) === "client", wsTimings, deps.clock, cache);
       Object.assign(timings, wsTimings);
       t = deps.clock();
       roleOf = createAnalysisRoleOf(ctx, langWs.graph.nodes);
+      if (language === "csharp") {
+        const testOnly = await testOnlyBuildFiles(ctx, files, roleOf, mb, meta3.head.sha);
+        const repoRole = roleOf;
+        roleOf = (path3) => testOnly.has(path3) ? "test" : repoRole(path3);
+      }
       const manifests = await manifestDiffs(ctx, files, roleOf, mb, meta3.head.sha);
       const headContents = await readFiles(ctx.repoRoot, meta3.head.sha, files.filter((f) => f.status !== "deleted").map((f) => f.path));
       readHead = (path3) => headContents.get(path3);
-      lang = { language: ctx.config.language, module: langWs.head.module, comments: langWs.head.comments };
+      lang = { language, module: langWs.head.module, comments: langWs.head.comments };
       headRoutes = langWs.headRoutes;
       const helperContracts = helperContractChanges(langWs.base, langWs.head);
       contracts = contractsSection(helperContracts.changes, helperContracts.readable);
       lap("base");
-      result = classify({ files, roleOf, manifests, backend: { impacts: langWs.impacts }, graph: langWs.graph, routesFile: "", headRoutes: langWs.headRoutes, baseRoutes: langWs.baseRoutes, baseText: /* @__PURE__ */ new Map(), headText: /* @__PURE__ */ new Map() });
+      const resx = language === "csharp" ? await resxAsJson(ctx, files, roleOf, mb, meta3.head.sha) : { base: /* @__PURE__ */ new Map(), head: /* @__PURE__ */ new Map() };
+      result = classify({ files, roleOf, manifests, backend: { impacts: langWs.impacts }, graph: langWs.graph, routesFile: "", headRoutes: langWs.headRoutes, baseRoutes: langWs.baseRoutes, baseText: resx.base, headText: resx.head });
     } else {
       const ws = await loadWorkspace(ctx, meta3.head.sha, wsTimings, deps.clock);
       headRoutes = ws.routes;
       Object.assign(timings, wsTimings);
       t = deps.clock();
       roleOf = createAnalysisRoleOf(ctx, ws.graph.nodes, ws.backend);
-      readHead = (path3) => ws.fs.readFile(posix14.join(toPosix(ctx.repoRoot), path3));
+      readHead = (path3) => ws.fs.readFile(posix15.join(toPosix(ctx.repoRoot), path3));
       const compared = comparedFiles(files, roleOf);
       const baseText = await readFiles(ctx.repoRoot, mb, compared);
       const headText = await readFiles(ctx.repoRoot, meta3.head.sha, compared);
@@ -251571,7 +252110,7 @@ async function runAnalyze(ctx, options, deps) {
       files,
       roleOf,
       // Flags are relative to the current directory, configuration paths to the project directory.
-      coverage: reportPath(ctx, options.coverage, ctx.config.signals.coverage),
+      coverage: ctx.config.language === "csharp" ? await coberturaAsJson(reportPath(ctx, options.coverage, ctx.config.signals.coverage)) : reportPath(ctx, options.coverage, ctx.config.signals.coverage),
       eslint: reportPath(ctx, options.eslint, ctx.config.signals.eslint),
       readHead,
       ...lang ? { lang } : {},
@@ -251591,7 +252130,7 @@ async function runAnalyze(ctx, options, deps) {
     if (usage) meta3.usage = usage;
     if (contracts) meta3.contracts = contracts;
     lap("signals");
-    const codeRoles = /* @__PURE__ */ new Set(["source", "resolvers", "schema", "routes", "barrel", "i18n", "global", "infra"]);
+    const codeRoles = /* @__PURE__ */ new Set(["source", "resolvers", "schema", "routes", "barrel", "i18n", "global", "infra", "client"]);
     const shown = result.files.filter((f) => codeRoles.has(f.role) && !files.find((c) => c.path === f.path)?.binary).map((f) => f.path);
     const order = [...result.risk.files.map((f) => f.path).filter((p) => shown.includes(p)), ...shown.filter((p) => !result.risk.files.some((f) => f.path === p))];
     meta3.diffs = limitDiffs(await contextDiff(ctx.repoRoot, mb, meta3.head.sha, order), order);
@@ -251619,14 +252158,18 @@ async function analyzeCommand(ctx, options, deps = realDeps()) {
 }
 
 // src/cli/calibrate.ts
-import { existsSync as existsSync4, readFileSync as readFileSync5 } from "fs";
-import { join as join4, resolve as resolve4 } from "path";
+import { existsSync as existsSync6, readFileSync as readFileSync6 } from "fs";
+import { join as join6, resolve as resolve4 } from "path";
 
 // src/report/merge-score.ts
 var HIGH_SCORE = 60;
 var MEDIUM_SCORE = 30;
 var GLOBAL_WEIGHT = 0.3;
 var INFRA_WEIGHT = 0.12;
+var CLIENT_FILE_WEIGHT = 0.05;
+var CLIENT_DELETED_WEIGHT = 0.1;
+var CLIENT_TOTAL_WEIGHT = 0.25;
+var CLIENT_CODE = /\.(js|mjs|cjs|ts|jsx|tsx|css|scss|sass|less|html?)$/;
 var DECLARATIONS_FILE_WEIGHT = 0.01;
 var DECLARATIONS_TOTAL_WEIGHT = 0.05;
 var CONTRACT_WEIGHT = { breaking: 0.4, dangerous: 0.1 };
@@ -251689,6 +252232,11 @@ function scoreItems(o) {
   }
   const infra = o.files.filter((f) => f.role === "infra");
   for (const f of infra) add(f.path, "infra", 1 - (1 - INFRA_WEIGHT) ** (1 / infra.length), `${f.status} environment, infrastructure or CI file: check it per environment`);
+  const client = o.files.filter((f) => f.role === "client" && f.status !== "added" && CLIENT_CODE.test(f.path));
+  const clientWeight = (f) => f.status === "deleted" ? CLIENT_DELETED_WEIGHT : CLIENT_FILE_WEIGHT;
+  const clientTotal = 1 - client.reduce((p, f) => p * (1 - clientWeight(f)), 1);
+  const clientShare = clientTotal > CLIENT_TOTAL_WEIGHT ? 1 - (1 - CLIENT_TOTAL_WEIGHT) ** (1 / client.length) : null;
+  for (const f of client) add(f.path, "client", clientShare ?? clientWeight(f), `${f.status} client file: every page that loads it runs it`);
   const outside = new Set(o.files.filter((f) => f.role === "excluded").map((f) => f.path));
   const security = o.signals.security.findings.filter((s) => !outside.has(s.path));
   for (const s of security) add(s.path, "security", SECURITY_WEIGHT[s.severity], `${s.severity} ${s.rule} at line ${s.line}`, s.line);
@@ -251731,7 +252279,7 @@ function scoreGroups(items) {
 }
 
 // src/report/verdict.ts
-import { posix as posix15 } from "path";
+import { posix as posix16 } from "path";
 
 // src/report/review-parts.ts
 var FINDING_KINDS = /* @__PURE__ */ new Set(["security", "lint"]);
@@ -251777,7 +252325,7 @@ var QUICK_SCORE = 25;
 var CAREFUL_SCORE = 60;
 var START_HERE_MAX = 7;
 var START_HERE_MIN_POINTS = 5;
-var CODE2 = /* @__PURE__ */ new Set([".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs", ".go", ".py", ".graphql", ".gql"]);
+var CODE2 = /* @__PURE__ */ new Set([...SCRIPT_EXTENSIONS, ...HELPER_EXTENSIONS, ".graphql", ".gql"]);
 function percent(ratio) {
   return `${Math.round(ratio * 100)}%`;
 }
@@ -251793,7 +252341,7 @@ function computeVerdict(o) {
   for (const r of o.routes.affected) if (!r.hasChildren) for (const v of r.via) addEntry(v.file, r.path);
   for (const r of o.routes.added) if (r.entry !== null && !r.hasChildren) addEntry(r.entry, r.path);
   const count2 = (list2, path3) => list2.filter((x) => x.path === path3).length;
-  const isCode2 = (path3) => CODE2.has(posix15.extname(path3));
+  const isCode2 = (path3) => CODE2.has(posix16.extname(path3));
   const files = [];
   const other = [];
   const infra = [];
@@ -251843,7 +252391,7 @@ function computeVerdict(o) {
   const vulnerable = o.signals.vulnerabilities.related.filter((v) => v.severity === "critical" || v.severity === "high").length;
   if (vulnerable > 0) careful.push(`${vulnerable} serious vulnerabilit${vulnerable === 1 ? "y" : "ies"} in added or changed dependencies`);
   const untestedCentral = files.filter((f) => f.level === "high" && f.coverage?.ratio !== void 0 && f.coverage.ratio !== null && f.coverage.ratio < 0.5);
-  if (untestedCentral.length > 0) careful.push(`${untestedCentral.length} central file(s) with little or no diff coverage: ${untestedCentral.slice(0, 3).map((f) => posix15.basename(f.path)).join(", ")}`);
+  if (untestedCentral.length > 0) careful.push(`${untestedCentral.length} central file(s) with little or no diff coverage: ${untestedCentral.slice(0, 3).map((f) => posix16.basename(f.path)).join(", ")}`);
   const contracts = o.contracts?.entries ?? [];
   const breaking = contracts.filter((e) => e.level === "breaking");
   const dangerous = contracts.filter((e) => e.level === "dangerous");
@@ -251939,11 +252487,11 @@ function calibrate(points) {
 // src/cli/calibrate.ts
 var CODE_ROLES2 = /* @__PURE__ */ new Set(["source", "resolvers", "schema", "routes", "barrel", "i18n", "global"]);
 function historyPoints(dir, windowDays) {
-  const summaryPath = join4(dir, "summary.json");
-  if (!existsSync4(summaryPath)) throw new UsageError(`${summaryPath} not found: run "farol history --out ${dir}" first`);
-  const summary = JSON.parse(readFileSync5(summaryPath, "utf8"));
+  const summaryPath = join6(dir, "summary.json");
+  if (!existsSync6(summaryPath)) throw new UsageError(`${summaryPath} not found: run "farol history --out ${dir}" first`);
+  const summary = JSON.parse(readFileSync6(summaryPath, "utf8"));
   const outputs = summary.merges.flatMap((m) => {
-    const parsed = OutputSchema.safeParse(JSON.parse(readFileSync5(join4(dir, m.file), "utf8")));
+    const parsed = OutputSchema.safeParse(JSON.parse(readFileSync6(join6(dir, m.file), "utf8")));
     return parsed.success && m.error === null ? [{ m, o: parsed.data }] : [];
   });
   const commits = outputs.map(({ m, o }) => ({ sha: m.sha, date: m.date, subject: m.subject, files: o.files.filter((f) => CODE_ROLES2.has(f.role)).map((f) => f.path) }));
@@ -252293,6 +252841,7 @@ var REASON_TEXT = {
   "existing-file-unreachable": "existing file modified, no route reaches it",
   "existing-file-renamed": "existing file renamed",
   "infra-file-changed": "environment, infrastructure or CI file changed",
+  "client-file-changed": "client file served to browsers changed",
   "existing-file-deleted": "existing file deleted",
   "new-file-reached-by-existing-route": "new file reached by an existing route",
   "tests-modified": "existing test modified",
@@ -252308,6 +252857,7 @@ var REASON_TEXT = {
   "i18n-additive": "translations only gained keys",
   "new-file-in-new-route": "new file used only by new routes",
   "new-file-disconnected": "new file no route reaches",
+  "client-file-added": "new client file served to browsers",
   "file-excluded": "file excluded from the analysis",
   "outside-project": "file outside the project",
   "no-existing-code-touched": "no existing code touched"
@@ -252446,7 +252996,7 @@ var HTML_TEXT = {
   filesTitle: "Changed files",
   filesCols: ["File", "Status", "+", "\u2212", "Additive rule"],
   ignoredTitle: 'Ignored files (configuration "ignore" or --ignore)',
-  roleNames: { global: "Global", manifest: "Package manifests", lockfile: "Lockfiles", routes: "Routes", schema: "GraphQL schema", resolvers: "Resolvers and endpoints", test: "Tests", story: "Stories", infra: "Environment, infrastructure and CI", barrel: "Barrels", i18n: "Translations", source: "Source", excluded: "Excluded" },
+  roleNames: { global: "Global", manifest: "Package manifests", lockfile: "Lockfiles", routes: "Routes", schema: "GraphQL schema", resolvers: "Resolvers and endpoints", test: "Tests", story: "Stories", infra: "Environment, infrastructure and CI", client: "Client files (served to browsers)", barrel: "Barrels", i18n: "Translations", source: "Source", excluded: "Excluded" },
   statusNames: { added: "added", modified: "modified", deleted: "deleted", renamed: "renamed" },
   additiveYes: "additive",
   additiveNo: "not additive",
@@ -252593,7 +253143,7 @@ function locationMd(l, path3, line3, label2 = path3) {
 }
 
 // src/report/markdown-review.ts
-import { posix as posix16 } from "path";
+import { posix as posix17 } from "path";
 
 // src/report/strings-workbench.ts
 function workbenchText(surface) {
@@ -252624,7 +253174,7 @@ function workbenchText(surface) {
     levels: { high: "High", medium: "Medium", low: "Low" },
     verdict: { careful: "Careful review", quick: "Quick review", pass: "Fast track" },
     tiers: { high: "High risk", medium: "Medium risk", skim: "Skim", tests: "Test files" },
-    kinds: { contract: "Breaking API change", vulnerability: "Vulnerable dependency", global: "Global change", unknown: "Unknown impact", dependency: "Dependency", infra: "Infrastructure", tests: "Tests" },
+    kinds: { contract: "Breaking API change", vulnerability: "Vulnerable dependency", global: "Global change", unknown: "Unknown impact", dependency: "Dependency", infra: "Infrastructure", client: "Client code", tests: "Tests" },
     rail: {
       risk: "Merge risk",
       was: " \xB7 was {score}",
@@ -252836,10 +253386,10 @@ function lede(o, parts, why, codeFiles) {
   const top = parts.filter((p) => p.points > 0).slice(0, 2).map((p) => {
     const first = p.items[0];
     if (p.kind === "contract") return fill(L.contract, { key: code(o.contracts?.entries.find((e) => e.level !== "safe")?.key ?? "") });
-    if (p.kind === "finding") return fill(first?.kind === "security" ? L.security : L.lint, { file: code(posix16.basename(p.file ?? "")) });
+    if (p.kind === "finding") return fill(first?.kind === "security" ? L.security : L.lint, { file: code(posix17.basename(p.file ?? "")) });
     if (p.kind === "unread") return fill(L.unknown, { what: esc3((first?.title ?? "").slice((first?.title ?? "").indexOf(": ") + 2), 160) });
     if (p.file === null) return esc3(first?.title ?? "", 160);
-    const file2 = code(posix16.basename(p.file));
+    const file2 = code(posix17.basename(p.file));
     if (p.items.some((i) => i.kind === "global")) return fill(L.global, { file: file2 });
     const dep = o.dependencies.changes.filter((c) => c.manifest === p.file && p.items.some((i) => i.kind === "dependency" && i.title.startsWith(`${c.name} `))).sort((a, b) => Number(b.critical) - Number(a.critical))[0];
     if (dep !== void 0) return dep.from !== null && dep.to !== null ? fill(dep.critical ? L.bumpMayBreak : L.bump, { name: code(dep.name), from: esc3(dep.from), to: esc3(dep.to) }) : fill(L.dependency, { name: code(dep.name), change: dep.change });
@@ -252871,7 +253421,7 @@ function mustLines(o, parts, l) {
       continue;
     }
     const path3 = p.file ?? "";
-    const where = locationMd(l, path3, p.line ?? 0, posix16.basename(path3));
+    const where = locationMd(l, path3, p.line ?? 0, posix17.basename(path3));
     if (item.kind === "security") {
       const s = o.signals.security.findings.find((f) => f.path === path3 && f.line === p.line);
       lines.push(`- [ ] \u{1F534} ${COMMENT_TEXT.security(where, s?.severity ?? "", code(s?.rule ?? ""), esc3(s?.message ?? item.title, 160))} \u2014 **${p.points}**`);
@@ -252924,7 +253474,7 @@ function reviewSection(o, l, reportUrl) {
 }
 
 // src/report/test-plan.ts
-import { posix as posix17 } from "path";
+import { posix as posix18 } from "path";
 function moduleOf(o, path3) {
   if (o.surface === "backend") {
     const parts = path3.split(" ");
@@ -252952,7 +253502,7 @@ function testPlan(o) {
   return [...groups.entries()].map(([label2, list2]) => ({ label: label2, items: list2.sort((a, b) => b.priority - a.priority || compareStrings(a.path, b.path)) })).sort((a, b) => Math.max(...b.items.map((i) => i.priority)) - Math.max(...a.items.map((i) => i.priority)) || compareStrings(a.label, b.label));
 }
 function shortFile(path3) {
-  return path3 === null ? "" : posix17.basename(path3);
+  return path3 === null ? "" : posix18.basename(path3);
 }
 
 // src/report/markdown.ts
@@ -253149,7 +253699,7 @@ function renderReport(output2, maxLength = MAX_COMMENT_LENGTH, links = NO_LINKS,
 }
 
 // src/cli/report.ts
-import { readFileSync as readFileSync6 } from "fs";
+import { readFileSync as readFileSync7 } from "fs";
 import { resolve as resolve5 } from "path";
 
 // src/report/html-style-theme.ts
@@ -253813,7 +254363,7 @@ var ASSETS = {
     fill="#0F172A">farol</text>
 </svg>`,
   "report/wb-core.js": "/* farol report, in the browser (1/3): review state, live score, attribution, tiers, coverage, diffs and the\n * pages/operations list. Reads window.FAROL = { D: view model (src/report/workbench-model.ts), T: texts\n * (src/report/strings-workbench.ts) }. No user-facing text here: every text comes from T. */\nconst { D, T } = window.FAROL\nconst esc = (s) => String(s ?? '').replace(/[&<>\"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' })[c])\n/** Fills {name} placeholders of a text. */\nconst t = (text, values = {}) => String(text).replace(/\\{(\\w+)\\}/g, (m, k) => (values[k] === undefined ? m : String(values[k])))\n/** \"1 file\" / \"3 files\", from a [one, many] pair of T. */\nconst pl = (n, pair) => t(n === 1 ? pair[0] : pair[1], { n })\nconst short = (p) => (p && D.prefix && p.startsWith(D.prefix) ? p.slice(D.prefix.length) : p ?? '')\nconst base = (p) => (p ?? '').split('/').pop()\nconst dir = (p) => { const s = short(p).split('/'); s.pop(); return s.length ? s.join('/') + '/' : '' }\nconst pct = (r) => `${Math.round(r * 100)}%`\nconst listText = (xs) => (xs.length <= 1 ? xs.join('') : t(T.listAnd, { items: xs.slice(0, -1).join(', '), last: xs[xs.length - 1] }))\nconst TERM = D.term\n\n/* Review state, kept in this browser per commit. */\nconst KEY = `farol-review:${D.repo ?? ''}:${D.head}:${D.surface}`\nconst EMPTY = () => ({ reviewed: [], acked: [], tested: [], flagged: [], notes: {} })\nconst state = (() => { try { return { ...EMPTY(), ...JSON.parse(localStorage.getItem(KEY)) } } catch { return EMPTY() } })()\nconst save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)) } catch { /* private window: state lives until the page closes */ } }\nconst listeners = []\nconst onChange = (fn) => listeners.push(fn)\nconst emit = () => { save(); listeners.forEach((fn) => fn()) }\nconst setIn = (list, id, on) => { const set = new Set(state[list]); if (on) set.add(id); else set.delete(id); state[list] = [...set] }\nconst toggle = (list, id, on) => { setIn(list, id, on ?? !state[list].includes(id)); emit() }\nconst isReviewed = (file) => state.reviewed.includes(file)\nconst isAcked = (id) => state.acked.includes(id)\n\n/* Feature flags: a changed file whose pages/operations all ship behind a flag leaves the score, like a reviewed one. */\nconst OPS = D.ops\nconst FILE_OPS = new Map()\nfor (const op of OPS) for (const f of op.files) FILE_OPS.set(f, [...(FILE_OPS.get(f) ?? []), op.key])\nconst isFlagged = (key) => state.flagged.includes(key)\nconst flagCovered = (file) => { const keys = FILE_OPS.get(file); return !!keys?.length && keys.every(isFlagged) }\n\n/* Score groups: one per file, one per finding (security, lint: checked on their own, not by reviewing the file), and\n * one per item without a file (contract, vulnerable dependency, analysis problems). The PR comment splits the score\n * the same way (src/report/review-parts.ts). */\nconst FINDING_KINDS = new Set(['security', 'lint'])\nconst lineOf = (title) => Number(title.match(/at line (\\d+)/)?.[1] ?? 0)\nconst logOf = (items) => items.reduce((s, it) => s - Math.log(1 - it.weight), 0)\n/* Something farol could not read (a route path computed at run time\u2026): checked by hand, not by reviewing the file. */\nconst UNREAD = 'unknown'\nconst GROUPS = D.groups.flatMap((g, i) => {\n  const rest = g.items.filter((it) => !(g.file && (FINDING_KINDS.has(it.kind) || it.kind === UNREAD)))\n  const findings = g.file ? g.items.filter((it) => FINDING_KINDS.has(it.kind)) : []\n  const unread = g.file ? g.items.filter((it) => it.kind === UNREAD) : []\n  return [\n    ...(rest.length ? [{ file: g.file, items: rest, id: g.file ?? `item:${g.items[0].kind}:${i}`, log: logOf(rest) }] : []),\n    ...findings.map((it) => ({ file: null, owner: g.file, items: [it], id: `finding:${it.kind}:${g.file}:${lineOf(it.title)}`, log: logOf([it]) })),\n    ...unread.map((it, j) => ({ file: null, items: [it], id: `unread:${g.file}:${j}`, log: logOf([it]) })),\n  ]\n})\nconst groupActive = (g) => (g.file ? !isReviewed(g.file) && !flagCovered(g.file) : !isAcked(g.id))\n/** What must be checked by hand, above every file: breaking contracts, security findings, lint errors, vulnerable dependencies. */\nconst isMust = (g) => g.owner != null || g.items.every((i) => i.kind === 'contract' || i.kind === 'vulnerability' || i.kind === UNREAD)\nconst MUST = GROUPS.filter(isMust)\n/** Removable by the reviewer: files by reviewing them, the rest of Must check by checking it. */\nconst groupRemovable = (g) => g.file !== null || isMust(g)\nconst findingLine = (g) => lineOf(g.items[0].title)\nconst SCORE0 = Math.round(100 * (1 - Math.exp(-GROUPS.reduce((n, g) => n + g.log, 0))))\n\nfunction liveScore() {\n  const L = GROUPS.filter(groupActive).reduce((s, g) => s + g.log, 0)\n  return Math.round(100 * (1 - Math.exp(-L)))\n}\n/** Integer shares of the score that add up to it (log attribution, largest remainder). */\nfunction shares(groups) {\n  const L = groups.reduce((s, g) => s + g.log, 0)\n  const score = 100 * (1 - Math.exp(-L))\n  const rows = groups.map((g) => { const v = L === 0 ? 0 : (score * g.log) / L; return { group: g, v, points: Math.floor(v) } })\n  let left = Math.round(score) - rows.reduce((s, r) => s + r.points, 0)\n  ;[...rows].sort((a, b) => (b.v - b.points) - (a.v - a.points)).forEach((r) => { if (left > 0) { r.points++; left-- } })\n  return rows.sort((a, b) => b.v - a.v)\n}\n/** Share of the current score owed to each part still active. */\nconst attribution = () => shares(GROUPS.filter(groupActive))\n/** Shares with nothing reviewed: the points each part had at first. */\nconst attributionAll = () => shares(GROUPS)\nconst POINTS0 = new Map(attributionAll().map((a) => [a.group.id, a.points]))\n/** Each file's share of the current score: what ticking it removes now. */\nconst shareOf = () => new Map(attribution().filter((a) => a.group.file).map((a) => [a.group.file, a.points]))\nfunction topParts(att, max) {\n  const list = att.filter((a) => a.points > 0)\n  return list.length <= max + 1 ? { top: list, rest: [] } : { top: list.slice(0, max), rest: list.slice(max) }\n}\nconst levelOf = (s) => (s >= 60 ? 'high' : s >= 30 ? 'medium' : 'low')\n/** A low score and nothing left in Must check: what is left looks safe to approve. */\nfunction readiness() {\n  const s = liveScore()\n  const mustLeft = MUST.filter(groupActive).length\n  return { s, mustLeft, ready: levelOf(s) === 'low' && mustLeft === 0 }\n}\n\n/* Files to review: their own points leave the findings out, so tiers rank the code change itself. */\nconst FILES = D.files.map((f) => { const g = GROUPS.find((x) => x.file === f.path); return { ...f, points: g ? Math.round(100 * (1 - Math.exp(-g.log))) : 0 } })\n  .sort((a, b) => b.points - a.points || (a.path < b.path ? -1 : 1))\nconst TIERS = [{ id: 'high', min: 20 }, { id: 'medium', min: 5 }, { id: 'skim', min: -1, collapsed: true }, { id: 'tests', min: Infinity, collapsed: true }]\nconst tierOf = (f) => (f.extra === 'tests' ? 'tests' : TIERS.find((x) => f.points >= x.min).id)\nconst filesByTier = () => TIERS.map((x) => ({ ...x, label: T.tiers[x.id], files: FILES.filter((f) => tierOf(f) === x.id) })).filter((x) => x.files.length)\nconst fileDone = (f) => isReviewed(f.path) || flagCovered(f.path)\n\nfunction groupLabel(g) {\n  if (g.file) return short(g.file)\n  const it = g.items[0]\n  if (g.owner) return t(it.kind === 'security' ? T.must.securityAt : T.must.lintAt, { file: base(g.owner), line: findingLine(g) })\n  return T.kinds[it.kind] ?? it.kind\n}\nfunction groupWhy(g) {\n  const f = g.file && FILES.find((x) => x.path === g.file)\n  if (f && f.why) return f.why\n  return g.items.map((i) => i.title).join(' \xB7 ')\n}\n\n/** One sentence on where the risk comes from (the two largest parts at first) and how far the change reaches. */\nfunction riskLede() {\n  const top = attributionAll().filter((a) => a.points > 0).slice(0, 2).map(({ group: g }) => {\n    const it = g.items[0]\n    if (it.kind === 'contract') return t(T.lede.contract, { key: `<code>${esc(it.title.match(/of (.+?):/)?.[1] ?? '')}</code>` })\n    if (g.owner) return t(it.kind === 'security' ? T.lede.security : T.lede.lint, { file: `<code>${esc(base(g.owner))}</code>` })\n    if (it.kind === UNREAD) return t(T.lede.unknown, { what: esc(it.title.slice(it.title.indexOf(': ') + 2)) })\n    if (!g.file) return esc(it.title)\n    const code = `<code>${esc(base(g.file))}</code>`\n    if (g.items.some((i) => i.kind === 'global')) return t(T.lede.global, { file: code })\n    const deps = D.dependencies.filter((c) => c.manifest === g.file && g.items.some((i) => i.kind === 'dependency' && i.title.startsWith(c.name + ' ')))\n    if (deps.length) {\n      const c = [...deps].sort((a, b) => Number(b.critical) - Number(a.critical))[0]\n      return c.from && c.to ? t(c.critical ? T.lede.bumpMayBreak : T.lede.bump, { name: `<code>${esc(c.name)}</code>`, from: esc(c.from), to: esc(c.to) }) : t(T.lede.dependency, { name: `<code>${esc(c.name)}</code>`, change: esc(c.change) })\n    }\n    if (it.kind === 'tests') return t(T.lede.tests, { file: code })\n    const f = FILES.find((x) => x.path === g.file)\n    return f?.why ? t(T.lede.file, { file: code, why: esc(f.why) }) : code\n  })\n  const code = FILES.filter((f) => !f.extra).length\n  const reach = t(T.lede.reach, { files: pl(code, T.codeFiles), n: D.routes.affected, total: D.totalEntries, many: TERM.many })\n  const added = D.routes.added ? t(T.lede.added, { what: pl(D.routes.added, T.newEntries) }) : ''\n  return `${top.length ? t(T.lede.top, { parts: listText(top) }) + ' ' : ''}${reach}${added}.`\n}\n\n/* Coverage of the changed lines. */\nconst COV = D.coverage.status === 'ok' ? D.coverage : null\nconst covOf = (path) => COV?.files.find((f) => f.path === path) ?? null\nfunction coverageSummary() {\n  if (!COV || !COV.total) return null\n  const reported = COV.files.filter((f) => !f.missing)\n  const rTotal = reported.reduce((s, f) => s + f.total, 0)\n  const rCovered = reported.reduce((s, f) => s + f.covered, 0)\n  const missing = COV.files.filter((f) => f.missing)\n  return { ratio: COV.covered / COV.total, covered: COV.covered, total: COV.total, missing, missingLines: missing.reduce((s, f) => s + f.total, 0), reportedRatio: rTotal ? rCovered / rTotal : 1 }\n}\nconst inRanges = (line, ranges) => ranges.some((r) => line >= r.start && line <= r.end)\nconst rangeText = (r) => (r.start === r.end ? `${r.start}` : `${r.start}\u2013${r.end}`)\n\n/* GitHub: a changed file in the pull request, and one line of it (where a comment can be left). */\nconst ghFile = (path) => D.links.files[path] ?? null\nconst ghLine = (path, side, n) => (D.links.files[path] ? `${D.links.files[path]}${side}${n}` : null)\n\n/** Findings on a file's lines, to annotate its diff. */\nfunction notesOf(path) {\n  const notes = []\n  for (const s of D.security) if (s.path === path) notes.push({ line: s.line, tone: 'bad', label: t(T.diff.security, { severity: s.severity }), text: s.message })\n  for (const l of D.lint) if (l.path === path && !D.security.some((s) => s.path === path && s.line === l.line)) notes.push({ line: l.line, tone: '', label: t(T.diff.lint, { rule: l.rule }), text: l.message })\n  for (const s of D.suppressions) if (s.path === path) notes.push({ line: s.line, tone: '', label: t(T.diff.suppression, { kind: s.kind }), text: s.text })\n  return notes\n}\nfunction addedLines(path) {\n  const out = new Map()\n  for (const h of D.diffs[path] ?? []) {\n    let n = h.newStart\n    for (const line of h.lines) { if (line[0] === '+') out.set(n++, line.slice(1)); else if (line[0] !== '-') n++ }\n  }\n  return out\n}\n/** One sentence on a file's diff coverage, with links that jump to each stretch that never ran. */\nfunction coverageNote(path) {\n  const cf = covOf(path)\n  if (!cf) return COV ? '' : `<div class=\"covhead\">${T.diff.noReport}</div>`\n  if (cf.missing) return `<div class=\"covhead bad\">${t(T.diff.missing, { n: cf.total })}</div>`\n  if (cf.total === 0) return `<div class=\"covhead\">${T.diff.declarations}</div>`\n  const added = addedLines(path)\n  const blocks = cf.uncovered.filter((r) => [...added.keys()].some((k) => k >= r.start && k <= r.end))\n  if (!blocks.length) return `<div class=\"covhead\">${t(T.diff.allRan, { n: cf.total })}</div>`\n  const links = blocks.map((b) => `<a href=\"#\" data-jump=\"${b.start}\">${rangeText(b)}</a>`)\n  return `<div class=\"covhead bad\">${t(T.diff.someRan, { covered: cf.covered, total: cf.total, missing: pl(cf.total - cf.covered, T.lines), ranges: listText(links) })}</div>`\n}\nconst lnk = (path, side, n) => { const url = ghLine(path, side, n); return url ? `<a class=\"d-gh\" href=\"${esc(url)}\" target=\"_blank\" rel=\"noopener\" title=\"${esc(T.diff.commentLine)}\">${n}</a>` : n }\n/** Unified diff of a file; lines the tests never ran are marked and each stretch of them is labeled. */\nfunction renderDiff(path, maxLines = 1500) {\n  const hunks = D.diffs[path]\n  if (!hunks) return `<p class=\"muted small\">${T.diff.none}${ghFile(path) ? ` <a href=\"${esc(ghFile(path))}\" target=\"_blank\" rel=\"noopener\">${T.diff.seeInPr}</a>` : ''}</p>`\n  const cf = covOf(path)\n  const marks = cf && !cf.missing && cf.total > 0\n  const notes = notesOf(path)\n  const added = addedLines(path)\n  const lang = langOf(path)\n  let rows = ''\n  let count = 0\n  let inBlock = false\n  for (const h of hunks) {\n    rows += `<tr class=\"d-hunk\"><td colspan=\"3\">${esc(h.header)}</td></tr>`\n    let o = h.oldStart\n    let n = h.newStart\n    // What an open comment or string carries to the next line, on each side of the diff (context lines are both).\n    let before = null\n    let after = null\n    for (const line of h.lines) {\n      if (count++ > maxLines) break\n      const kind = line[0]\n      const hl = highlightLine(line.slice(1), lang, kind === '-' ? before : after)\n      if (kind === '-') before = hl.state\n      else if (kind === '+') after = hl.state\n      else before = after = hl.state\n      const text = hl.html || ' '\n      if (kind === '+') {\n        const unc = marks && inRanges(n, cf.uncovered)\n        if (unc && !inBlock) {\n          const r = cf.uncovered.find((x) => n >= x.start && n <= x.end)\n          const shown = [...added.keys()].filter((k) => k >= r.start && k <= r.end)\n          rows += `<tr class=\"d-unclabel\" data-ln=\"${n}\"><td colspan=\"2\"></td><td>${t(T.diff.notRun, { lines: rangeText({ start: shown[0] ?? r.start, end: shown[shown.length - 1] ?? r.end }) })}</td></tr>`\n        }\n        inBlock = unc\n        rows += `<tr class=\"d-add${unc ? ' d-unc' : ''}\" data-new=\"${n}\"><td class=\"d-n\"></td><td class=\"d-n\">${lnk(path, 'R', n)}</td><td class=\"d-c\">${text}</td></tr>`\n        for (const nt of notes.filter((x) => x.line === n)) rows += `<tr class=\"d-note\"><td colspan=\"2\"></td><td><div class=\"note ${nt.tone}\"><b>${esc(nt.label)}</b> ${esc(nt.text)}</div></td></tr>`\n        n++\n      } else if (kind === '-') {\n        rows += `<tr class=\"d-del\"><td class=\"d-n\">${lnk(path, 'L', o)}</td><td class=\"d-n\"></td><td class=\"d-c\">${text}</td></tr>`\n        o++\n      } else {\n        inBlock = false\n        rows += `<tr data-new=\"${n}\"><td class=\"d-n\">${o}</td><td class=\"d-n\">${lnk(path, 'R', n)}</td><td class=\"d-c\">${text}</td></tr>`\n        o++\n        n++\n      }\n    }\n  }\n  return `<div class=\"diffbox\">${ghFile(path) ? `<div class=\"ghhint\">${T.diff.hint}</div>` : ''}${coverageNote(path)}<div class=\"diff\"><table>${rows}</table></div></div>`\n}\n/** Scrolls a diff to a line and flashes it. */\nfunction flashRow(row) {\n  if (!row) return\n  row.scrollIntoView({ behavior: 'smooth', block: 'center' })\n  row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash')\n}\ndocument.addEventListener('click', (e) => {\n  const a = e.target.closest?.('[data-jump]')\n  if (!a) return\n  e.preventDefault()\n  flashRow(document.querySelector(`tr[data-ln=\"${a.dataset.jump}\"]`) ?? document.querySelector(`tr[data-new=\"${a.dataset.jump}\"]`))\n})\n\n/* Theme: follows the system, with a manual override. */\nfunction initTheme(button) {\n  const root = document.documentElement\n  try { const saved = localStorage.getItem('farol-theme'); if (saved) root.dataset.theme = saved } catch { /* no storage */ }\n  button?.addEventListener('click', () => {\n    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches\n    root.dataset.theme = dark ? 'light' : 'dark'\n    try { localStorage.setItem('farol-theme', root.dataset.theme) } catch { /* no storage */ }\n    window.dispatchEvent(new Event('farol-theme'))\n  })\n}\n",
-  "report/wb-highlight.js": `/* farol report, in the browser: syntax highlighting of diff lines (TypeScript/JavaScript, Go, Python, GraphQL). A
+  "report/wb-highlight.js": `/* farol report, in the browser: syntax highlighting of diff lines (TypeScript/JavaScript, Go, Python, C#, GraphQL). A
  * small line tokenizer, no library: comments, strings, keywords, literals, numbers, types and calls. An open block
  * comment or multi-line string carries over to the next line. Loaded before wb-core.js, which uses highlightLine. */
 const HL_WORDS = (s) => new Set(s.split(' '))
@@ -253833,13 +254383,18 @@ const HL_LANGS = {
     lit: HL_WORDS('True False None self cls'),
     line: '#', block: null, quotes: '"\\'', multi: '', triple: true, deco: true,
   },
+  cs: {
+    kw: HL_WORDS('abstract as async await base bool break byte case catch char checked class const continue decimal default delegate do double else enum event explicit extern finally fixed float for foreach goto if implicit in int interface internal is lock long namespace new object operator out override params private protected public readonly record ref return sbyte sealed short sizeof stackalloc static string struct switch throw try typeof uint ulong unchecked unsafe ushort using var virtual void volatile when where while with yield get set init init required file partial global nameof'),
+    lit: HL_WORDS('true false null this value'),
+    line: '//', block: ['/*', '*/'], quotes: '"\\'', multi: '',
+  },
   gql: {
     kw: HL_WORDS('query mutation subscription fragment on type input enum interface union scalar schema extend implements directive'),
     lit: HL_WORDS('true false null'),
     line: '#', block: null, quotes: '"', multi: '', triple: true,
   },
 }
-const HL_EXT = { ts: 'js', tsx: 'js', mts: 'js', cts: 'js', js: 'js', jsx: 'js', mjs: 'js', cjs: 'js', go: 'go', py: 'py', graphql: 'gql', gql: 'gql' }
+const HL_EXT = { ts: 'js', tsx: 'js', mts: 'js', cts: 'js', js: 'js', jsx: 'js', mjs: 'js', cjs: 'js', go: 'go', py: 'py', cs: 'cs', cshtml: 'cs', graphql: 'gql', gql: 'gql' }
 /** The tokenizer of a file, by its extension, or null (shown as plain text). */
 const langOf = (path) => HL_LANGS[HL_EXT[(path ?? '').split('.').pop()]] ?? null
 
@@ -254296,7 +254851,7 @@ function suppressionsAndTests(o, h) {
   return `<div class="grid2"><div id="suppressions"><h3>${HTML_TEXT.suppressionsTitle}</h3>${sup}</div><div id="tests"><h3>${HTML_TEXT.testsTitle}</h3>${tests}</div></div>`;
 }
 function filesSection(o, h) {
-  const roles = ["global", "manifest", "lockfile", "routes", "schema", "resolvers", "source", "barrel", "i18n", "infra", "test", "story", "excluded"];
+  const roles = ["global", "manifest", "lockfile", "routes", "schema", "resolvers", "source", "barrel", "i18n", "client", "infra", "test", "story", "excluded"];
   const groups = roles.map((role) => ({ role, files: o.files.filter((f) => f.role === role) })).filter((g) => g.files.length > 0).map(({ role, files }) => {
     const table3 = h.table(HTML_TEXT.filesCols, files, (f) => {
       const additive = f.additive === void 0 ? "" : `<span class="tag ${f.additive ? "yes" : "no"}">${f.additive ? HTML_TEXT.additiveYes : HTML_TEXT.additiveNo}</span>`;
@@ -254428,10 +254983,10 @@ ${FULLSCREEN_SCRIPT}
 }
 
 // src/report/links.ts
-import { createHash as createHash3 } from "crypto";
+import { createHash as createHash4 } from "crypto";
 var NO_LINKS3 = { file: () => null, lines: () => null };
 function diffAnchor(path3) {
-  return `diff-${createHash3("sha256").update(path3).digest("hex")}`;
+  return `diff-${createHash4("sha256").update(path3).digest("hex")}`;
 }
 function createLinker(output2, target) {
   if (target.repo === null || !target.repo.includes("/")) return NO_LINKS3;
@@ -254461,7 +255016,7 @@ function readOutputFile(path3) {
   const full = resolve5(path3);
   let raw;
   try {
-    raw = JSON.parse(readFileSync6(full, "utf8"));
+    raw = JSON.parse(readFileSync7(full, "utf8"));
   } catch (error62) {
     throw new UsageError(`cannot read ${full}: ${error62 instanceof Error ? error62.message : String(error62)}; pass the file written by "farol analyze --out"`);
   }
@@ -254474,7 +255029,7 @@ function withReviewers(output2, path3) {
   const full = resolve5(path3);
   let raw;
   try {
-    raw = JSON.parse(readFileSync6(full, "utf8"));
+    raw = JSON.parse(readFileSync7(full, "utf8"));
   } catch (error62) {
     throw new UsageError(`cannot read ${full}: ${error62 instanceof Error ? error62.message : String(error62)}; pass the file written by "farol reviewers --out"`);
   }
@@ -254524,8 +255079,8 @@ async function commentCommand(options, env = process.env, fetchImpl) {
 }
 
 // src/cli/farol-file.ts
-import { existsSync as existsSync5, readFileSync as readFileSync7 } from "fs";
-import { dirname as dirname3, isAbsolute as isAbsolute4, join as join5, resolve as resolve6 } from "path";
+import { existsSync as existsSync7, readFileSync as readFileSync8 } from "fs";
+import { dirname as dirname3, isAbsolute as isAbsolute4, join as join7, resolve as resolve6 } from "path";
 var FAROL_FILE = ".farol.json";
 var str = external_exports.string().min(1);
 var globs2 = external_exports.array(str);
@@ -254562,17 +255117,17 @@ var PATH_KEYS = {
 function findFarolFile(start) {
   let dir = resolve6(start);
   for (; ; ) {
-    const candidate = join5(dir, FAROL_FILE);
-    if (existsSync5(candidate)) return candidate;
+    const candidate = join7(dir, FAROL_FILE);
+    if (existsSync7(candidate)) return candidate;
     const parent = dirname3(dir);
-    if (existsSync5(join5(dir, ".git")) || parent === dir) return void 0;
+    if (existsSync7(join7(dir, ".git")) || parent === dir) return void 0;
     dir = parent;
   }
 }
 function loadFarolFile(path3) {
   let raw;
   try {
-    raw = JSON.parse(readFileSync7(path3, "utf8"));
+    raw = JSON.parse(readFileSync8(path3, "utf8"));
   } catch (error62) {
     throw new UsageError(`cannot read ${path3}: ${error62 instanceof Error ? error62.message : String(error62)}; fix the JSON or pass --farol-file`);
   }
@@ -254604,7 +255159,7 @@ function required2(value, flag, command) {
 }
 
 // src/cli/history.ts
-import { join as join6, resolve as resolve7 } from "path";
+import { join as join8, resolve as resolve7 } from "path";
 async function runHistory(ctx, options, deps, progress) {
   const mode = options.firstParent === true ? "first-parent" : "merges";
   const merges = await listMerges(ctx.repoRoot, options.branch, options.since, mode === "first-parent");
@@ -254614,13 +255169,13 @@ async function runHistory(ctx, options, deps, progress) {
   for (const [i, merge2] of merges.entries()) {
     const { output: output2, failed } = await runAnalyze(ctx, { base: merge2.firstParent, head: merge2.sha, ...options.ignore ? { ignore: options.ignore } : {} }, deps);
     const file2 = `${merge2.sha}.json`;
-    writeTextFile(join6(outDir, file2), serializeOutput(output2));
+    writeTextFile(join8(outDir, file2), serializeOutput(output2));
     byClass[output2.classification]++;
     if (failed) summary.failed++;
     summary.merges.push({ sha: merge2.sha, firstParent: merge2.firstParent, date: merge2.date, subject: merge2.subject, classification: output2.classification, file: file2, error: output2.diagnostics.error });
     progress(`[${i + 1}/${merges.length}] ${merge2.sha.slice(0, 12)} ${output2.classification}${failed ? " (analysis failed)" : ""} ${merge2.subject.slice(0, 80)}`);
   }
-  writeTextFile(join6(outDir, "summary.json"), `${JSON.stringify(summary, null, 2)}
+  writeTextFile(join8(outDir, "summary.json"), `${JSON.stringify(summary, null, 2)}
 `);
   return summary;
 }
@@ -254636,7 +255191,7 @@ async function historyCommand(ctx, options) {
 // src/cli/impact.ts
 async function computeImpact(ctx, file2, ref) {
   const target = projectToRepoPath(ctx, file2);
-  if (ctx.config.language !== "typescript") {
+  if (isHelperLanguage(ctx.config.language)) {
     const out = await readLangTree(ctx, ref);
     const graph = new DeclGraph(out);
     const starts = out.decls.flatMap((d, i) => d.file === target ? [i] : []);
@@ -254662,7 +255217,7 @@ async function impactCommand(ctx, file2, ref) {
 
 // src/cli/routes.ts
 async function computeRoutes(ctx, ref) {
-  if (ctx.config.language !== "typescript") {
+  if (isHelperLanguage(ctx.config.language)) {
     const table3 = declRouteTable(await readLangTree(ctx, ref));
     return { file: "", routes: table3.routes, dynamicRoutes: table3.dynamic, sources: table3.sources };
   }
@@ -254727,13 +255282,13 @@ var DatadogClient = class {
         group_by: facets.map((f) => ({ facet: f.facet, limit: f.limit, sort: { aggregation: "count", order: "desc", type: "measure" } })),
         ...cursor === void 0 ? {} : { page: { cursor } }
       };
-      const json3 = await this.request("POST", "/api/v2/rum/analytics/aggregate", body);
-      if (json3.meta?.status === "timeout") throw new DatadogError("Datadog RUM aggregation timed out: try fewer days (datadog.days)");
-      for (const bucket of json3.data?.buckets ?? []) {
+      const json4 = await this.request("POST", "/api/v2/rum/analytics/aggregate", body);
+      if (json4.meta?.status === "timeout") throw new DatadogError("Datadog RUM aggregation timed out: try fewer days (datadog.days)");
+      for (const bucket of json4.data?.buckets ?? []) {
         const count2 = Number(Object.values(bucket.computes ?? {})[0] ?? 0);
         if (Number.isFinite(count2)) out.push({ by: bucket.by ?? {}, count: count2 });
       }
-      cursor = json3.meta?.page?.after;
+      cursor = json4.meta?.page?.after;
       if (cursor === void 0 || cursor === "") return out;
     }
     throw new DatadogError(`Datadog RUM aggregation has more than ${MAX_PAGES} pages of ${facets.map((f) => f.facet).join(", ")} values`);
@@ -254764,10 +255319,10 @@ var DatadogClient = class {
         }
       }
     };
-    const json3 = await this.request("POST", "/api/v2/spans/analytics/aggregate", body);
-    if (json3.meta?.status === "timeout") throw new DatadogError("Datadog span aggregation timed out: try fewer days (datadog.days)");
+    const json4 = await this.request("POST", "/api/v2/spans/analytics/aggregate", body);
+    if (json4.meta?.status === "timeout") throw new DatadogError("Datadog span aggregation timed out: try fewer days (datadog.days)");
     const out = [];
-    for (const b of json3.data ?? []) {
+    for (const b of json4.data ?? []) {
       const by = b.attributes?.by ?? {};
       const service = by.service;
       const method = by["@http.method"];
@@ -254790,9 +255345,9 @@ var DatadogClient = class {
         }
       }
     };
-    const json3 = await this.request("POST", "/api/v2/spans/analytics/aggregate", body);
-    if (json3.meta?.status === "timeout") throw new DatadogError("Datadog span aggregation timed out: try fewer days (datadog.days)");
-    return issueRows((json3.data ?? []).map((b) => ({ name: b.attributes?.by?.resource_name, issue: b.attributes?.by?.["@issue.id"] })));
+    const json4 = await this.request("POST", "/api/v2/spans/analytics/aggregate", body);
+    if (json4.meta?.status === "timeout") throw new DatadogError("Datadog span aggregation timed out: try fewer days (datadog.days)");
+    return issueRows((json4.data ?? []).map((b) => ({ name: b.attributes?.by?.resource_name, issue: b.attributes?.by?.["@issue.id"] })));
   }
   /**
    * Error Tracking issues of a track (`trace` for APM, `rum` for browsers) matching `query`, most errors first (the API
@@ -254800,10 +255355,10 @@ var DatadogClient = class {
    */
   async errorIssues(query, track, from, to) {
     const body = { data: { type: "search_request", attributes: { query, from: from.getTime(), to: to.getTime(), track, order_by: "TOTAL_COUNT" } } };
-    const json3 = await this.request("POST", "/api/v2/error-tracking/issues/search?include=issue", body);
-    const issues = new Map((json3.included ?? []).filter((i) => i.type === "issue" && i.id !== void 0).map((i) => [i.id, i.attributes ?? {}]));
+    const json4 = await this.request("POST", "/api/v2/error-tracking/issues/search?include=issue", body);
+    const issues = new Map((json4.included ?? []).filter((i) => i.type === "issue" && i.id !== void 0).map((i) => [i.id, i.attributes ?? {}]));
     const out = [];
-    for (const result of json3.data ?? []) {
+    for (const result of json4.data ?? []) {
       const id = result.relationships?.issue?.data?.id;
       const issue2 = issues.get(id);
       const file2 = issue2?.file_path;
@@ -254820,10 +255375,10 @@ var DatadogClient = class {
   /** Sum of a metric query over the period per combination of `tags` values (series missing a tag are left out). */
   async metricGroups(query, tags, from, to) {
     const params = new URLSearchParams({ from: String(Math.floor(from.getTime() / 1e3)), to: String(Math.floor(to.getTime() / 1e3)), query });
-    const json3 = await this.request("GET", `/api/v1/query?${params.toString()}`);
-    if (json3.status === "error") throw new DatadogError(`Datadog metric query failed: ${json3.error ?? "unknown error"} (query: ${query})`);
+    const json4 = await this.request("GET", `/api/v1/query?${params.toString()}`);
+    if (json4.status === "error") throw new DatadogError(`Datadog metric query failed: ${json4.error ?? "unknown error"} (query: ${query})`);
     const totals = /* @__PURE__ */ new Map();
-    for (const series of json3.series ?? []) {
+    for (const series of json4.series ?? []) {
       const values = {};
       for (const tag of tags) {
         const value = series.tag_set?.find((t) => t.startsWith(`${tag}:`))?.slice(tag.length + 1);
@@ -254940,7 +255495,7 @@ async function runUsage(ctx, options, env, now, fetchImpl) {
     });
   }
   await mapLimit(tasks, DATADOG_CONCURRENCY, (task) => task());
-  for (const join7 of after) join7();
+  for (const join9 of after) join9();
   if (dd.errors) ctx.log(`Error Tracking: ${issues.length} issue(s) with a file`);
   const sortedIssues = issues.sort((a, b) => compareStrings(a.file, b.file) || compareStrings(a.type, b.type) || b.count - a.count);
   const sortedCallers = callers.filter((c) => c.name !== "" && c.service !== "").sort((a, b) => compareStrings(a.service, b.service) || compareStrings(a.name, b.name));
@@ -254955,7 +255510,7 @@ async function usageCommand(ctx, options, env = process.env, now = /* @__PURE__ 
 }
 
 // src/cli/reviewers-run.ts
-import { posix as posix18, resolve as resolve9 } from "path";
+import { posix as posix19, resolve as resolve9 } from "path";
 
 // src/git/authors.ts
 function parseBlameAuthors(output2) {
@@ -255063,7 +255618,7 @@ async function runReviewers(ctx, options) {
   const files = await mapLimit(code2, BLAME_CONCURRENCY, async (f) => {
     const weight = Math.max(1, points.get(f.path) ?? 0);
     if (f.status === "added") {
-      const dir = posix18.dirname(f.path);
+      const dir = posix19.dirname(f.path);
       return { path: f.path, weight, whole: dir === "." ? /* @__PURE__ */ new Map() : await addedLinesByAuthor(ctx.repoRoot, base, dir, "12 months ago"), touched: null };
     }
     const basePath = f.oldPath ?? f.path;
@@ -255121,7 +255676,7 @@ function buildProgram() {
   const loadedFarolFile = () => {
     if (farolFile !== void 0) return farolFile;
     const explicit = program3.opts().farolFile;
-    if (explicit !== void 0 && !existsSync6(resolve10(explicit))) throw new UsageError(`--farol-file ${resolve10(explicit)} does not exist`);
+    if (explicit !== void 0 && !existsSync8(resolve10(explicit))) throw new UsageError(`--farol-file ${resolve10(explicit)} does not exist`);
     const path3 = explicit !== void 0 ? resolve10(explicit) : findFarolFile(process.cwd());
     farolFile = path3 === void 0 ? null : loadFarolFile(path3);
     return farolFile;

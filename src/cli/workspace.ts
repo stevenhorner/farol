@@ -2,7 +2,7 @@ import { readdirSync } from 'node:fs'
 import { posix } from 'node:path'
 import { buildBackendTable, globalUses, type BackendTable } from '../backend/entrypoints.js'
 import { compareStrings } from '../output/order.js'
-import { ECOSYSTEM_FILES, LOCKFILES, MANIFESTS } from '../classify/dependencies.js'
+import { isEcosystemFile, isManifestName, LOCKFILES } from '../classify/dependencies.js'
 import { createIgnoreMatcher, createInfraMatcher, createRoleMatcher, type AnalysisRole, type FileRole, type RoleMatcher } from '../classify/roles.js'
 import { listFiles, readFiles } from '../git/index.js'
 import { createTreeFileSystem, toPosix, type ProjectFileSystem } from '../project/fs.js'
@@ -81,8 +81,10 @@ export function createAnalysisRoleOf(ctx: Context, graphNodes: readonly string[]
     // Above the project (a monorepo root), only the files of the project's own ecosystem: a bun.lock at the root of
     // a repository is no dependency of its Python backend.
     const aboveOrSelf = dir === '' || dir === prefix || prefix.startsWith(`${dir}/`)
-    const ours = inside || ECOSYSTEM_FILES[ctx.config.language].has(name)
-    if (MANIFESTS.has(name) && ours && (aboveOrSelf || inside || nodeDirs.has(dir))) return 'manifest'
+    const ours = inside || isEcosystemFile(ctx.config.language, name)
+    // A test project's .csproj describes how its tests build, not the app: it is a test file.
+    if (name.endsWith('.csproj') && config(repoPath) === 'test') return 'test'
+    if (isManifestName(name) && ours && (aboveOrSelf || inside || nodeDirs.has(dir))) return 'manifest'
     if (LOCKFILES.has(name) && ours && (aboveOrSelf || inside)) return 'lockfile'
     return base(repoPath)
   }
@@ -154,7 +156,7 @@ export class RoutesFileMissingError extends Error {
 
 /** Builds the program, import graph and route table of the project at a ref (or the working tree). */
 export async function loadWorkspace(ctx: Context, ref: string | undefined, timings?: Record<string, number>, now: () => number = () => performance.now()): Promise<Workspace> {
-  if (ctx.config.language !== 'typescript') throw new UsageError('internal: the TypeScript workspace was asked for a Go or Python project')
+  if (ctx.config.language !== 'typescript') throw new UsageError('internal: the TypeScript workspace was asked for a project read by a language helper')
   let t = now()
   const lap = (name: string): void => {
     const current = now()

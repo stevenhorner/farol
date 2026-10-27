@@ -1,0 +1,1 @@
+ALTER TABLE orders ADD customer VARCHAR(100) NULL;

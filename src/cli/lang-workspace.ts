@@ -5,6 +5,7 @@ import { homedir, tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { UsageError } from '../config/load.js'
+import { HELPER_LANGUAGES, isHelperLanguage, isHelperSource, type HelperLanguage, type HelperLanguageInfo } from '../config/languages.js'
 import type { BackendFileImpact } from '../backend/impact.js'
 import { exportTree, treeOf } from '../git/index.js'
 import { TOOL_VERSION } from '../output/tool.js'
@@ -14,6 +15,7 @@ import { DeclHelperSchema, type DeclHelperOutput } from '../decls/types.js'
 import type { ImportGraph } from '../project/graph.js'
 import type { RouteTable } from '../routes/types.js'
 import type { Context } from './context.js'
+import { csHelperAssembly, runCsHelper } from './cs-helper.js'
 
 const MAX_BUFFER = 1024 * 1024 * 1024
 
@@ -45,7 +47,7 @@ function missingTool(error: unknown, message: string): never {
 }
 
 /** Directory of a helper shipped next to dist/ (bundle) or to src/ (tests): go-helper/ or py-helper/. */
-export function helperDir(name: 'go-helper' | 'py-helper'): string {
+export function helperDir(name: HelperLanguageInfo['helper']): string {
   let dir = dirname(fileURLToPath(import.meta.url))
   for (let i = 0; i < 5; i++) {
     if (existsSync(join(dir, name))) return join(dir, name)
@@ -59,7 +61,7 @@ function sourceHash(dir: string): string {
   const hash = createHash('sha256')
   const walk = (d: string): void => {
     for (const name of readdirSync(d).sort()) {
-      if (name === '__pycache__') continue
+      if (name === '__pycache__' || name === 'bin' || name === 'obj') continue
       const full = join(d, name)
       if (statSync(full).isDirectory()) walk(full)
       else hash.update(full.slice(dir.length)).update(readFileSync(full))
@@ -109,12 +111,11 @@ export async function readToml(text: string): Promise<unknown> {
 /** Prints the helper JSON of a tree exported to `dir`. */
 type TreeReader = (dir: string, project: string, comments: readonly string[]) => Promise<string>
 
-async function readerFor(ctx: Context): Promise<{ label: string; version: string; read: TreeReader }> {
-  if (ctx.config.language === 'go') {
+/** How each helper language reads a tree. */
+const READERS: Record<HelperLanguage, (ctx: Context) => Promise<Omit<Reader, 'label' | 'version'>>> = {
+  go: async () => {
     const binary = await goHelperBinary()
     return {
-      label: 'Go',
-      version: sourceHash(helperDir('go-helper')),
       read: async (dir, project, comments) => {
         try {
           return await run(binary, ['-root', dir, '-project', project, ...(comments.length > 0 ? ['-comments', comments.join(',')] : [])], dir, goEnv())
@@ -124,9 +125,39 @@ async function readerFor(ctx: Context): Promise<{ label: string; version: string
         }
       },
     }
-  }
-  const roots = ctx.config.python.roots.join(',')
-  return { label: 'Python', version: sourceHash(helperDir('py-helper')), read: (dir, project, comments) => runPythonHelper(['analyze', '--root', dir, '--project', project, '--roots', roots, '--comments', comments.join(',')], dir) }
+  },
+  python: (ctx) => {
+    const roots = ctx.config.python.roots.join(',')
+    return Promise.resolve({ read: (dir, project, comments) => runPythonHelper(['analyze', '--root', dir, '--project', project, '--roots', roots, '--comments', comments.join(',')], dir) })
+  },
+  csharp: async (ctx) => {
+    const assembly = await csHelperAssembly(helperDir('cs-helper'), sourceHash(helperDir('cs-helper')), defaultCacheDir())
+    const { projects, configurations, defines, entryCalls, viewRoots } = ctx.config.csharp
+    const lists = Object.entries({ projects, configurations, defines, 'entry-calls': entryCalls, 'view-roots': viewRoots }).flatMap(([flag, values]) => (values.length > 0 ? [`--${flag}`, values.join(',')] : []))
+    // Packages restored in the checkout (obj/project.assets.json) give the compiler their types, for both trees.
+    return { read: (dir, project, comments) => runCsHelper(assembly, ['analyze', '--root', dir, '--project', project, '--comments', comments.join(','), '--assets-root', ctx.repoRoot, ...lists], dir) }
+  },
+}
+
+/**
+ * XML read by the C# helper (Node has no XML parser), as JSON: a project file (`manifest`: packages and other fields),
+ * a .resx file (`resx`: name → value) or a Cobertura coverage report (`cobertura`: lines per file).
+ */
+export async function readCsXml(command: 'manifest' | 'resx' | 'cobertura', text: string): Promise<unknown> {
+  const assembly = await csHelperAssembly(helperDir('cs-helper'), sourceHash(helperDir('cs-helper')), defaultCacheDir())
+  return JSON.parse(await runCsHelper(assembly, [command], tmpdir(), text)) as unknown
+}
+
+function helperLanguage(ctx: Context): HelperLanguage {
+  const { language } = ctx.config
+  if (!isHelperLanguage(language)) throw new Error('internal: a TypeScript project has no language helper')
+  return language
+}
+
+async function readerFor(ctx: Context): Promise<Reader> {
+  const language = helperLanguage(ctx)
+  const info = HELPER_LANGUAGES[language]
+  return { label: info.label, version: sourceHash(helperDir(info.helper)), ...(await READERS[language](ctx)) }
 }
 
 /** Where helper outputs are kept between runs; null disables the cache. */
@@ -154,7 +185,7 @@ interface Reader {
 async function readTree(ctx: Context, reader: Reader, sha: string, comments: readonly string[], cache: CacheDir): Promise<DeclHelperOutput> {
   const project = ctx.projectPrefix === '' ? '.' : ctx.projectPrefix
   // Same tree, same helper, same settings: same output. Base trees repeat across the runs of every PR.
-  const key = cache === null ? null : createHash('sha256').update(JSON.stringify([TOOL_VERSION, reader.label, reader.version, await treeOf(ctx.repoRoot, sha), project, ctx.config.python.roots, [...comments].sort()])).digest('hex')
+  const key = cache === null ? null : createHash('sha256').update(JSON.stringify([TOOL_VERSION, reader.label, reader.version, await treeOf(ctx.repoRoot, sha), project, ctx.config.python.roots, ctx.config.csharp, [...comments].sort()])).digest('hex')
   const file = key === null || cache === null ? null : join(cache, `${key}.json`)
   if (file !== null && existsSync(file)) {
     const cached = DeclHelperSchema.safeParse(JSON.parse(readFileSync(file, 'utf8')))
@@ -200,10 +231,8 @@ export interface LangWorkspace {
   impacts: Map<string, BackendFileImpact>
 }
 
-const EXTENSIONS = { go: '.go', python: '.py' } as const
-
 /**
- * Reads base and head with the language helper (Go or Python) and computes the declaration-level impact of every
+ * Reads base and head with the language helper and computes the declaration-level impact of every
  * changed source file.
  */
 export async function loadLangWorkspace(ctx: Context, files: readonly ChangedFile[], mergeBaseSha: string, headSha: string, isSource: (path: string) => boolean, timings: Record<string, number>, clock: () => number, cache: CacheDir = null): Promise<LangWorkspace> {
@@ -212,8 +241,8 @@ export async function loadLangWorkspace(ctx: Context, files: readonly ChangedFil
   const { label } = reader
   timings.helperSetup = Math.round(clock() - t)
   t = clock()
-  const ext = ctx.config.language === 'go' ? EXTENSIONS.go : EXTENSIONS.python
-  const changed = files.filter((f) => f.status !== 'deleted' && f.path.endsWith(ext)).map((f) => f.path)
+  const language = helperLanguage(ctx)
+  const changed = files.filter((f) => f.status !== 'deleted' && isHelperSource(language, f.path)).map((f) => f.path)
   const [base, head] = await Promise.all([readTree(ctx, reader, mergeBaseSha, [], cache), readTree(ctx, reader, headSha, changed, cache)])
   timings.helperRead = Math.round(clock() - t)
   ctx.log(`${label}: ${head.files.length} files, ${head.decls.length} declarations, ${head.entries.length} entry points`)

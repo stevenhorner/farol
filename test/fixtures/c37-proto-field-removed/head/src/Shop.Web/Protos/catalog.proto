@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package shop.catalog;
+
+service Catalog {
+  rpc GetProduct (ProductRequest) returns (ProductReply);
+  rpc ListProducts (ListRequest) returns (stream ProductReply);
+}
+
+message ProductRequest {
+  string sku = 1;
+}
+
+message ListRequest {
+  int32 page = 1;
+}
+
+message ProductReply {
+  string sku = 1;
+  double price = 2;
+}

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shop · @ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <partial name="_Header" />
+    @await Component.InvokeAsync("Basket")
+    @RenderBody()
+    <script src="~/js/site.js"></script>
+</body>
+</html>

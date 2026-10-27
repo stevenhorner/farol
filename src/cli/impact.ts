@@ -1,5 +1,6 @@
 import { createReachIndex, reachFrom, routesReaching } from '../classify/reach.js'
 import type { Context } from './context.js'
+import { isHelperLanguage } from '../config/languages.js'
 import { writeStdout } from './run.js'
 import { loadWorkspace, projectToRepoPath } from './workspace.js'
 import { DeclGraph, declRouteTable } from '../decls/impact.js'
@@ -14,8 +15,8 @@ export interface ImpactResult {
 
 export async function computeImpact(ctx: Context, file: string, ref: string | undefined): Promise<ImpactResult> {
   const target = projectToRepoPath(ctx, file)
-  if (ctx.config.language !== 'typescript') {
-    // Go and Python: entry points whose code reaches any declaration of the file (declaration-level reach).
+  if (isHelperLanguage(ctx.config.language)) {
+    // Helper languages (Go, Python): entry points whose code reaches any declaration of the file (declaration-level reach).
     const out = await readLangTree(ctx, ref)
     const graph = new DeclGraph(out)
     const starts = out.decls.flatMap((d, i) => (d.file === target ? [i] : []))

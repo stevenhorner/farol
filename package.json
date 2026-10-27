@@ -1,7 +1,7 @@
 {
   "name": "@winninjs/farol",
   "version": "0.2.1",
-  "description": "Tells code reviewers how much attention a pull request needs and where to look first: what the change reaches, a merge risk score and a review plan. TypeScript/React, Go and Python. Shadow mode: never blocks.",
+  "description": "Tells code reviewers how much attention a pull request needs and where to look first: what the change reaches, a merge risk score and a review plan. TypeScript/React, Go, Python and C#/.NET. Shadow mode: never blocks.",
   "keywords": [
     "code-review",
     "pull-request",
@@ -12,6 +12,7 @@
     "react",
     "go",
     "python",
+    "csharp",
     "diff-coverage"
   ],
   "author": "Winnin",
@@ -32,7 +33,10 @@
     "dist",
     "go-helper",
     "py-helper",
-    "!**/__pycache__"
+    "cs-helper",
+    "!**/__pycache__",
+    "!cs-helper/bin",
+    "!cs-helper/obj"
   ],
   "engines": {
     "node": ">=22"

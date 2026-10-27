@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "surface": "backend",
+  "tool": {
+    "name": "farol",
+    "version": "<version>"
+  },
+  "repo": null,
+  "pr": null,
+  "base": {
+    "ref": "main",
+    "sha": "<base>"
+  },
+  "mergeBase": "<base>",
+  "head": {
+    "ref": "feature",
+    "sha": "<head>"
+  },
+  "analyzedAt": "2026-01-15T12:00:00.000Z",
+  "classification": "touches-existing",
+  "reasons": [
+    {
+      "code": "client-file-changed",
+      "file": "src/Shop.Web/wwwroot/js/site.js",
+      "detail": "existing client file modified (served to browsers): loaded by 5 existing entry point(s): ANY /Home/About/{id?}; ANY /Home/Index/{id?}; GET /Orders/Details/{id?}; and 2 more"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/Shop.Web/wwwroot/js/site.js",
+      "status": "modified",
+      "role": "client",
+      "linesAdded": 1,
+      "linesRemoved": 1
+    }
+  ],
+  "ignoredFiles": [],
+  "dependencies": {
+    "manifests": [],
+    "lockfiles": [],
+    "changes": [],
+    "summary": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "patch": 0,
+      "added": 0,
+      "removed": 0
+    }
+  },
+  "risk": {
+    "totalPages": 20,
+    "files": [],
+    "summary": {
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "routes": {
+    "added": [],
+    "affected": [
+      {
+        "key": "ANY /Home/About/{id?}",
+        "path": "ANY /Home/About/{id?}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/wwwroot/js/site.js",
+            "chain": [
+              "src/Shop.Web/Controllers/HomeController.cs",
+              "src/Shop.Web/Views/Home/About.cshtml",
+              "src/Shop.Web/Views/_ViewStart.cshtml",
+              "src/Shop.Web/Views/Shared/_Layout.cshtml",
+              "src/Shop.Web/wwwroot/js/site.js"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "ANY /Home/Index/{id?}",
+        "path": "ANY /Home/Index/{id?}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/wwwroot/js/site.js",
+            "chain": [
+              "src/Shop.Web/Controllers/HomeController.cs",
+              "src/Shop.Web/Views/Home/Index.cshtml",
+              "src/Shop.Web/Views/_ViewStart.cshtml",
+              "src/Shop.Web/Views/Shared/_Layout.cshtml",
+              "src/Shop.Web/wwwroot/js/site.js"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "GET /Orders/Details/{id?}",
+        "path": "GET /Orders/Details/{id?}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/wwwroot/js/site.js",
+            "chain": [
+              "src/Shop.Web/Controllers/OrdersController.cs",
+              "src/Shop.Web/Views/Orders/Details.cshtml",
+              "src/Shop.Web/Views/_ViewStart.cshtml",
+              "src/Shop.Web/Views/Shared/_Layout.cshtml",
+              "src/Shop.Web/wwwroot/js/site.js"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "GET /Orders/Index/{id?}",
+        "path": "GET /Orders/Index/{id?}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/wwwroot/js/site.js",
+            "chain": [
+              "src/Shop.Web/Controllers/OrdersController.cs",
+              "src/Shop.Web/Views/Orders/Index.cshtml",
+              "src/Shop.Web/Views/_ViewStart.cshtml",
+              "src/Shop.Web/Views/Shared/_Layout.cshtml",
+              "src/Shop.Web/wwwroot/js/site.js"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "POST /Orders/Cancel/{id?}",
+        "path": "POST /Orders/Cancel/{id?}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/wwwroot/js/site.js",
+            "chain": [
+              "src/Shop.Web/Controllers/OrdersController.cs",
+              "src/Shop.Web/Views/Orders/Index.cshtml",
+              "src/Shop.Web/Views/_ViewStart.cshtml",
+              "src/Shop.Web/Views/Shared/_Layout.cshtml",
+              "src/Shop.Web/wwwroot/js/site.js"
+            ]
+          }
+        ]
+      }
+    ],
+    "disconnectedNewFiles": []
+  },
+  "signals": {
+    "coverage": {
+      "status": "not-provided",
+      "message": "no coverage report given (--coverage or signals.coverage)",
+      "files": [],
+      "total": null,
+      "ignoredFiles": []
+    },
+    "lint": {
+      "status": "not-provided",
+      "message": "no SARIF report given (--eslint or signals.eslint)",
+      "changedLines": null,
+      "otherLines": null,
+      "findings": [],
+      "omittedFindings": 0
+    },
+    "security": {
+      "status": "not-provided",
+      "findings": [],
+      "summary": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "message": "C# files are checked by the .NET security analyzers (CA2100, CA3xxx, CA5xxx) or Security Code Scan: give their SARIF report as the lint report"
+    },
+    "vulnerabilities": {
+      "status": "not-provided",
+      "message": "no audit report given (--audit or signals.audit)",
+      "related": [],
+      "total": null
+    },
+    "suppressions": {
+      "status": "ok",
+      "items": []
+    },
+    "testsModified": {
+      "status": "ok",
+      "files": []
+    }
+  },
+  "diagnostics": {
+    "unresolvedImports": [],
+    "dynamicRoutes": [],
+    "parseErrors": [],
+    "timingsMs": {
+      "diff": 0,
+      "helperSetup": 0,
+      "helperRead": 0,
+      "base": 0,
+      "classify": 0,
+      "signals": 0,
+      "diffs": 0
+    },
+    "error": null
+  },
+  "review": null,
+  "contracts": {
+    "readable": 7,
+    "entries": [],
+    "summary": {
+      "breaking": 0,
+      "dangerous": 0,
+      "safe": 0
+    }
+  }
+}

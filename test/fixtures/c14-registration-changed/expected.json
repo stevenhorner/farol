@@ -1,0 +1,405 @@
+{
+  "schemaVersion": 1,
+  "surface": "backend",
+  "tool": {
+    "name": "farol",
+    "version": "<version>"
+  },
+  "repo": null,
+  "pr": null,
+  "base": {
+    "ref": "main",
+    "sha": "<base>"
+  },
+  "mergeBase": "<base>",
+  "head": {
+    "ref": "feature",
+    "sha": "<head>"
+  },
+  "analyzedAt": "2026-01-15T12:00:00.000Z",
+  "classification": "touches-existing",
+  "reasons": [
+    {
+      "code": "existing-file-modified",
+      "file": "src/Shop.Web/Program.cs",
+      "detail": "registration <top-level statements> @ src/Shop.Web/Program.cs | builder.Services.AddSingleton<IPriceCalculator, StandardPriceCalculator>(); was removed: reached by 20 existing entry point(s): ANY /Home/About/{id?}; ANY /Home/Index/{id?}; GET /Account/Profile/{id:int?}; and 17 more"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/Shop.Web/Program.cs",
+      "status": "modified",
+      "role": "source",
+      "linesAdded": 1,
+      "linesRemoved": 1,
+      "additive": false
+    }
+  ],
+  "ignoredFiles": [],
+  "dependencies": {
+    "manifests": [],
+    "lockfiles": [],
+    "changes": [],
+    "summary": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "patch": 0,
+      "added": 0,
+      "removed": 0
+    }
+  },
+  "risk": {
+    "totalPages": 20,
+    "files": [
+      {
+        "path": "src/Shop.Web/Program.cs",
+        "change": "modified",
+        "level": "high",
+        "directImporters": 0,
+        "transitiveDependents": 0,
+        "centrality": 0,
+        "pagesReached": 20,
+        "routesReached": 20,
+        "why": "used by 20 of 20 existing operations"
+      }
+    ],
+    "summary": {
+      "high": 1,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "routes": {
+    "added": [],
+    "affected": [
+      {
+        "key": "ANY /Home/About/{id?}",
+        "path": "ANY /Home/About/{id?}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "ANY /Home/Index/{id?}",
+        "path": "ANY /Home/Index/{id?}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "GET /Account/Profile/{id:int?}",
+        "path": "GET /Account/Profile/{id:int?}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "GET /Orders/Details/{id?}",
+        "path": "GET /Orders/Details/{id?}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "GET /Orders/Index/{id?}",
+        "path": "GET /Orders/Index/{id?}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "GET /api/Products/{sku}",
+        "path": "GET /api/Products/{sku}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "GET /api/health",
+        "path": "GET /api/health",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "GET /api/prices/{sku}",
+        "path": "GET /api/prices/{sku}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "POST /Account/Profile/{id:int?}?handler=Save",
+        "path": "POST /Account/Profile/{id:int?}?handler=Save",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "POST /Orders/Cancel/{id?}",
+        "path": "POST /Orders/Cancel/{id?}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "POST /api/Archive/{id}",
+        "path": "POST /api/Archive/{id}",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "POST /api/Products/quote",
+        "path": "POST /api/Products/quote",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "RPC shop.catalog.Catalog/GetProduct",
+        "path": "RPC shop.catalog.Catalog/GetProduct",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "RPC shop.catalog.Catalog/ListProducts",
+        "path": "RPC shop.catalog.Catalog/ListProducts",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "TASK AddOrUpdate nightly-report",
+        "path": "TASK AddOrUpdate nightly-report",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "TASK Every purge",
+        "path": "TASK Every purge",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "TASK Shop.Web.Jobs.ReindexJob",
+        "path": "TASK Shop.Web.Jobs.ReindexJob",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "TASK Shop.Web.Workers.CleanupWorker",
+        "path": "TASK Shop.Web.Workers.CleanupWorker",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "WS /hubs/orders#OpenOrders",
+        "path": "WS /hubs/orders#OpenOrders",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      },
+      {
+        "key": "WS /hubs/orders#Subscribe",
+        "path": "WS /hubs/orders#Subscribe",
+        "hasChildren": false,
+        "via": [
+          {
+            "file": "src/Shop.Web/Program.cs",
+            "chain": [
+              "src/Shop.Web/Program.cs"
+            ]
+          }
+        ]
+      }
+    ],
+    "disconnectedNewFiles": []
+  },
+  "signals": {
+    "coverage": {
+      "status": "not-provided",
+      "message": "no coverage report given (--coverage or signals.coverage)",
+      "files": [],
+      "total": null,
+      "ignoredFiles": []
+    },
+    "lint": {
+      "status": "not-provided",
+      "message": "no SARIF report given (--eslint or signals.eslint)",
+      "changedLines": null,
+      "otherLines": null,
+      "findings": [],
+      "omittedFindings": 0
+    },
+    "security": {
+      "status": "not-provided",
+      "findings": [],
+      "summary": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "message": "C# files are checked by the .NET security analyzers (CA2100, CA3xxx, CA5xxx) or Security Code Scan: give their SARIF report as the lint report"
+    },
+    "vulnerabilities": {
+      "status": "not-provided",
+      "message": "no audit report given (--audit or signals.audit)",
+      "related": [],
+      "total": null
+    },
+    "suppressions": {
+      "status": "ok",
+      "items": []
+    },
+    "testsModified": {
+      "status": "ok",
+      "files": []
+    }
+  },
+  "diagnostics": {
+    "unresolvedImports": [],
+    "dynamicRoutes": [],
+    "parseErrors": [],
+    "timingsMs": {
+      "diff": 0,
+      "helperSetup": 0,
+      "helperRead": 0,
+      "base": 0,
+      "classify": 0,
+      "signals": 0,
+      "diffs": 0
+    },
+    "error": null
+  },
+  "review": null,
+  "contracts": {
+    "readable": 7,
+    "entries": [],
+    "summary": {
+      "breaking": 0,
+      "dangerous": 0,
+      "safe": 0
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { isDeepStrictEqual } from 'node:util'
+import type { Language } from '../config/languages.js'
 import { compareStrings } from '../output/order.js'
 
 export const DEPENDENCY_SECTIONS = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'] as const
@@ -7,16 +8,30 @@ export const GO_SECTIONS = ['require', 'indirect'] as const
 export type DependencySection = (typeof DEPENDENCY_SECTIONS)[number] | (typeof GO_SECTIONS)[number]
 
 /** File names of lockfiles farol recognizes. */
-export const LOCKFILES = new Set(['package-lock.json', 'npm-shrinkwrap.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lock', 'bun.lockb', 'go.sum', 'uv.lock', 'poetry.lock', 'Pipfile.lock', 'pdm.lock'])
+export const LOCKFILES = new Set(['package-lock.json', 'npm-shrinkwrap.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lock', 'bun.lockb', 'go.sum', 'uv.lock', 'poetry.lock', 'Pipfile.lock', 'pdm.lock', 'packages.lock.json'])
 
-/** File names of manifests: package.json (npm), go.mod (Go modules), pyproject.toml and requirements.txt (Python). */
-export const MANIFESTS = new Set(['package.json', 'go.mod', 'pyproject.toml', 'requirements.txt'])
+/**
+ * File names of manifests: package.json (npm), go.mod (Go modules), pyproject.toml and requirements.txt (Python),
+ * Directory.Packages.props (NuGet central versions); every *.csproj is a manifest too (see isManifestName).
+ */
+export const MANIFESTS = new Set(['package.json', 'go.mod', 'pyproject.toml', 'requirements.txt', 'Directory.Packages.props'])
+
+/** Whether a file name is a package manifest. */
+export function isManifestName(name: string): boolean {
+  return MANIFESTS.has(name) || name.endsWith('.csproj')
+}
 
 /** Manifests and lockfiles of each language's ecosystem. */
-export const ECOSYSTEM_FILES: Record<'typescript' | 'go' | 'python', ReadonlySet<string>> = {
+export const ECOSYSTEM_FILES: Record<Language, ReadonlySet<string>> = {
   typescript: new Set(['package.json', 'package-lock.json', 'npm-shrinkwrap.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lock', 'bun.lockb']),
   go: new Set(['go.mod', 'go.sum']),
   python: new Set(['pyproject.toml', 'requirements.txt', 'uv.lock', 'poetry.lock', 'Pipfile.lock', 'pdm.lock']),
+  csharp: new Set(['Directory.Packages.props', 'packages.lock.json']),
+}
+
+/** Whether a file name belongs to the manifests and lockfiles of a language's ecosystem. */
+export function isEcosystemFile(language: Language, name: string): boolean {
+  return ECOSYSTEM_FILES[language].has(name) || (language === 'csharp' && name.endsWith('.csproj'))
 }
 
 /** `range`: same base version, only the range operator changed (`^1.2.3` → `~1.2.3`). */

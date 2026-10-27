@@ -1,5 +1,6 @@
 import { posix } from 'node:path'
 import { REASONS } from '../classify/reasons.js'
+import { HELPER_EXTENSIONS, SCRIPT_EXTENSIONS } from '../config/languages.js'
 import { compareStrings } from '../output/order.js'
 import type { Output } from '../output/schema.js'
 import { fileCoverage, mergeScore, type FileCoverage } from './merge-score.js'
@@ -45,7 +46,7 @@ export interface Verdict {
   other: { path: string; kind: 'test' | 'not-code' | 'dependency' }[]
 }
 
-const CODE = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs', '.go', '.py', '.graphql', '.gql'])
+const CODE = new Set([...SCRIPT_EXTENSIONS, ...HELPER_EXTENSIONS, '.graphql', '.gql'])
 
 function percent(ratio: number): string {
   return `${Math.round(ratio * 100)}%`

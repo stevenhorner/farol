@@ -12,6 +12,8 @@ export const BASE_API_DIR = join(FIXTURES_DIR, '_base-api')
 export const BASE_GO_DIR = join(FIXTURES_DIR, '_base-go')
 /** Python scenarios (`p1-…`) start from a small FastAPI project (src layout). */
 export const BASE_PY_DIR = join(FIXTURES_DIR, '_base-py')
+/** C# scenarios (`c1-…`) start from a small ASP.NET Core solution (web project, class library, test project). */
+export const BASE_CS_DIR = join(FIXTURES_DIR, '_base-cs')
 
 let clock = 0
 
@@ -101,7 +103,7 @@ export function createScenarioRepo(scenario: string): ScenarioRepo {
   const scenarioDir = join(FIXTURES_DIR, scenario)
   if (!existsSync(scenarioDir)) throw new Error(`fixture ${scenario} not found in ${FIXTURES_DIR}`)
   const repo = createRepo()
-  repo.overlay(/^b\d/.test(scenario) ? BASE_API_DIR : /^g\d/.test(scenario) ? BASE_GO_DIR : /^p\d/.test(scenario) ? BASE_PY_DIR : BASE_APP_DIR)
+  repo.overlay(/^b\d/.test(scenario) ? BASE_API_DIR : /^g\d/.test(scenario) ? BASE_GO_DIR : /^p\d/.test(scenario) ? BASE_PY_DIR : /^c\d/.test(scenario) ? BASE_CS_DIR : BASE_APP_DIR)
   repo.overlay(join(scenarioDir, 'base'))
   const base = repo.commit('base')
   repo.git('checkout', '-q', '-b', 'feature')

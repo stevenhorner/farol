@@ -1,9 +1,12 @@
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { isAbsolute } from 'node:path'
+import { HELPER_EXTENSIONS, HELPER_LANGUAGES, type HelperLanguage } from '../config/languages.js'
 import type { ChangedFile } from '../git/types.js'
 import type { CoverageSignal, LintSignal, SecurityFinding, SecuritySignal, Signals, VulnerabilitiesSignal } from '../output/schema.js'
 import { compareStrings } from '../output/order.js'
 import { isCoveragePyReport, isPipAuditReport, isRuffReport, parseCoveragePyReport, parsePipAuditReport, parseRuffReport, pythonSuppressions } from '../signals/python.js'
+import { csharpSuppressions, isCoberturaJson, isCoverletReport, isDotnetAuditReport, isSarifReport, parseCoberturaJson, parseCoverletReport, parseDotnetAuditReport, parseSarifReport } from '../signals/dotnet.js'
+import { sqlFindings } from '../signals/sql.js'
 import { goSuppressions, isGolangciReport, isGovulncheckReport, parseGoCoverProfile, parseGolangciReport, parseGovulncheckReport } from '../signals/go.js'
 import { isDeclarationsOnlyModule, isScriptFile } from '../classify/declarations-only.js'
 import { coverageSignal, listsUnloadedFiles, parseCoverageReport, ReportError } from '../signals/coverage.js'
@@ -32,9 +35,14 @@ export interface SignalInputs {
   audit: string | undefined
   /** Packages this PR added or changed (vulnerabilities are matched against them). */
   changedPackages: ReadonlySet<string>
-  /** Go and Python projects: the module path (Go coverprofile paths) and the comments of the changed files (suppressions). */
-  lang?: { language: 'go' | 'python' | 'typescript'; module: string; comments: readonly { file: string; line: number; text: string }[] }
+  /** Helper languages: the module path (Go coverprofile paths) and the comments of the changed files (suppressions). */
+  lang?: { language: HelperLanguage; module: string; comments: readonly HelperComment[] }
 }
+
+type HelperComment = { file: string; line: number; text: string }
+
+/** Suppressions each helper language reads from the comments of the changed files. */
+const LANGUAGE_SUPPRESSIONS: Record<HelperLanguage, typeof goSuppressions> = { go: goSuppressions, python: pythonSuppressions, csharp: csharpSuppressions }
 
 type Read = { kind: 'missing'; message: string } | { kind: 'error'; message: string } | { kind: 'ok'; text: string }
 
@@ -69,16 +77,18 @@ const SEVERITY_RANK = { high: 0, medium: 1, low: 2 } as const
  * Go and Python static analysis: gosec issues (golangci-lint) or flake8-bandit findings (ruff) on added lines. Without
  * such a report nothing was verified for those files.
  */
-function langSecurity(base: SecuritySignal, gosec: Omit<SecurityFinding, 'text'>[] | undefined, files: readonly ChangedFile[], readHead: (path: string) => string | undefined, skip: (path: string) => boolean, language: string): SecuritySignal {
-  if (gosec === undefined) {
-    const message = language === 'go' ? 'Go files are checked by gosec: give a golangci-lint JSON report (with gosec enabled) as the lint report' : 'Python files are checked by flake8-bandit: give a ruff JSON report (with the S rules selected) as the lint report'
-    return { ...base, status: 'not-provided', message }
-  }
+function langSecurity(base: SecuritySignal, gosec: Omit<SecurityFinding, 'text'>[] | undefined, files: readonly ChangedFile[], readHead: (path: string) => string | undefined, skip: (path: string) => boolean, language: HelperLanguage): SecuritySignal {
+  if (gosec === undefined) return { ...base, status: 'not-provided', message: HELPER_LANGUAGES[language].securityHint }
   const added = new Map(files.map((f) => [f.path, new Set(f.added.map((l) => l.line))]))
   const found = gosec
     .filter((g) => added.get(g.path)?.has(g.line) && !skip(g.path))
     .map((g) => ({ ...g, text: (readHead(g.path)?.split('\n')[g.line - 1] ?? '').trim().slice(0, 200) }))
   const findings = [...base.findings, ...found].sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || compareStrings(a.path, b.path) || a.line - b.line)
+  return { ...base, findings, summary: { high: findings.filter((f) => f.severity === 'high').length, medium: findings.filter((f) => f.severity === 'medium').length, low: findings.filter((f) => f.severity === 'low').length } }
+}
+
+function withFindings(base: SecuritySignal, extra: readonly SecurityFinding[]): SecuritySignal {
+  const findings = [...base.findings, ...extra].sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || compareStrings(a.path, b.path) || a.line - b.line)
   return { ...base, findings, summary: { high: findings.filter((f) => f.severity === 'high').length, medium: findings.filter((f) => f.severity === 'medium').length, low: findings.filter((f) => f.severity === 'low').length } }
 }
 
@@ -93,7 +103,11 @@ export function computeSignals(ctx: Context, inputs: SignalInputs): Signals {
       const goProfile = inputs.lang !== undefined && cov.text.startsWith('mode:')
       const report = goProfile
         ? parseGoCoverProfile(cov.text, inputs.lang?.module ?? '', ctx.projectPrefix)
-        : isCoveragePyReport(cov.text)
+        : isCoverletReport(cov.text)
+          ? parseCoverletReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical)
+          : isCoberturaJson(cov.text)
+            ? parseCoberturaJson(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical)
+            : isCoveragePyReport(cov.text)
           ? parseCoveragePyReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical)
           : parseCoverageReport(cov.text, ctx.repoRoot, ctx.projectPrefix, canonical)
       coverage = coverageSignal(report, inputs.files, inputs.roleOf, inputs.coverageIgnored, {
@@ -107,7 +121,7 @@ export function computeSignals(ctx: Context, inputs: SignalInputs): Signals {
 
   let lint: LintSignal
   let gosec: Omit<SecurityFinding, 'text'>[] | undefined
-  const es = readReport(inputs.eslint, inputs.lang ? (inputs.lang.language === 'go' ? 'golangci-lint' : 'ruff') : 'ESLint', 'eslint')
+  const es = readReport(inputs.eslint, inputs.lang ? HELPER_LANGUAGES[inputs.lang.language].lintTool : 'ESLint', 'eslint')
   if (es.kind === 'missing') lint = lintNotProvided(es.message)
   else if (es.kind === 'error') lint = { ...lintNotProvided(es.message), status: 'error' }
   else {
@@ -115,6 +129,10 @@ export function computeSignals(ctx: Context, inputs: SignalInputs): Signals {
       if (isGolangciReport(es.text)) {
         const parsed = parseGolangciReport(es.text, ctx.repoRoot, ctx.projectPrefix, canonical)
         gosec = parsed.gosec
+        lint = lintSignal(parsed.messages, inputs.files)
+      } else if (isSarifReport(es.text)) {
+        const parsed = parseSarifReport(es.text, ctx.repoRoot, ctx.projectPrefix, canonical)
+        gosec = parsed.sast
         lint = lintSignal(parsed.messages, inputs.files)
       } else if (isRuffReport(es.text)) {
         const parsed = parseRuffReport(es.text, ctx.repoRoot, ctx.projectPrefix, canonical)
@@ -132,7 +150,7 @@ export function computeSignals(ctx: Context, inputs: SignalInputs): Signals {
   else if (au.kind === 'error') vulnerabilities = { ...vulnerabilitiesNotProvided(au.message), status: 'error' }
   else {
     try {
-      const report = isGovulncheckReport(au.text) ? parseGovulncheckReport(au.text) : isPipAuditReport(au.text) ? parsePipAuditReport(au.text) : parseAuditReport(au.text)
+      const report = isGovulncheckReport(au.text) ? parseGovulncheckReport(au.text) : isPipAuditReport(au.text) ? parsePipAuditReport(au.text) : isDotnetAuditReport(au.text) ? parseDotnetAuditReport(au.text) : parseAuditReport(au.text)
       vulnerabilities = vulnerabilitiesSignal(report, inputs.changedPackages)
     } catch (error) {
       vulnerabilities = { ...vulnerabilitiesNotProvided(asError(error)), status: 'error' }
@@ -143,13 +161,16 @@ export function computeSignals(ctx: Context, inputs: SignalInputs): Signals {
     const role = inputs.roleOf(path)
     return role === 'test' || role === 'story' || role === 'excluded'
   }
-  // The TypeScript readers never see Go or Python code: their suppressions come from the helper's comments, their
-  // static analysis from gosec (golangci-lint) or flake8-bandit (ruff S rules).
-  const notGo = inputs.files.filter((f) => !f.path.endsWith('.go') && !f.path.endsWith('.py'))
-  const suppressions = suppressionsSignal(notGo, inputs.readHead)
-  let security = securitySignal(notGo, inputs.readHead, notCode)
+  // The TypeScript readers never see code of a helper language: its suppressions come from the helper's comments, its
+  // static analysis from the language's linter (gosec through golangci-lint, flake8-bandit through ruff's S rules).
+  const scripts = inputs.files.filter((f) => !HELPER_EXTENSIONS.some((e) => f.path.endsWith(e)))
+  const suppressions = suppressionsSignal(scripts, inputs.readHead)
+  let security = securitySignal(scripts, inputs.readHead, notCode)
+  // Destructive SQL (DROP, TRUNCATE, DELETE without WHERE…) in any language: database scripts ship with the app.
+  const sql = sqlFindings(inputs.files, inputs.readHead, notCode)
+  if (sql.length > 0) security = withFindings(security, sql)
   if (inputs.lang) {
-    const own = inputs.lang.language === 'go' ? goSuppressions(inputs.files, inputs.lang.comments) : pythonSuppressions(inputs.files, inputs.lang.comments)
+    const own = LANGUAGE_SUPPRESSIONS[inputs.lang.language](inputs.files, inputs.lang.comments)
     suppressions.items = [...suppressions.items, ...own].sort((a, b) => compareStrings(a.path, b.path) || a.line - b.line)
     security = langSecurity(security, gosec, inputs.files, inputs.readHead, notCode, inputs.lang.language)
   }

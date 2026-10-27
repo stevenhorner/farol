@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 1,
+  "surface": "backend",
+  "tool": {
+    "name": "farol",
+    "version": "<version>"
+  },
+  "repo": null,
+  "pr": null,
+  "base": {
+    "ref": "main",
+    "sha": "<base>"
+  },
+  "mergeBase": "<base>",
+  "head": {
+    "ref": "feature",
+    "sha": "<head>"
+  },
+  "analyzedAt": "2026-01-15T12:00:00.000Z",
+  "classification": "touches-existing",
+  "reasons": [
+    {
+      "code": "routes-not-additive",
+      "file": "src/Shop.Web/Program.cs",
+      "detail": "entry point ANY /Home/About/{id?} was removed"
+    },
+    {
+      "code": "routes-not-additive",
+      "file": "src/Shop.Web/Program.cs",
+      "detail": "entry point ANY /Home/Index/{id?} was removed"
+    },
+    {
+      "code": "routes-not-additive",
+      "file": "src/Shop.Web/Program.cs",
+      "detail": "entry point GET /Orders/Details/{id?} was removed"
+    },
+    {
+      "code": "routes-not-additive",
+      "file": "src/Shop.Web/Program.cs",
+      "detail": "entry point GET /Orders/Index/{id?} was removed"
+    },
+    {
+      "code": "routes-not-additive",
+      "file": "src/Shop.Web/Program.cs",
+      "detail": "entry point POST /Orders/Cancel/{id?} was removed"
+    },
+    {
+      "code": "route-added",
+      "detail": "new entry point ANY /Home/About/{id:int?} (registered in src/Shop.Web/Controllers/HomeController.cs)"
+    },
+    {
+      "code": "route-added",
+      "detail": "new entry point ANY /Home/Index/{id:int?} (registered in src/Shop.Web/Controllers/HomeController.cs)"
+    },
+    {
+      "code": "route-added",
+      "detail": "new entry point GET /Orders/Details/{id:int?} (registered in src/Shop.Web/Controllers/OrdersController.cs)"
+    },
+    {
+      "code": "route-added",
+      "detail": "new entry point GET /Orders/Index/{id:int?} (registered in src/Shop.Web/Controllers/OrdersController.cs)"
+    },
+    {
+      "code": "route-added",
+      "detail": "new entry point POST /Orders/Cancel/{id:int?} (registered in src/Shop.Web/Controllers/OrdersController.cs)"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/Shop.Web/Program.cs",
+      "status": "modified",
+      "role": "source",
+      "linesAdded": 1,
+      "linesRemoved": 1,
+      "additive": false
+    }
+  ],
+  "ignoredFiles": [],
+  "dependencies": {
+    "manifests": [],
+    "lockfiles": [],
+    "changes": [],
+    "summary": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "patch": 0,
+      "added": 0,
+      "removed": 0
+    }
+  },
+  "risk": {
+    "totalPages": 15,
+    "files": [
+      {
+        "path": "src/Shop.Web/Program.cs",
+        "change": "modified",
+        "level": "low",
+        "directImporters": 0,
+        "transitiveDependents": 0,
+        "centrality": 0,
+        "pagesReached": 0,
+        "routesReached": 0,
+        "why": "nothing imports it"
+      }
+    ],
+    "summary": {
+      "high": 0,
+      "medium": 0,
+      "low": 1
+    }
+  },
+  "routes": {
+    "added": [
+      {
+        "key": "ANY /Home/About/{id:int?}",
+        "path": "ANY /Home/About/{id:int?}",
+        "entry": "src/Shop.Web/Controllers/HomeController.cs",
+        "hasChildren": false
+      },
+      {
+        "key": "ANY /Home/Index/{id:int?}",
+        "path": "ANY /Home/Index/{id:int?}",
+        "entry": "src/Shop.Web/Controllers/HomeController.cs",
+        "hasChildren": false
+      },
+      {
+        "key": "GET /Orders/Details/{id:int?}",
+        "path": "GET /Orders/Details/{id:int?}",
+        "entry": "src/Shop.Web/Controllers/OrdersController.cs",
+        "hasChildren": false
+      },
+      {
+        "key": "GET /Orders/Index/{id:int?}",
+        "path": "GET /Orders/Index/{id:int?}",
+        "entry": "src/Shop.Web/Controllers/OrdersController.cs",
+        "hasChildren": false
+      },
+      {
+        "key": "POST /Orders/Cancel/{id:int?}",
+        "path": "POST /Orders/Cancel/{id:int?}",
+        "entry": "src/Shop.Web/Controllers/OrdersController.cs",
+        "hasChildren": false
+      }
+    ],
+    "affected": [],
+    "disconnectedNewFiles": []
+  },
+  "signals": {
+    "coverage": {
+      "status": "not-provided",
+      "message": "no coverage report given (--coverage or signals.coverage)",
+      "files": [],
+      "total": null,
+      "ignoredFiles": []
+    },
+    "lint": {
+      "status": "not-provided",
+      "message": "no SARIF report given (--eslint or signals.eslint)",
+      "changedLines": null,
+      "otherLines": null,
+      "findings": [],
+      "omittedFindings": 0
+    },
+    "security": {
+      "status": "not-provided",
+      "findings": [],
+      "summary": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "message": "C# files are checked by the .NET security analyzers (CA2100, CA3xxx, CA5xxx) or Security Code Scan: give their SARIF report as the lint report"
+    },
+    "vulnerabilities": {
+      "status": "not-provided",
+      "message": "no audit report given (--audit or signals.audit)",
+      "related": [],
+      "total": null
+    },
+    "suppressions": {
+      "status": "ok",
+      "items": []
+    },
+    "testsModified": {
+      "status": "ok",
+      "files": []
+    }
+  },
+  "diagnostics": {
+    "unresolvedImports": [],
+    "dynamicRoutes": [],
+    "parseErrors": [],
+    "timingsMs": {
+      "diff": 0,
+      "helperSetup": 0,
+      "helperRead": 0,
+      "base": 0,
+      "classify": 0,
+      "signals": 0,
+      "diffs": 0
+    },
+    "error": null
+  },
+  "review": null,
+  "contracts": {
+    "readable": 7,
+    "entries": [
+      {
+        "key": "ANY /Home/About/{id?}",
+        "level": "breaking",
+        "changes": [
+          {
+            "level": "breaking",
+            "where": "endpoint",
+            "detail": "endpoint removed (or its method or path changed)"
+          }
+        ],
+        "omitted": 0
+      },
+      {
+        "key": "ANY /Home/Index/{id?}",
+        "level": "breaking",
+        "changes": [
+          {
+            "level": "breaking",
+            "where": "endpoint",
+            "detail": "endpoint removed (or its method or path changed)"
+          }
+        ],
+        "omitted": 0
+      },
+      {
+        "key": "GET /Orders/Details/{id?}",
+        "level": "breaking",
+        "changes": [
+          {
+            "level": "breaking",
+            "where": "endpoint",
+            "detail": "endpoint removed (or its method or path changed)"
+          }
+        ],
+        "omitted": 0
+      },
+      {
+        "key": "GET /Orders/Index/{id?}",
+        "level": "breaking",
+        "changes": [
+          {
+            "level": "breaking",
+            "where": "endpoint",
+            "detail": "endpoint removed (or its method or path changed)"
+          }
+        ],
+        "omitted": 0
+      },
+      {
+        "key": "POST /Orders/Cancel/{id?}",
+        "level": "breaking",
+        "changes": [
+          {
+            "level": "breaking",
+            "where": "endpoint",
+            "detail": "endpoint removed (or its method or path changed)"
+          }
+        ],
+        "omitted": 0
+      }
+    ],
+    "summary": {
+      "breaking": 5,
+      "dangerous": 0,
+      "safe": 0
+    }
+  }
+}

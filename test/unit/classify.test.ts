@@ -49,9 +49,9 @@ describe('classify', () => {
     expect(r.reasons[0]).toEqual({ code: 'existing-file-unreachable', file: 'src/README.md', detail: 'modified, and it is not part of the import graph' })
   })
 
-  it('applies the i18n rule only to JSON files', () => {
+  it('applies the i18n rule only to JSON and .resx files', () => {
     const r = run({ files: [file('src/locales/pt.ts', 'modified')], roleOf: () => 'i18n', baseText: new Map([['src/locales/pt.ts', 'x']]), headText: new Map([['src/locales/pt.ts', 'y']]) })
-    expect(r.reasons[0]?.detail).toBe('the i18n rule only applies to JSON files')
+    expect(r.reasons[0]?.detail).toBe('the i18n rule only applies to JSON and .resx files')
     expect(r.classification).toBe('touches-existing')
   })
 
